@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import type { Prisma } from "@prisma/client"
 import bcrypt from "bcryptjs"
 
 import { authOptions } from "@/lib/auth"
@@ -56,7 +55,7 @@ export async function DELETE(req: Request) {
       where: { organizationId },
     })
 
-    await db.$transaction(async (tx: Prisma.TransactionClient) => {
+    await db.$transaction(async (tx) => {
       if (memberCount === 1) {
         await tx.organization.delete({
           where: { id: organizationId },
