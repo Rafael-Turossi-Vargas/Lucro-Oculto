@@ -2,18 +2,19 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { CheckCircle, Circle, Clock, ChevronDown, ChevronUp, Upload, ClipboardList } from "lucide-react"
+import { CheckCircle, Circle, Clock, ChevronDown, ChevronUp, Upload, ClipboardList, Trophy, Zap } from "lucide-react"
 import { useAnalysisData } from "@/hooks/useAnalysisData"
 import { CardSkeleton } from "@/components/ui/skeletons"
 import { AccessGuard } from "@/components/auth/AccessGuard"
 
-const IMPACT_COLOR: Record<string, string> = { high: "#FF4D4F", medium: "#F59E0B", low: "#8B8FA8" }
 const URGENCY_LABEL: Record<string, string> = { immediate: "Imediato", soon: "Em breve", monitor: "Monitorar" }
 const URGENCY_COLOR: Record<string, string> = { immediate: "#FF4D4F", soon: "#F59E0B", monitor: "#8B8FA8" }
 const DIFF_LABEL: Record<string, string> = { easy: "Fácil", medium: "Médio", hard: "Difícil" }
+const DIFF_COLOR: Record<string, string> = { easy: "#00D084", medium: "#F59E0B", hard: "#FF4D4F" }
+const IMPACT_COLOR: Record<string, string> = { high: "#FF4D4F", medium: "#F59E0B", low: "#8B8FA8" }
 
-function formatCurrency(value: number) {
-  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })
+function fmt(v: number) {
+  return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })
 }
 
 type ItemStatus = "pending" | "in_progress" | "done"
@@ -34,8 +35,8 @@ function ActionPlanContent() {
   if (loading) {
     return (
       <div className="px-6 py-8 space-y-4">
+        <CardSkeleton rows={1} />
         <CardSkeleton rows={5} />
-        <CardSkeleton rows={3} />
       </div>
     )
   }
@@ -43,23 +44,21 @@ function ActionPlanContent() {
   if (!data?.analysis) {
     return (
       <div className="px-6 py-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-black" style={{ color: "#F4F4F5" }}>Plano de ação</h1>
-        </div>
+        <h1 className="text-2xl font-black mb-6" style={{ color: "#F4F4F5" }}>Plano de ação</h1>
         <div className="rounded-2xl p-12 text-center" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-          <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.15)" }}>
+          <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+            style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.15)" }}>
             <ClipboardList className="w-8 h-8" style={{ color: "#3B82F6" }} />
           </div>
           <p className="text-base font-bold mb-1" style={{ color: "#F4F4F5" }}>Nenhum plano de ação gerado</p>
-          <p className="text-sm mb-2" style={{ color: "#8B8FA8" }}>Faça upload do extrato bancário para receber um plano de ação personalizado.</p>
-          <p className="text-xs mb-6 px-4" style={{ color: "#4B4F6A" }}>Empresas que usam o Lucro Oculto economizam em média <span style={{ color: "#00D084", fontWeight: 700 }}>R$4.800/mês</span></p>
-          <Link
-            href="/app/upload"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm"
-            style={{ background: "#00D084", color: "#0F1117" }}
-          >
-            <Upload className="w-4 h-4" />
-            Fazer primeiro upload
+          <p className="text-sm mb-2" style={{ color: "#8B8FA8" }}>Faça upload do extrato bancário para receber um plano personalizado.</p>
+          <p className="text-xs mb-6 px-4" style={{ color: "#4B4F6A" }}>
+            Empresas que usam o Lucro Oculto economizam em média{" "}
+            <span style={{ color: "#00D084", fontWeight: 700 }}>R$4.800/mês</span>
+          </p>
+          <Link href="/app/upload" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm"
+            style={{ background: "#00D084", color: "#0F1117" }}>
+            <Upload className="w-4 h-4" /> Fazer primeiro upload
           </Link>
         </div>
       </div>
@@ -80,72 +79,106 @@ function ActionPlanContent() {
   }))
 
   const doneCount = actions.filter((a) => (statuses[a.id] ?? "pending") === "done").length
+  const inProgressCount = actions.filter((a) => (statuses[a.id] ?? "pending") === "in_progress").length
   const totalSavings = actions.reduce((s, a) => s + a.savingsEstimate, 0)
   const capturedSavings = actions
     .filter((a) => (statuses[a.id] ?? "pending") === "done")
     .reduce((s, a) => s + a.savingsEstimate, 0)
+  const pct = totalSavings > 0 ? Math.round((capturedSavings / totalSavings) * 100) : 0
+  const easyImmediate = actions.filter(a => a.difficulty === "easy" && a.urgency === "immediate" && (statuses[a.id] ?? "pending") !== "done")
 
   return (
-    <div className="px-6 py-8">
-      <div className="mb-6">
+    <div className="px-6 py-8 space-y-6">
+
+      {/* Header */}
+      <div>
         <h1 className="text-2xl font-black" style={{ color: "#F4F4F5" }}>Plano de ação</h1>
         <p className="text-sm mt-0.5" style={{ color: "#8B8FA8" }}>
-          {actions.length} ações prioritárias para maximizar sua economia
+          {actions.length} ações · potencial de{" "}
+          <span style={{ color: "#00D084", fontWeight: 700 }}>{fmt(totalSavings)}/mês</span>
         </p>
       </div>
 
       {actions.length === 0 ? (
         <div className="rounded-2xl p-10 text-center" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-          <CheckCircle className="w-10 h-10 mx-auto mb-3" style={{ color: "#2A2D3A" }} />
+          <Trophy className="w-10 h-10 mx-auto mb-3" style={{ color: "#00D084" }} />
           <p className="text-sm font-medium" style={{ color: "#8B8FA8" }}>Nenhuma ação recomendada</p>
           <p className="text-xs mt-1" style={{ color: "#4B4F6A" }}>Sua gestão financeira está em boa forma</p>
         </div>
       ) : (
         <>
-          {/* Progress */}
-          <div className="rounded-2xl p-5 mb-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-            <div className="flex items-center justify-between mb-3">
+          {/* Progress card */}
+          <div className="rounded-2xl p-5"
+            style={{
+              background: doneCount === actions.length && actions.length > 0
+                ? "rgba(0,208,132,0.06)"
+                : "#1A1D27",
+              border: doneCount === actions.length && actions.length > 0
+                ? "1px solid rgba(0,208,132,0.25)"
+                : "1px solid #2A2D3A",
+            }}>
+            <div className="flex items-center justify-between mb-4">
               <div>
                 <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>
                   {doneCount} de {actions.length} ações concluídas
                 </p>
                 <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>
-                  Economia capturada: {formatCurrency(capturedSavings)}/mês
+                  Economia capturada:{" "}
+                  <span style={{ color: "#00D084", fontWeight: 700 }}>{fmt(capturedSavings)}/mês</span>
+                  {capturedSavings > 0 && (
+                    <span style={{ color: "#4B4F6A" }}> · {fmt(capturedSavings * 12)}/ano</span>
+                  )}
                 </p>
               </div>
-              <p className="text-2xl font-black" style={{ color: "#00D084" }}>
-                {totalSavings > 0 ? Math.round((capturedSavings / totalSavings) * 100) : 0}%
+              <div className="text-right">
+                <p className="text-2xl font-black" style={{ color: pct === 100 ? "#00D084" : "#F4F4F5" }}>{pct}%</p>
+                {inProgressCount > 0 && (
+                  <p className="text-[10px]" style={{ color: "#F59E0B" }}>{inProgressCount} em andamento</p>
+                )}
+              </div>
+            </div>
+            <div className="h-2 rounded-full overflow-hidden" style={{ background: "#212435" }}>
+              <div className="h-full rounded-full transition-all duration-700"
+                style={{ width: `${pct}%`, background: "#00D084" }} />
+            </div>
+            {totalSavings > capturedSavings && (
+              <p className="text-[10px] mt-1.5" style={{ color: "#4B4F6A" }}>
+                {fmt(totalSavings - capturedSavings)}/mês ainda disponíveis — {actions.length - doneCount} ações restantes
               </p>
-            </div>
-            <div className="h-2 rounded-full" style={{ background: "#2A2D3A" }}>
-              <div
-                className="h-full rounded-full transition-all duration-500"
-                style={{
-                  width: `${totalSavings > 0 ? (capturedSavings / totalSavings) * 100 : 0}%`,
-                  background: "#00D084",
-                }}
-              />
-            </div>
+            )}
           </div>
 
-          {/* Actions */}
-          <div className="space-y-3">
+          {/* Quick wins banner */}
+          {easyImmediate.length > 0 && (
+            <div className="flex items-center gap-3 p-4 rounded-xl"
+              style={{ background: "rgba(255,77,79,0.06)", border: "1px solid rgba(255,77,79,0.2)" }}>
+              <Zap className="w-4 h-4 shrink-0" style={{ color: "#FF4D4F" }} />
+              <p className="text-sm" style={{ color: "#F4F4F5" }}>
+                <span className="font-bold" style={{ color: "#FF4D4F" }}>{easyImmediate.length} ação{easyImmediate.length > 1 ? "ões" : ""} imediata{easyImmediate.length > 1 ? "s" : ""} e fácil{easyImmediate.length > 1 ? "eis" : ""}</span>
+                {" "}— execute agora para resultado rápido.
+              </p>
+            </div>
+          )}
+
+          {/* Actions list */}
+          <div className="space-y-2.5">
             {actions.map((action, index) => {
               const status = statuses[action.id] ?? "pending"
               const isExpanded = expanded === action.id
+              const borderColor = status === "done" ? "#00D084" : status === "in_progress" ? "#F59E0B" : URGENCY_COLOR[action.urgency]
 
               return (
-                <div
-                  key={action.id}
-                  className="rounded-2xl overflow-hidden transition-all"
+                <div key={action.id} className="rounded-2xl overflow-hidden transition-all"
                   style={{
                     background: status === "done" ? "rgba(0,208,132,0.04)" : "#1A1D27",
                     border: status === "done" ? "1px solid rgba(0,208,132,0.2)" : "1px solid #2A2D3A",
-                  }}
-                >
+                    borderLeft: `3px solid ${borderColor}`,
+                  }}>
                   <div className="p-5">
                     <div className="flex items-start gap-4">
-                      <button onClick={() => toggleStatus(action.id)} className="shrink-0 mt-0.5 transition-colors">
+                      {/* Status toggle */}
+                      <button onClick={() => toggleStatus(action.id)}
+                        className="shrink-0 mt-0.5 transition-transform hover:scale-110">
                         {status === "done" ? (
                           <CheckCircle className="w-5 h-5" style={{ color: "#00D084" }} />
                         ) : status === "in_progress" ? (
@@ -156,73 +189,103 @@ function ActionPlanContent() {
                       </button>
 
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-bold" style={{ color: "#4B4F6A" }}>#{index + 1}</span>
-                          <p
-                            className="text-sm font-semibold"
+                        {/* Title */}
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded"
+                            style={{ background: "#212435", color: "#4B4F6A" }}>#{index + 1}</span>
+                          <p className="text-sm font-semibold"
                             style={{
                               color: status === "done" ? "#8B8FA8" : "#F4F4F5",
                               textDecoration: status === "done" ? "line-through" : "none",
-                            }}
-                          >
+                            }}>
                             {action.title}
                           </p>
                         </div>
-                        <p className="text-xs" style={{ color: "#8B8FA8" }}>{action.description}</p>
+                        <p className="text-xs leading-relaxed mb-3" style={{ color: "#8B8FA8" }}>{action.description}</p>
 
-                        <div className="flex items-center gap-2 mt-3 flex-wrap">
-                          <span
-                            className="text-xs px-2 py-0.5 rounded-full"
-                            style={{ background: `${URGENCY_COLOR[action.urgency]}14`, color: URGENCY_COLOR[action.urgency] }}
-                          >
+                        {/* Badges row */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
+                            style={{ background: `${URGENCY_COLOR[action.urgency]}14`, color: URGENCY_COLOR[action.urgency] }}>
                             {URGENCY_LABEL[action.urgency] ?? action.urgency}
                           </span>
-                          <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: "#212435", color: "#8B8FA8" }}>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-medium"
+                            style={{ background: `${DIFF_COLOR[action.difficulty]}14`, color: DIFF_COLOR[action.difficulty] }}>
                             {DIFF_LABEL[action.difficulty] ?? action.difficulty}
                           </span>
-                          <span className="ml-auto text-sm font-bold" style={{ color: "#00D084" }}>
-                            +{formatCurrency(action.savingsEstimate)}/mês
-                          </span>
+                          <div className="ml-auto text-right">
+                            <span className="text-sm font-black" style={{ color: status === "done" ? "#8B8FA8" : "#00D084" }}>
+                              +{fmt(action.savingsEstimate)}/mês
+                            </span>
+                            <span className="text-[10px] ml-1.5" style={{ color: "#4B4F6A" }}>
+                              +{fmt(action.savingsEstimate * 12)}/ano
+                            </span>
+                          </div>
                         </div>
                       </div>
 
-                      <button
-                        onClick={() => setExpanded(isExpanded ? null : action.id)}
-                        className="shrink-0 p-1"
-                        style={{ color: "#4B4F6A" }}
-                      >
-                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      </button>
+                      {/* Expand toggle */}
+                      {action.rationale && (
+                        <button onClick={() => setExpanded(isExpanded ? null : action.id)}
+                          className="shrink-0 p-1.5 rounded-lg transition-colors"
+                          style={{ color: "#4B4F6A", background: isExpanded ? "#212435" : "transparent" }}>
+                          {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        </button>
+                      )}
                     </div>
                   </div>
 
+                  {/* Expanded rationale */}
                   {isExpanded && action.rationale && (
-                    <div className="px-5 pb-5 border-t" style={{ borderColor: "#2A2D3A" }}>
-                      <div className="pt-4 space-y-3">
+                    <div className="px-5 pb-5 pt-4 space-y-4"
+                      style={{ borderTop: "1px solid #2A2D3A" }}>
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "#4B4F6A" }}>
+                          Por que é importante
+                        </p>
+                        <p className="text-xs leading-relaxed" style={{ color: "#8B8FA8" }}>{action.rationale}</p>
+                      </div>
+                      <div className="flex gap-6">
                         <div>
-                          <p className="text-xs font-semibold mb-1" style={{ color: "#F4F4F5" }}>Por que é importante:</p>
-                          <p className="text-xs" style={{ color: "#8B8FA8" }}>{action.rationale}</p>
+                          <p className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: "#4B4F6A" }}>Impacto</p>
+                          <span className="text-xs px-2 py-0.5 rounded-full font-medium"
+                            style={{ background: `${IMPACT_COLOR[action.impact]}14`, color: IMPACT_COLOR[action.impact] }}>
+                            {action.impact === "high" ? "Alto" : action.impact === "medium" ? "Médio" : "Baixo"}
+                          </span>
                         </div>
-                        <div className="flex gap-4">
+                        {action.category && (
                           <div>
-                            <p className="text-xs font-semibold" style={{ color: "#8B8FA8" }}>Impacto</p>
-                            <p className="text-xs mt-0.5" style={{ color: IMPACT_COLOR[action.impact] }}>
-                              {action.impact === "high" ? "Alto" : action.impact === "medium" ? "Médio" : "Baixo"}
-                            </p>
+                            <p className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: "#4B4F6A" }}>Categoria</p>
+                            <span className="text-xs px-2 py-0.5 rounded-full"
+                              style={{ background: "#212435", color: "#F4F4F5" }}>
+                              {action.category}
+                            </span>
                           </div>
-                          {action.category && (
-                            <div>
-                              <p className="text-xs font-semibold" style={{ color: "#8B8FA8" }}>Categoria</p>
-                              <p className="text-xs mt-0.5" style={{ color: "#F4F4F5" }}>{action.category}</p>
-                            </div>
-                          )}
-                        </div>
+                        )}
                       </div>
                     </div>
                   )}
                 </div>
               )
             })}
+          </div>
+
+          {/* Footer */}
+          <div className="rounded-2xl p-5 flex items-center justify-between"
+            style={{ background: "rgba(0,208,132,0.04)", border: "1px solid rgba(0,208,132,0.12)" }}>
+            <div>
+              <p className="text-xs font-semibold mb-0.5" style={{ color: "#8B8FA8" }}>Potencial total do plano</p>
+              <p className="text-sm" style={{ color: "#F4F4F5" }}>
+                <span className="font-black" style={{ color: "#00D084" }}>{fmt(totalSavings)}/mês</span>
+                {" "}·{" "}
+                <span className="font-bold" style={{ color: "#00D084" }}>{fmt(totalSavings * 12)}/ano</span>
+              </p>
+            </div>
+            <Link href={`/app/analysis/${data.analysis.id}`}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold shrink-0"
+              style={{ background: "#212435", color: "#8B8FA8", border: "1px solid #2A2D3A" }}>
+              Ver análise completa
+            </Link>
           </div>
         </>
       )}

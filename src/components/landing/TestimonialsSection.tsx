@@ -1,6 +1,6 @@
 "use client"
 
-import { Star, Quote } from "lucide-react"
+import { Star } from "lucide-react"
 
 const testimonials = [
   {
@@ -38,15 +38,32 @@ const testimonials = [
 export function TestimonialsSection() {
   return (
     <section
-      className="py-24"
-      style={{ background: "#1A1D27", borderTop: "1px solid #2A2D3A", borderBottom: "1px solid #2A2D3A" }}
+      className="py-16 relative overflow-hidden"
+      style={{
+        background: "linear-gradient(180deg, #1A1D27 0%, #1C1F2E 100%)",
+        borderTop: "1px solid #2A2D3A",
+        borderBottom: "1px solid #2A2D3A",
+      }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Subtle background glow */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0,208,132,0.05) 0%, transparent 70%)",
+        }}
+      />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-14">
+        <div className="text-center mb-10">
           <span
-            className="inline-block text-xs font-semibold uppercase tracking-widest mb-3 px-3 py-1 rounded-full"
-            style={{ color: "#00D084", background: "rgba(0,208,132,0.08)", border: "1px solid rgba(0,208,132,0.15)" }}
+            className="inline-block text-xs font-semibold uppercase tracking-widest mb-4 px-3 py-1.5 rounded-full"
+            style={{
+              color: "#00D084",
+              background: "rgba(0,208,132,0.08)",
+              border: "1px solid rgba(0,208,132,0.18)",
+            }}
           >
             Resultados reais
           </span>
@@ -66,43 +83,77 @@ export function TestimonialsSection() {
           {testimonials.map((t, i) => (
             <div
               key={i}
-              className="rounded-2xl p-6 flex flex-col transition-all duration-300"
-              style={{ background: "#0F1117", border: "1px solid #2A2D3A" }}
+              className="rounded-2xl p-7 flex flex-col transition-all duration-300 relative overflow-hidden group"
+              style={{
+                background: `linear-gradient(160deg, ${t.color}0D 0%, rgba(15,17,23,0) 60%)`,
+                border: `1px solid ${t.color}28`,
+                boxShadow: `0 4px 24px ${t.color}08`,
+              }}
               onMouseOver={(e) => {
-                e.currentTarget.style.borderColor = t.color + "55"
-                e.currentTarget.style.boxShadow = `0 8px 32px ${t.color}12`
-                e.currentTarget.style.transform = "translateY(-2px)"
+                e.currentTarget.style.borderColor = t.color + "50"
+                e.currentTarget.style.boxShadow = `0 12px 40px ${t.color}18`
+                e.currentTarget.style.transform = "translateY(-3px)"
               }}
               onMouseOut={(e) => {
-                e.currentTarget.style.borderColor = "#2A2D3A"
-                e.currentTarget.style.boxShadow = "none"
+                e.currentTarget.style.borderColor = t.color + "28"
+                e.currentTarget.style.boxShadow = `0 4px 24px ${t.color}08`
                 e.currentTarget.style.transform = "translateY(0)"
               }}
             >
-              {/* Stars */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex gap-0.5">
+              {/* Decorative large quote mark background element */}
+              <div
+                className="absolute top-4 right-5 text-[7rem] font-serif leading-none pointer-events-none select-none"
+                style={{
+                  color: t.color,
+                  opacity: 0.07,
+                  fontFamily: "Georgia, serif",
+                  lineHeight: 1,
+                }}
+              >
+                &ldquo;
+              </div>
+
+              {/* Stars with pill bg */}
+              <div className="flex items-center justify-between mb-5">
+                <div
+                  className="inline-flex items-center gap-0.5 px-2.5 py-1 rounded-full"
+                  style={{
+                    background: "rgba(245,158,11,0.1)",
+                    border: "1px solid rgba(245,158,11,0.2)",
+                  }}
+                >
                   {Array.from({ length: 5 }).map((_, j) => (
-                    <Star key={j} className="w-4 h-4 fill-current" style={{ color: "#F59E0B" }} />
+                    <Star key={j} className="w-3.5 h-3.5 fill-current" style={{ color: "#F59E0B" }} />
                   ))}
                 </div>
-                <Quote className="w-5 h-5 opacity-20" style={{ color: t.color }} />
               </div>
 
               {/* Quote */}
-              <p className="text-sm leading-relaxed flex-1 mb-6 italic" style={{ color: "#8B8FA8" }}>
+              <p
+                className="text-base leading-relaxed flex-1 mb-6 relative z-10"
+                style={{ color: "#D4D4D8", fontStyle: "italic" }}
+              >
                 &ldquo;{t.quote}&rdquo;
               </p>
 
-              {/* Saving highlight */}
+              {/* Savings highlight — prominent at bottom */}
               <div
-                className="mb-5 px-4 py-3 rounded-xl"
-                style={{ background: `${t.color}10`, border: `1px solid ${t.color}28` }}
+                className="mb-5 px-4 py-4 rounded-xl"
+                style={{
+                  background: `linear-gradient(135deg, ${t.color}14 0%, ${t.color}08 100%)`,
+                  border: `1px solid ${t.color}30`,
+                }}
               >
-                <p className="text-2xl font-extrabold font-mono" style={{ color: t.color }}>
+                <p
+                  className="text-3xl font-extrabold font-mono"
+                  style={{
+                    color: t.color,
+                    textShadow: `0 0 20px ${t.color}40`,
+                  }}
+                >
                   {t.saving}
                 </p>
-                <p className="text-xs mt-0.5" style={{ color: "#4B4F6A" }}>
+                <p className="text-xs mt-0.5 font-medium" style={{ color: "#8B8FA8" }}>
                   {t.period}
                 </p>
               </div>
@@ -111,12 +162,19 @@ export function TestimonialsSection() {
               <div className="flex items-center gap-3">
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs shrink-0"
-                  style={{ background: `${t.color}18`, border: `1px solid ${t.color}35`, color: t.color }}
+                  style={{
+                    background: `linear-gradient(135deg, ${t.color}20 0%, ${t.color}10 100%)`,
+                    border: `1px solid ${t.color}40`,
+                    color: t.color,
+                    boxShadow: `0 0 10px ${t.color}20`,
+                  }}
                 >
                   {t.initials}
                 </div>
                 <div>
-                  <p className="font-semibold text-sm" style={{ color: "#F4F4F5" }}>{t.name}</p>
+                  <p className="font-semibold text-sm" style={{ color: "#F4F4F5" }}>
+                    {t.name}
+                  </p>
                   <p className="text-xs" style={{ color: "#4B4F6A" }}>
                     {t.role} · {t.company}
                   </p>

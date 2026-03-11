@@ -38,11 +38,21 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const { data: session } = useSession()
   const [notifOpen, setNotifOpen] = useState(false)
   const [alertCount, setAlertCount] = useState(0)
+  const [quickScore, setQuickScore] = useState<number | null>(null)
+  const [quickLeaks, setQuickLeaks] = useState<number | null>(null)
 
   useEffect(() => {
     fetch("/api/app/dashboard").then(r => r.json()).then((d: unknown) => {
-      const data = d as { analysis?: { alerts?: { isDismissed?: boolean }[] } } | null
+      const data = d as {
+        analysis?: {
+          alerts?: { isDismissed?: boolean }[]
+          score?: number
+          insights?: { type: string }[]
+        }
+      } | null
       setAlertCount(data?.analysis?.alerts?.filter((a) => !a.isDismissed)?.length ?? 0)
+      if (data?.analysis?.score != null) setQuickScore(data.analysis.score)
+      if (data?.analysis?.insights) setQuickLeaks(data.analysis.insights.filter(i => i.type === "leak").length)
     }).catch(() => {})
   }, [])
 
@@ -160,6 +170,32 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           </Link>
         )}
       </nav>
+
+      {/* ── Item 11: Quick summary mini card ───────────────────────────────── */}
+      {quickScore !== null && (
+        <div className="px-3 pb-2">
+          <Link href="/app/dashboard"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors hover:opacity-80"
+            style={{ background: "#212435", border: "1px solid #2A2D3A" }}>
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg shrink-0 font-black text-sm"
+              style={{
+                background: quickScore >= 75 ? "rgba(0,208,132,0.12)" : quickScore >= 50 ? "rgba(245,158,11,0.12)" : "rgba(255,77,79,0.12)",
+                color: quickScore >= 75 ? "#00D084" : quickScore >= 50 ? "#F59E0B" : "#FF4D4F",
+              }}>
+              {quickScore}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-semibold leading-tight" style={{ color: "#F4F4F5" }}>Score atual</p>
+              {quickLeaks !== null && quickLeaks > 0 && (
+                <p className="text-[10px]" style={{ color: "#FF4D4F" }}>{quickLeaks} vazamento{quickLeaks > 1 ? "s" : ""} ativo{quickLeaks > 1 ? "s" : ""}</p>
+              )}
+              {quickLeaks === 0 && (
+                <p className="text-[10px]" style={{ color: "#00D084" }}>Sem vazamentos</p>
+              )}
+            </div>
+          </Link>
+        </div>
+      )}
 
       <div className="px-3 pb-3">
         {isAdmin ? (

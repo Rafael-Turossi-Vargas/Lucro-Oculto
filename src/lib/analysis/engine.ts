@@ -1,4 +1,5 @@
 import type { Prisma } from "@prisma/client"
+import Anthropic from "@anthropic-ai/sdk"
 import { db } from "@/lib/db"
 import { sendAnalysisReadyEmail } from "@/lib/email/templates"
 import type { RawTransaction } from "@/types/transactions"
@@ -20,6 +21,253 @@ type EnrichedTransaction = RawTransaction & {
   amount: number
   categorySlug: string
   vendor: string
+}
+
+type AILeak = {
+  title: string
+  description: string
+  category: string
+  impact: "high" | "medium" | "low"
+  amount: number
+}
+
+type AIOpportunity = {
+  title: string
+  description: string
+  savingsEstimate: number
+  impact: "high" | "medium" | "low"
+  urgency: "immediate" | "soon" | "monitor"
+}
+
+type AIAlert = {
+  type: string
+  severity: "critical" | "warning" | "info"
+  title: string
+  message: string
+  amount: number
+}
+
+type AIRecommendation = {
+  title: string
+  description: string
+  urgency: "immediate" | "soon" | "monitor"
+  difficulty: "easy" | "medium" | "hard"
+  savingsEstimate: number
+  impact: "high" | "medium" | "low"
+  category: string
+  priority: number
+}
+
+type AIAnalysisResult = {
+  leaks: AILeak[]
+  opportunities: AIOpportunity[]
+  alerts: AIAlert[]
+  recommendations: AIRecommendation[]
+}
+
+async function analyzeWithAI(
+  transactions: EnrichedTransaction[],
+  orgName: string,
+  niche: string | null
+): Promise<AIAnalysisResult> {
+  const empty: AIAnalysisResult = { leaks: [], opportunities: [], alerts: [], recommendations: [] }
+
+  if (!process.env.ANTHROPIC_API_KEY || transactions.length === 0) return empty
+
+  try {
+    // Pre-compute financial summary to enrich the prompt
+    const expenses = transactions.filter((t) => t.amount < 0)
+    const income = transactions.filter((t) => t.amount > 0)
+    const totalExpenses = expenses.reduce((s, t) => s + Math.abs(t.amount), 0)
+    const totalIncome = income.reduce((s, t) => s + t.amount, 0)
+    const netResult = totalIncome - totalExpenses
+
+    // Top vendors by spend
+    const vendorMap = new Map<string, { total: number; count: number; dates: string[] }>()
+    for (const t of expenses) {
+      const key = t.vendor || t.description.slice(0, 50)
+      const cur = vendorMap.get(key) ?? { total: 0, count: 0, dates: [] }
+      vendorMap.set(key, {
+        total: cur.total + Math.abs(t.amount),
+        count: cur.count + 1,
+        dates: [...cur.dates, t.date.slice(0, 10)].slice(-5),
+      })
+    }
+    const topVendors = [...vendorMap.entries()]
+      .sort((a, b) => b[1].total - a[1].total)
+      .slice(0, 20)
+      .map(([v, d]) => `  • ${v}: R$ ${d.total.toFixed(2)} (${d.count}x) — datas: ${d.dates.join(", ")}`)
+      .join("\n")
+
+    // Category totals
+    const catMap = new Map<string, number>()
+    for (const t of expenses) {
+      catMap.set(t.categorySlug, (catMap.get(t.categorySlug) ?? 0) + Math.abs(t.amount))
+    }
+    const catSummary = [...catMap.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([c, v]) => `  • ${c}: R$ ${v.toFixed(2)} (${totalExpenses > 0 ? ((v / totalExpenses) * 100).toFixed(1) : 0}%)`)
+      .join("\n")
+
+    // Date range
+    const sortedDates = transactions
+      .map((t) => new Date(t.date))
+      .sort((a, b) => a.getTime() - b.getTime())
+    const periodStart = sortedDates[0]?.toLocaleDateString("pt-BR") ?? "?"
+    const periodEnd = sortedDates[sortedDates.length - 1]?.toLocaleDateString("pt-BR") ?? "?"
+    const periodDays =
+      sortedDates.length > 1
+        ? Math.ceil((sortedDates[sortedDates.length - 1].getTime() - sortedDates[0].getTime()) / 86400000)
+        : 1
+
+    // All individual transactions (send all if ≤500, otherwise top vendors + sample)
+    let transactionList: string
+    if (transactions.length <= 500) {
+      transactionList = transactions
+        .map((t) => `${t.date.slice(0, 10)} | ${t.description} | ${t.amount >= 0 ? "+" : ""}${t.amount.toFixed(2)}`)
+        .join("\n")
+    } else {
+      transactionList =
+        `[RESUMO — ${transactions.length} transações — exibindo top 150 por valor]\n` +
+        [...transactions]
+          .sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount))
+          .slice(0, 150)
+          .map((t) => `${t.date.slice(0, 10)} | ${t.description} | ${t.amount >= 0 ? "+" : ""}${t.amount.toFixed(2)}`)
+          .join("\n")
+    }
+
+    const prompt = `Você é um CFO sênior com 20 anos de experiência em diagnóstico financeiro para PMEs brasileiras. Sua análise deve ser precisa, baseada em dados reais e extremamente útil para o gestor tomar decisões.
+
+═══════════════════════════════════════════
+DADOS DA EMPRESA
+═══════════════════════════════════════════
+Empresa: ${orgName}${niche ? ` | Setor: ${niche}` : ""}
+Período analisado: ${periodStart} a ${periodEnd} (${periodDays} dias)
+Total de transações: ${transactions.length}
+
+RESUMO FINANCEIRO:
+  • Total despesas:  R$ ${totalExpenses.toFixed(2)}
+  • Total receitas:  R$ ${totalIncome.toFixed(2)}
+  • Resultado líquido: R$ ${netResult.toFixed(2)} ${netResult < 0 ? "⚠️ DÉFICIT" : "✓ superávit"}
+  • Média diária de gastos: R$ ${(totalExpenses / periodDays).toFixed(2)}
+
+MAIORES FORNECEDORES / BENEFICIÁRIOS (despesas):
+${topVendors || "  (nenhum)"}
+
+GASTOS POR CATEGORIA:
+${catSummary || "  (nenhum)"}
+
+═══════════════════════════════════════════
+TODAS AS TRANSAÇÕES (DATA | DESCRIÇÃO | VALOR)
+═══════════════════════════════════════════
+${transactionList}
+
+═══════════════════════════════════════════
+INSTRUÇÕES DE ANÁLISE
+═══════════════════════════════════════════
+Analise CADA transação individualmente e com atenção ao contexto. Seja específico: cite valores reais, nomes de fornecedores e datas quando relevante.
+
+Identifique obrigatoriamente:
+
+1. VAZAMENTOS FINANCEIROS (leaks):
+   - Gastos recorrentes desnecessários (apostas, jogos, entretenimento excessivo)
+   - Cobranças duplicadas (mesmo valor, mesmo fornecedor em datas próximas)
+   - Assinaturas que aparecem 1x apenas (possivelmente esquecidas)
+   - Transferências para pessoas físicas sem padrão claro
+   - Gastos que comprometem > 15% da receita em categoria única
+   - Compras impulsivas ou fora do padrão do negócio
+
+2. OPORTUNIDADES DE ECONOMIA (opportunities):
+   - Fornecedores com alta recorrência onde é possível negociar desconto
+   - Categorias com potencial de redução (ex: alimentação, entretenimento)
+   - Consolidação de gastos fragmentados
+   - Substituição por alternativas mais econômicas
+   - Automatização de pagamentos para evitar juros/multas
+
+3. ALERTAS CRÍTICOS (alerts):
+   - Déficit de caixa (despesas > receitas)
+   - Concentração excessiva em único fornecedor (> 25% das despesas)
+   - Padrão suspeito de apostas/jogos de azar
+   - Saldo negativo recorrente
+   - Transferências grandes sem identificação clara
+
+4. PLANO DE AÇÃO PRIORITÁRIO (recommendations):
+   - Ações concretas com passo a passo
+   - Ordenadas por impacto financeiro e urgência
+   - Com estimativa realista de economia
+
+REGRAS:
+- Seja ESPECÍFICO: cite "SUPREMA BET LTDA gastou R$ X em Y ocasiões" e não apenas "apostas"
+- Calcule valores REAIS baseados nos dados
+- Descrições devem ter pelo menos 2 frases detalhadas
+- Recomendações devem ter passos acionáveis
+- Não invente dados que não estão nas transações
+
+Responda SOMENTE com JSON válido (sem markdown, sem texto extra):
+{
+  "leaks": [
+    {
+      "title": "Título claro e específico (máx 60 chars)",
+      "description": "Descrição detalhada citando fornecedores, valores e frequência. Mínimo 2 frases com dados concretos.",
+      "category": "ferramentas_software|marketing|pessoal|operacional|fornecedores|financeiro|impostos|administrativo|logistica|outros",
+      "impact": "high|medium|low",
+      "amount": 0
+    }
+  ],
+  "opportunities": [
+    {
+      "title": "Título da oportunidade (máx 60 chars)",
+      "description": "Explicação detalhada: como economizar, com quem negociar, qual alternativa usar. Cite valores e percentuais.",
+      "savingsEstimate": 0,
+      "impact": "high|medium|low",
+      "urgency": "immediate|soon|monitor"
+    }
+  ],
+  "alerts": [
+    {
+      "type": "cash_deficit|gambling|duplicate_charge|concentration|unknown_transfer|overdraft|other",
+      "severity": "critical|warning|info",
+      "title": "Título do alerta",
+      "message": "Mensagem de alerta detalhada com dados específicos: valores, fornecedores, datas. Explique o risco claramente.",
+      "amount": 0
+    }
+  ],
+  "recommendations": [
+    {
+      "title": "Ação recomendada (máx 60 chars)",
+      "description": "Passo a passo detalhado: o que fazer, como fazer, quando fazer. Seja específico e acionável.",
+      "urgency": "immediate|soon|monitor",
+      "difficulty": "easy|medium|hard",
+      "savingsEstimate": 0,
+      "impact": "high|medium|low",
+      "category": "ferramentas_software|marketing|pessoal|operacional|fornecedores|financeiro|impostos|administrativo|logistica|outros",
+      "priority": 1
+    }
+  ]
+}`
+
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+    const response = await client.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 8096,
+      messages: [{ role: "user", content: prompt }],
+    })
+
+    const raw = response.content.find((b) => b.type === "text")?.text ?? "{}"
+    const jsonMatch = raw.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) return empty
+
+    const parsed = JSON.parse(jsonMatch[0]) as Partial<AIAnalysisResult>
+    return {
+      leaks: Array.isArray(parsed.leaks) ? parsed.leaks : [],
+      opportunities: Array.isArray(parsed.opportunities) ? parsed.opportunities : [],
+      alerts: Array.isArray(parsed.alerts) ? parsed.alerts : [],
+      recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
+    }
+  } catch (err) {
+    console.error("AI analysis error (non-fatal):", err)
+    return empty
+  }
 }
 
 export async function runAnalysis(
@@ -63,11 +311,26 @@ export async function runAnalysis(
       })),
     })
 
-    const subscriptions = detectSubscriptions(enriched)
-    const anomalies = detectAnomalies(enriched)
-    const duplicates = detectDuplicates(enriched)
-    const concentration = detectConcentration(enriched)
-    const cashflow = analyzeCashflow(enriched)
+    const organization = await db.organization.findUnique({
+      where: { id: organizationId },
+      select: { name: true, niche: true },
+    })
+
+    const [
+      subscriptions,
+      anomalies,
+      duplicates,
+      concentration,
+      cashflow,
+      aiResult,
+    ] = await Promise.all([
+      Promise.resolve(detectSubscriptions(enriched)),
+      Promise.resolve(detectAnomalies(enriched)),
+      Promise.resolve(detectDuplicates(enriched)),
+      Promise.resolve(detectConcentration(enriched)),
+      Promise.resolve(analyzeCashflow(enriched)),
+      analyzeWithAI(enriched, organization?.name ?? "Empresa", organization?.niche ?? null),
+    ])
 
     const scoreResult = calculateScore({
       subscriptions,
@@ -95,12 +358,24 @@ export async function runAnalysis(
 
     const netResult = totalIncome - totalExpenses
 
-    const savingsMin = insights.opportunities.reduce(
+    // Merge AI insights with rule-based (AI supplements, not duplicates)
+    const allLeaks = [...insights.leaks, ...aiResult.leaks]
+    const allOpportunities = [...insights.opportunities, ...aiResult.opportunities]
+    const allAlerts = [...insights.alerts, ...aiResult.alerts]
+    // Merge recommendations: AI gets priority numbers starting after rule-based ones
+    const ruleRecCount = insights.actions.length
+    const aiRecs = aiResult.recommendations.map((r, i) => ({
+      ...r,
+      priority: ruleRecCount + i + 1,
+    }))
+    const allActions = [...insights.actions, ...aiRecs]
+
+    const savingsMin = allOpportunities.reduce(
       (sum, opportunity) => sum + opportunity.savingsEstimate * 0.5,
       0
     )
 
-    const savingsMax = insights.opportunities.reduce(
+    const savingsMax = allOpportunities.reduce(
       (sum, opportunity) => sum + opportunity.savingsEstimate,
       0
     )
@@ -171,7 +446,7 @@ export async function runAnalysis(
 
       db.insight.createMany({
         data: [
-          ...insights.leaks.map((leak) => ({
+          ...allLeaks.map((leak) => ({
             analysisId,
             type: "leak",
             category: leak.category,
@@ -181,7 +456,7 @@ export async function runAnalysis(
             amount: leak.amount,
             metadata: toJsonValue(leak),
           })),
-          ...insights.opportunities.map((opportunity) => ({
+          ...allOpportunities.map((opportunity) => ({
             analysisId,
             type: "opportunity",
             title: opportunity.title,
@@ -195,7 +470,7 @@ export async function runAnalysis(
       }),
 
       db.alert.createMany({
-        data: insights.alerts.map((alert) => ({
+        data: allAlerts.map((alert) => ({
           organizationId,
           analysisId,
           type: alert.type,
@@ -207,12 +482,12 @@ export async function runAnalysis(
       }),
 
       db.recommendation.createMany({
-        data: insights.actions.map((action) => ({
+        data: allActions.map((action) => ({
           organizationId,
           analysisId,
           title: action.title,
           description: action.description,
-          rationale: action.rationale,
+          rationale: "rationale" in action ? (action as { rationale?: string }).rationale : undefined,
           impact: action.impact,
           urgency: action.urgency,
           difficulty: action.difficulty,

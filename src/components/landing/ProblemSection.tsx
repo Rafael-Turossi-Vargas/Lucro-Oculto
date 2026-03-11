@@ -1,131 +1,196 @@
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, TrendingDown, AlertTriangle } from "lucide-react"
 
 const visible = [
-  { emoji: "💰", text: "Faturamento do mês" },
-  { emoji: "📋", text: "Contas a pagar" },
-  { emoji: "🏦", text: "Saldo em conta" },
+  { text: "Faturamento do mês", sub: "Receita bruta" },
+  { text: "Contas a pagar", sub: "Obrigações fixas" },
+  { text: "Saldo em conta", sub: "Posição de caixa" },
 ]
 
-const invisible = [
-  { emoji: "🔄", text: "Assinaturas esquecidas e renovando todo mês" },
-  { emoji: "🛠️", text: "2 ou 3 ferramentas fazendo a mesma coisa" },
-  { emoji: "📈", text: "Fornecedor encarecendo mês a mês sem avisar" },
-  { emoji: "🚨", text: "Custo crescendo silenciosamente em uma categoria" },
-  { emoji: "💸", text: "Pagamentos duplicados passando despercebidos" },
-  { emoji: "⚠️", text: "35% das despesas concentradas em um único item" },
-  { emoji: "📉", text: "Margem caindo sem ninguém perceber" },
-  { emoji: "🔍", text: "Risco de caixa se aproximando nos próximos 30 dias" },
+const leaks = [
+  { text: "Assinaturas esquecidas renovando", value: "R$ 200–800/mês" },
+  { text: "Ferramentas com funções duplicadas", value: "R$ 300–1.200/mês" },
+  { text: "Fornecedor encarecendo sem avisar", value: "R$ 400–2.000/mês" },
+  { text: "Pagamentos duplicados passando", value: "R$ 150–600/mês" },
+  { text: "Custos concentrados num item", value: "até 35% da receita" },
+  { text: "Margem caindo silenciosamente", value: "-2% a -8% ao mês" },
 ]
 
 export function ProblemSection() {
   return (
     <section
       id="problem"
-      className="py-24"
-      style={{ background: "#0F1117" }}
+      className="py-16 relative overflow-hidden"
+      style={{ background: "#0F1117", borderTop: "1px solid #2A2D3A" }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-10">
+          <span
+            className="inline-block text-xs font-semibold uppercase tracking-widest mb-4 px-3 py-1.5 rounded-full"
+            style={{
+              color: "#FF4D4F",
+              background: "rgba(255,77,79,0.08)",
+              border: "1px solid rgba(255,77,79,0.2)",
+            }}
+          >
+            O problema
+          </span>
           <h2
-            className="text-3xl sm:text-4xl font-extrabold mb-4 tracking-tight"
+            className="text-2xl sm:text-3xl font-extrabold mb-3"
             style={{ color: "#F4F4F5", letterSpacing: "-0.02em" }}
           >
             Você fatura bem. Mas onde vai o lucro?
           </h2>
-          <p className="text-lg max-w-2xl mx-auto" style={{ color: "#8B8FA8" }}>
-            A maioria dos donos de empresa tem uma visão parcial das finanças.
-            Eles veem o óbvio — mas os vazamentos ficam invisíveis.
+          <p className="text-base max-w-lg mx-auto" style={{ color: "#8B8FA8" }}>
+            Você monitora o óbvio — mas os maiores vazamentos de caixa são os que você nunca vê.
           </p>
         </div>
 
-        {/* Two columns */}
-        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {/* What you see */}
+        {/* Two cards */}
+        <div className="grid md:grid-cols-2 gap-5">
+
+          {/* Left — what you see */}
           <div
-            className="rounded-2xl p-6"
-            style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}
-          >
-            <div className="flex items-center gap-2 mb-5">
-              <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)" }}
-              >
-                <Eye className="w-4 h-4" style={{ color: "#3B82F6" }} />
-              </div>
-              <div>
-                <p className="font-semibold text-sm" style={{ color: "#F4F4F5" }}>O que você vê</p>
-                <p className="text-xs" style={{ color: "#8B8FA8" }}>Visão parcial</p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {visible.map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl"
-                  style={{ background: "#212435", border: "1px solid #2A2D3A" }}
-                >
-                  <span className="text-lg">{item.emoji}</span>
-                  <span className="text-sm font-medium" style={{ color: "#F4F4F5" }}>{item.text}</span>
-                </div>
-              ))}
-            </div>
-
-            <p className="mt-4 text-xs text-center" style={{ color: "#4B4F6A" }}>
-              Parece suficiente... mas não é.
-            </p>
-          </div>
-
-          {/* What you don't see */}
-          <div
-            className="rounded-2xl p-6"
+            className="rounded-2xl p-5"
             style={{
-              background: "linear-gradient(135deg, rgba(255,77,79,0.06) 0%, rgba(15,17,23,0) 60%)",
-              border: "1px solid rgba(255,77,79,0.2)",
+              background: "#1A1D27",
+              border: "1px solid #2A2D3A",
             }}
           >
-            <div className="flex items-center gap-2 mb-5">
+            {/* Card header */}
+            <div
+              className="flex items-center gap-2 pb-4 mb-4"
+              style={{ borderBottom: "1px solid #2A2D3A" }}
+            >
               <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ background: "rgba(255,77,79,0.1)", border: "1px solid rgba(255,77,79,0.2)" }}
+                className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)" }}
               >
-                <EyeOff className="w-4 h-4" style={{ color: "#FF4D4F" }} />
+                <Eye className="w-3.5 h-3.5" style={{ color: "#3B82F6" }} />
               </div>
               <div>
-                <p className="font-semibold text-sm" style={{ color: "#F4F4F5" }}>O que você não vê</p>
-                <p className="text-xs" style={{ color: "#FF4D4F" }}>Onde o lucro vaza</p>
+                <p className="text-sm font-bold" style={{ color: "#F4F4F5" }}>O que você monitora</p>
+                <p className="text-xs" style={{ color: "#4B4F6A" }}>Visão parcial — apenas o óbvio</p>
               </div>
             </div>
 
             <div className="space-y-2">
-              {invisible.map((item, i) => (
-                <div key={i} className="flex items-start gap-2.5 py-1.5">
-                  <span className="text-base mt-0.5 shrink-0">{item.emoji}</span>
-                  <span className="text-sm" style={{ color: "#8B8FA8" }}>{item.text}</span>
+              {visible.map((item, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between px-3 py-2.5 rounded-xl"
+                  style={{ background: "#212435", border: "1px solid #2A2D3A" }}
+                >
+                  <span className="text-sm font-medium" style={{ color: "#D4D4D8" }}>{item.text}</span>
+                  <span className="text-xs" style={{ color: "#4B4F6A" }}>{item.sub}</span>
+                </div>
+              ))}
+            </div>
+
+            <div
+              className="mt-4 px-3 py-2.5 rounded-xl text-center"
+              style={{ background: "rgba(59,130,246,0.05)", border: "1px solid rgba(59,130,246,0.12)" }}
+            >
+              <p className="text-xs font-medium" style={{ color: "#4B4F6A" }}>
+                3 métricas visíveis · parece suficiente...
+              </p>
+            </div>
+          </div>
+
+          {/* Right — what you don't see */}
+          <div
+            className="rounded-2xl p-5 relative overflow-hidden"
+            style={{
+              background: "linear-gradient(145deg, rgba(255,77,79,0.08) 0%, rgba(15,17,23,0.9) 60%)",
+              border: "1px solid rgba(255,77,79,0.22)",
+              boxShadow: "0 4px 32px rgba(255,77,79,0.06)",
+            }}
+          >
+            {/* Corner glow */}
+            <div
+              className="absolute top-0 right-0 w-48 h-48 pointer-events-none"
+              style={{
+                background: "radial-gradient(circle at top right, rgba(255,77,79,0.12) 0%, transparent 65%)",
+              }}
+            />
+
+            {/* Card header */}
+            <div
+              className="flex items-center gap-2 pb-4 mb-4 relative z-10"
+              style={{ borderBottom: "1px solid rgba(255,77,79,0.15)" }}
+            >
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                style={{
+                  background: "rgba(255,77,79,0.12)",
+                  border: "1px solid rgba(255,77,79,0.3)",
+                  boxShadow: "0 0 10px rgba(255,77,79,0.15)",
+                }}
+              >
+                <EyeOff className="w-3.5 h-3.5" style={{ color: "#FF4D4F" }} />
+              </div>
+              <div>
+                <p className="text-sm font-bold" style={{ color: "#F4F4F5" }}>O que drena seu lucro</p>
+                <p className="text-xs font-semibold" style={{ color: "#FF4D4F" }}>Invisível — até agora</p>
+              </div>
+            </div>
+
+            <div className="space-y-1.5 relative z-10">
+              {leaks.map((item, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between px-3 py-2 rounded-xl"
+                  style={{
+                    background: "rgba(255,77,79,0.05)",
+                    borderLeft: "2px solid rgba(255,77,79,0.4)",
+                  }}
+                >
+                  <span className="text-xs" style={{ color: "#D4D4D8" }}>{item.text}</span>
+                  <span
+                    className="text-xs font-bold shrink-0 ml-2"
+                    style={{ color: "#FF4D4F" }}
+                  >
+                    {item.value}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Call out */}
-        <div className="mt-12 text-center">
+        {/* Bottom callout */}
+        <div
+          className="mt-8 flex items-center gap-4 px-6 py-5 rounded-2xl"
+          style={{
+            background: "linear-gradient(135deg, rgba(0,208,132,0.07) 0%, rgba(0,208,132,0.02) 100%)",
+            border: "1px solid rgba(0,208,132,0.2)",
+          }}
+        >
           <div
-            className="inline-block px-8 py-5 rounded-2xl"
+            className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
             style={{
-              background: "linear-gradient(135deg, rgba(0,208,132,0.08) 0%, rgba(59,130,246,0.04) 100%)",
-              border: "1px solid rgba(0,208,132,0.2)",
+              background: "rgba(0,208,132,0.1)",
+              border: "1px solid rgba(0,208,132,0.25)",
             }}
           >
-            <p className="text-xl font-bold" style={{ color: "#F4F4F5", letterSpacing: "-0.02em" }}>
-              &ldquo;Seu problema pode não ser vender mais.
-            </p>
-            <p className="text-xl font-bold" style={{ color: "#00D084", letterSpacing: "-0.02em" }}>
-              Pode ser parar de perder dinheiro.&rdquo;
-            </p>
+            <TrendingDown className="w-5 h-5" style={{ color: "#00D084" }} />
           </div>
+          <p className="text-base font-bold" style={{ color: "#F4F4F5", letterSpacing: "-0.01em" }}>
+            Seu problema pode não ser vender mais.{" "}
+            <span
+              style={{
+                background: "linear-gradient(90deg, #00D084 0%, #3FFFB0 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              Pode ser parar de perder dinheiro.
+            </span>
+          </p>
         </div>
+
       </div>
     </section>
   )

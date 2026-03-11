@@ -3,7 +3,10 @@
 import { Suspense, useState } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, Building2, Zap, Star, CreditCard } from "lucide-react"
+import {
+  Eye, EyeOff, Loader2, AlertCircle, CheckCircle2,
+  Building2, Zap, Star, CreditCard, ArrowRight, Rocket,
+} from "lucide-react"
 
 function PasswordStrength({ password }: { password: string }) {
   const checks = [
@@ -13,23 +16,23 @@ function PasswordStrength({ password }: { password: string }) {
     /[^A-Za-z0-9]/.test(password),
   ]
   const strength = checks.filter(Boolean).length
-  const colors = ["#FF4D4F", "#F59E0B", "#F59E0B", "#00D084", "#00D084"]
+  const colors = ["#FF4D4F", "#FF4D4F", "#F59E0B", "#00D084", "#00D084"]
   const labels = ["", "Fraca", "Regular", "Boa", "Forte"]
 
   if (!password) return null
 
   return (
-    <div className="mt-2">
-      <div className="flex gap-1 mb-1">
+    <div className="mt-2 space-y-1">
+      <div className="flex gap-1">
         {[0, 1, 2, 3].map((i) => (
           <div
             key={i}
-            className="h-1 flex-1 rounded-full transition-all duration-300"
+            className="h-0.5 flex-1 rounded-full transition-all duration-300"
             style={{ background: i < strength ? colors[strength] : "#2A2D3A" }}
           />
         ))}
       </div>
-      <p className="text-xs" style={{ color: colors[strength] ?? "#4B4F6A" }}>
+      <p className="text-[11px] font-medium" style={{ color: colors[strength] ?? "#4B4F6A" }}>
         {labels[strength]}
       </p>
     </div>
@@ -47,6 +50,58 @@ function formatCnpj(value: string): string {
 
 type CnpjStatus = "idle" | "checking" | "valid" | "invalid"
 type Plan = "free" | "pro" | "premium"
+
+const plans: { id: Plan; label: string; price: string; icon: typeof Zap; color: string; bg: string; border: string; badge?: string; feature: string }[] = [
+  {
+    id: "free",
+    label: "Grátis",
+    price: "R$0 · Sempre",
+    icon: Zap,
+    color: "#00D084",
+    bg: "rgba(0,208,132,0.07)",
+    border: "rgba(0,208,132,0.45)",
+    feature: "1 análise / mês",
+  },
+  {
+    id: "pro",
+    label: "Pro",
+    price: "R$97/mês",
+    icon: Star,
+    color: "#F59E0B",
+    bg: "rgba(245,158,11,0.07)",
+    border: "rgba(245,158,11,0.5)",
+    badge: "7d grátis",
+    feature: "Análises ilimitadas",
+  },
+  {
+    id: "premium",
+    label: "Premium",
+    price: "R$297/mês",
+    icon: Building2,
+    color: "#A855F7",
+    bg: "rgba(168,85,247,0.07)",
+    border: "rgba(168,85,247,0.45)",
+    badge: "7d grátis",
+    feature: "Até 3 empresas",
+  },
+]
+
+const inputBase: React.CSSProperties = {
+  background: "rgba(33,36,53,0.8)",
+  border: "1px solid #2A2D3A",
+  color: "#F4F4F5",
+}
+
+function focusInput(e: React.FocusEvent<HTMLInputElement>, color = "rgba(0,208,132,0.45)") {
+  e.target.style.borderColor = color
+  e.target.style.boxShadow = "0 0 0 3px rgba(0,208,132,0.07)"
+  e.target.style.background = "rgba(33,36,53,1)"
+}
+function blurInput(e: React.FocusEvent<HTMLInputElement>) {
+  e.target.style.borderColor = "#2A2D3A"
+  e.target.style.boxShadow = "none"
+  e.target.style.background = "rgba(33,36,53,0.8)"
+}
 
 function RegisterForm() {
   const router = useRouter()
@@ -72,45 +127,29 @@ function RegisterForm() {
     setForm((prev) => ({ ...prev, [field]: e.target.value }))
 
   const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const masked = formatCnpj(e.target.value)
-    setForm((prev) => ({ ...prev, cnpj: masked }))
+    setForm((prev) => ({ ...prev, cnpj: formatCnpj(e.target.value) }))
     setCnpjStatus("idle")
     setCnpjCompanyName("")
   }
 
   const validateCnpj = async () => {
     const digits = form.cnpj.replace(/\D/g, "")
-    if (digits.length !== 14) {
-      setCnpjStatus("invalid")
-      setCnpjCompanyName("")
-      return
-    }
-
+    if (digits.length !== 14) { setCnpjStatus("invalid"); return }
     setCnpjStatus("checking")
     try {
       const res = await fetch(`/api/cnpj/${digits}`)
-      const data = await res.json() as { razao_social?: string; nome_fantasia?: string; ativa?: boolean; error?: string }
-      if (!res.ok || data.ativa === false) {
-        setCnpjStatus("invalid")
-        setCnpjCompanyName("")
-        return
-      }
-
+      const data = await res.json() as { razao_social?: string; nome_fantasia?: string; ativa?: boolean }
+      if (!res.ok || data.ativa === false) { setCnpjStatus("invalid"); return }
       const name = data.nome_fantasia || data.razao_social || ""
       setCnpjCompanyName(name)
       setCnpjStatus("valid")
-
-      // Auto-preenche o nome da empresa se estiver vazio
-      if (!form.organizationName && name) {
-        setForm((prev) => ({ ...prev, organizationName: name }))
-      }
+      if (!form.organizationName && name) setForm((prev) => ({ ...prev, organizationName: name }))
     } catch {
       setCnpjStatus("invalid")
-      setCnpjCompanyName("")
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!agreed) { setError("Aceite os termos de uso para continuar."); return }
     if (form.password.length < 8) { setError("Senha deve ter pelo menos 8 caracteres."); return }
@@ -126,19 +165,8 @@ function RegisterForm() {
         body: JSON.stringify({ ...form, cnpj: form.cnpj.replace(/\D/g, ""), plan: selectedPlan }),
       })
       const data = await res.json() as { error?: string; checkoutUrl?: string }
-
-      if (!res.ok) {
-        setError(data.error ?? "Erro ao criar conta.")
-        setLoading(false)
-        return
-      }
-
-      // Se escolheu Pro e Stripe retornou URL → redireciona para checkout
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl
-        return
-      }
-
+      if (!res.ok) { setError(data.error ?? "Erro ao criar conta."); setLoading(false); return }
+      if (data.checkoutUrl) { window.location.href = data.checkoutUrl; return }
       router.push("/login?registered=true")
     } catch {
       setError("Erro ao criar conta. Tente novamente.")
@@ -146,129 +174,145 @@ function RegisterForm() {
     }
   }
 
-  const inputStyle = {
-    background: "#212435",
-    border: "1px solid #2A2D3A",
-    color: "#F4F4F5",
-  }
+  const activePlan = plans.find((p) => p.id === selectedPlan)!
 
   return (
-    <div className="rounded-2xl p-8" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-      <h1 className="text-2xl font-bold mb-1" style={{ color: "#F4F4F5" }}>
-        Comece agora
-      </h1>
-      <p className="text-sm mb-6" style={{ color: "#8B8FA8" }}>
-        Escolha seu plano e descubra onde seu lucro está vazando
-      </p>
-
-      {/* Plan toggle */}
-      <div className="grid grid-cols-3 gap-2 mb-6">
-        <button
-          type="button"
-          onClick={() => setSelectedPlan("free")}
-          className="flex flex-col items-start gap-1 px-3 py-3 rounded-xl text-left transition-all"
+    <div>
+      {/* Header */}
+      <div className="flex items-start gap-4 mb-6">
+        <div
+          className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
           style={{
-            background: selectedPlan === "free" ? "rgba(0,208,132,0.06)" : "#212435",
-            border: selectedPlan === "free" ? "2px solid #00D084" : "2px solid transparent",
+            background: "linear-gradient(135deg, rgba(0,208,132,0.15) 0%, rgba(0,208,132,0.06) 100%)",
+            border: "1px solid rgba(0,208,132,0.25)",
+            boxShadow: "0 0 20px rgba(0,208,132,0.1)",
           }}
         >
-          <div className="flex items-center gap-1.5">
-            <Zap className="w-3.5 h-3.5" style={{ color: selectedPlan === "free" ? "#00D084" : "#8B8FA8" }} />
-            <span className="text-sm font-bold" style={{ color: selectedPlan === "free" ? "#00D084" : "#F4F4F5" }}>Grátis</span>
-          </div>
-          <span className="text-xs" style={{ color: "#4B4F6A" }}>R$0 · Sempre</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setSelectedPlan("pro")}
-          className="relative flex flex-col items-start gap-1 px-3 py-3 rounded-xl text-left transition-all"
-          style={{
-            background: selectedPlan === "pro" ? "rgba(245,158,11,0.08)" : "#212435",
-            border: selectedPlan === "pro" ? "2px solid #F59E0B" : "2px solid transparent",
-          }}
-        >
-          <div className="absolute -top-2.5 right-2">
-            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold" style={{ background: "#F59E0B", color: "#0F1117" }}>
-              7d grátis
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Star className="w-3.5 h-3.5" style={{ color: selectedPlan === "pro" ? "#F59E0B" : "#8B8FA8" }} />
-            <span className="text-sm font-bold" style={{ color: selectedPlan === "pro" ? "#F59E0B" : "#F4F4F5" }}>Pro</span>
-          </div>
-          <span className="text-xs" style={{ color: "#4B4F6A" }}>R$97/mês</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setSelectedPlan("premium")}
-          className="relative flex flex-col items-start gap-1 px-3 py-3 rounded-xl text-left transition-all"
-          style={{
-            background: selectedPlan === "premium" ? "rgba(168,85,247,0.08)" : "#212435",
-            border: selectedPlan === "premium" ? "2px solid #A855F7" : "2px solid transparent",
-          }}
-        >
-          <div className="absolute -top-2.5 right-2">
-            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold" style={{ background: "#A855F7", color: "#fff" }}>
-              7d grátis
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Building2 className="w-3.5 h-3.5" style={{ color: selectedPlan === "premium" ? "#A855F7" : "#8B8FA8" }} />
-            <span className="text-sm font-bold" style={{ color: selectedPlan === "premium" ? "#A855F7" : "#F4F4F5" }}>Premium</span>
-          </div>
-          <span className="text-xs" style={{ color: "#4B4F6A" }}>R$297/mês</span>
-        </button>
+          <Rocket style={{ color: "#00D084", width: "18px", height: "18px" }} />
+        </div>
+        <div>
+          <h1 className="text-2xl font-extrabold leading-tight" style={{ color: "#F4F4F5", letterSpacing: "-0.02em" }}>
+            Comece agora
+          </h1>
+          <p className="text-sm mt-1" style={{ color: "#8B8FA8" }}>
+            Descubra onde seu lucro está vazando
+          </p>
+        </div>
       </div>
 
-      {/* Paid plan info banner */}
+      {/* Plan selector */}
+      <div className="grid grid-cols-3 gap-2 mb-5">
+        {plans.map((plan) => {
+          const Icon = plan.icon
+          const active = selectedPlan === plan.id
+          return (
+            <button
+              key={plan.id}
+              type="button"
+              onClick={() => setSelectedPlan(plan.id)}
+              className="relative flex flex-col gap-1.5 p-3 rounded-xl text-left transition-all duration-150"
+              style={{
+                background: active ? plan.bg : "rgba(33,36,53,0.6)",
+                border: `1px solid ${active ? plan.border : "rgba(42,45,58,0.8)"}`,
+                boxShadow: active ? `0 0 16px ${plan.color}20` : "none",
+              }}
+            >
+              {plan.badge && (
+                <span
+                  className="absolute -top-2 right-2 text-[9px] px-1.5 py-0.5 rounded-full font-bold"
+                  style={{ background: plan.color, color: plan.id === "premium" ? "#fff" : "#0A0C14" }}
+                >
+                  {plan.badge}
+                </span>
+              )}
+              <div className="flex items-center gap-1.5">
+                <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: active ? plan.color : "#4B4F6A" }} />
+                <span className="text-sm font-bold" style={{ color: active ? plan.color : "#D4D4D8" }}>
+                  {plan.label}
+                </span>
+              </div>
+              <span className="text-[10px] font-mono leading-tight" style={{ color: active ? plan.color : "#4B4F6A", opacity: active ? 1 : 0.8 }}>
+                {plan.price}
+              </span>
+              <span className="text-[10px]" style={{ color: "#4B4F6A" }}>{plan.feature}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Paid plan banner */}
       {(selectedPlan === "pro" || selectedPlan === "premium") && (
         <div
-          className="flex items-start gap-2.5 px-4 py-3 rounded-xl mb-4 text-xs"
+          className="flex items-start gap-2.5 px-3.5 py-3 rounded-xl mb-4"
           style={{
-            background: selectedPlan === "premium" ? "rgba(168,85,247,0.06)" : "rgba(245,158,11,0.06)",
-            border: selectedPlan === "premium" ? "1px solid rgba(168,85,247,0.2)" : "1px solid rgba(245,158,11,0.2)",
-            color: "#8B8FA8",
+            background: activePlan.bg,
+            border: `1px solid ${selectedPlan === "premium" ? "rgba(168,85,247,0.2)" : "rgba(245,158,11,0.2)"}`,
           }}
         >
-          <CreditCard className="w-4 h-4 shrink-0 mt-0.5" style={{ color: selectedPlan === "premium" ? "#A855F7" : "#F59E0B" }} />
-          <span>
-            Você precisará cadastrar um cartão de crédito.{" "}
-            <strong style={{ color: "#F4F4F5" }}>Nenhum valor será cobrado agora.</strong>{" "}
-            A cobrança de {selectedPlan === "premium" ? "R$297" : "R$97"}/mês começa apenas após os 7 dias. Cancele antes e não paga nada.
-          </span>
+          <CreditCard className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: activePlan.color }} />
+          <p className="text-xs leading-relaxed" style={{ color: "#8B8FA8" }}>
+            Cartão necessário para o trial.{" "}
+            <strong style={{ color: "#F4F4F5" }}>Sem cobrança agora.</strong>{" "}
+            Cobrado {selectedPlan === "premium" ? "R$297" : "R$97"}/mês após 7 dias — cancele antes e não paga nada.
+          </p>
         </div>
       )}
 
+      {/* Error */}
       {error && (
-        <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl mb-4 text-sm"
-          style={{ background: "rgba(255,77,79,0.08)", border: "1px solid rgba(255,77,79,0.2)", color: "#FF4D4F" }}>
+        <div
+          className="flex items-center gap-2.5 px-4 py-3 rounded-xl mb-4"
+          style={{ background: "rgba(255,77,79,0.07)", border: "1px solid rgba(255,77,79,0.2)", color: "#FF4D4F" }}
+        >
           <AlertCircle className="w-4 h-4 shrink-0" />
-          {error}
+          <span className="text-sm">{error}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Nome completo */}
-        <div>
-          <label className="block text-sm font-medium mb-1.5" style={{ color: "#8B8FA8" }}>Nome completo</label>
-          <input
-            type="text"
-            value={form.name}
-            onChange={update("name")}
-            required
-            placeholder="João Silva"
-            className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all"
-            style={inputStyle}
-            onFocus={(e) => (e.target.style.borderColor = "#00D084")}
-            onBlur={(e) => (e.target.style.borderColor = "#2A2D3A")}
-          />
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-3.5">
+
+        {/* Name + org — 2 col */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "#4B4F6A" }}>
+              Nome
+            </label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={update("name")}
+              required
+              placeholder="João Silva"
+              className="w-full px-3.5 py-2.5 rounded-xl text-sm outline-none transition-all duration-150"
+              style={inputBase}
+              onFocus={focusInput}
+              onBlur={blurInput}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "#4B4F6A" }}>
+              Empresa
+            </label>
+            <input
+              type="text"
+              value={form.organizationName}
+              onChange={update("organizationName")}
+              required
+              placeholder="Agência XYZ"
+              className="w-full px-3.5 py-2.5 rounded-xl text-sm outline-none transition-all duration-150"
+              style={inputBase}
+              onFocus={focusInput}
+              onBlur={blurInput}
+            />
+          </div>
         </div>
 
         {/* CNPJ */}
         <div>
-          <label className="block text-sm font-medium mb-1.5" style={{ color: "#8B8FA8" }}>CNPJ da empresa</label>
+          <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "#4B4F6A" }}>
+            CNPJ
+          </label>
           <div className="relative">
             <input
               type="text"
@@ -278,14 +322,13 @@ function RegisterForm() {
               required
               placeholder="00.000.000/0000-00"
               maxLength={18}
-              className="w-full px-4 py-3 pr-10 rounded-xl text-sm outline-none transition-all font-mono"
+              className="w-full px-3.5 py-2.5 pr-10 rounded-xl text-sm outline-none transition-all duration-150 font-mono"
               style={{
-                ...inputStyle,
-                borderColor: cnpjStatus === "valid" ? "#00D084" : cnpjStatus === "invalid" ? "#FF4D4F" : "#2A2D3A",
+                ...inputBase,
+                borderColor: cnpjStatus === "valid" ? "rgba(0,208,132,0.5)" : cnpjStatus === "invalid" ? "rgba(255,77,79,0.5)" : "#2A2D3A",
+                boxShadow: cnpjStatus === "valid" ? "0 0 0 3px rgba(0,208,132,0.07)" : cnpjStatus === "invalid" ? "0 0 0 3px rgba(255,77,79,0.07)" : "none",
               }}
-              onFocus={(e) => {
-                if (cnpjStatus === "idle") e.target.style.borderColor = "#00D084"
-              }}
+              onFocus={(e) => { if (cnpjStatus === "idle") focusInput(e) }}
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
               {cnpjStatus === "checking" && <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#8B8FA8" }} />}
@@ -295,52 +338,40 @@ function RegisterForm() {
           </div>
           {cnpjStatus === "valid" && cnpjCompanyName && (
             <div className="flex items-center gap-1.5 mt-1.5 px-1">
-              <Building2 className="w-3 h-3 shrink-0" style={{ color: "#00D084" }} />
+              <CheckCircle2 className="w-3 h-3 shrink-0" style={{ color: "#00D084" }} />
               <p className="text-xs font-medium truncate" style={{ color: "#00D084" }}>{cnpjCompanyName}</p>
             </div>
           )}
           {cnpjStatus === "invalid" && (
             <p className="text-xs mt-1.5 px-1" style={{ color: "#FF4D4F" }}>
-              CNPJ não encontrado ou inativo. Verifique e tente novamente.
+              CNPJ não encontrado ou inativo.
             </p>
           )}
         </div>
 
-        {/* Nome da empresa */}
-        <div>
-          <label className="block text-sm font-medium mb-1.5" style={{ color: "#8B8FA8" }}>Nome da empresa</label>
-          <input
-            type="text"
-            value={form.organizationName}
-            onChange={update("organizationName")}
-            required
-            placeholder="Agência XYZ"
-            className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all"
-            style={inputStyle}
-            onFocus={(e) => (e.target.style.borderColor = "#00D084")}
-            onBlur={(e) => (e.target.style.borderColor = "#2A2D3A")}
-          />
-        </div>
-
         {/* Email */}
         <div>
-          <label className="block text-sm font-medium mb-1.5" style={{ color: "#8B8FA8" }}>Email</label>
+          <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "#4B4F6A" }}>
+            Email
+          </label>
           <input
             type="email"
             value={form.email}
             onChange={update("email")}
             required
             placeholder="seu@email.com"
-            className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all"
-            style={inputStyle}
-            onFocus={(e) => (e.target.style.borderColor = "#00D084")}
-            onBlur={(e) => (e.target.style.borderColor = "#2A2D3A")}
+            className="w-full px-3.5 py-2.5 rounded-xl text-sm outline-none transition-all duration-150"
+            style={inputBase}
+            onFocus={focusInput}
+            onBlur={blurInput}
           />
         </div>
 
         {/* Senha */}
         <div>
-          <label className="block text-sm font-medium mb-1.5" style={{ color: "#8B8FA8" }}>Senha</label>
+          <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "#4B4F6A" }}>
+            Senha
+          </label>
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
@@ -348,73 +379,132 @@ function RegisterForm() {
               onChange={update("password")}
               required
               placeholder="Mínimo 8 caracteres"
-              className="w-full px-4 py-3 pr-12 rounded-xl text-sm outline-none transition-all"
-              style={inputStyle}
-              onFocus={(e) => (e.target.style.borderColor = "#00D084")}
-              onBlur={(e) => (e.target.style.borderColor = "#2A2D3A")}
+              className="w-full px-3.5 py-2.5 pr-10 rounded-xl text-sm outline-none transition-all duration-150"
+              style={inputBase}
+              onFocus={focusInput}
+              onBlur={blurInput}
             />
-            <button type="button" onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1" style={{ color: "#4B4F6A" }}>
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 transition-opacity hover:opacity-70"
+              style={{ color: "#4B4F6A" }}
+            >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
           <PasswordStrength password={form.password} />
         </div>
 
-        <label className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={agreed}
-            onChange={(e) => setAgreed(e.target.checked)}
-            className="mt-0.5 rounded"
-            style={{ accentColor: "#00D084" }}
-          />
+        {/* Terms */}
+        <label className="flex items-start gap-3 cursor-pointer group">
+          <div className="relative mt-0.5 shrink-0">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              className="sr-only"
+            />
+            <div
+              className="w-4 h-4 rounded flex items-center justify-center transition-all duration-150"
+              style={{
+                background: agreed ? "#00D084" : "rgba(33,36,53,0.8)",
+                border: `1px solid ${agreed ? "#00D084" : "#2A2D3A"}`,
+                boxShadow: agreed ? "0 0 8px rgba(0,208,132,0.3)" : "none",
+              }}
+            >
+              {agreed && <CheckCircle2 className="w-2.5 h-2.5" style={{ color: "#0A0C14" }} />}
+            </div>
+          </div>
           <span className="text-xs leading-relaxed" style={{ color: "#8B8FA8" }}>
             Li e aceito os{" "}
-            <Link href="/terms" style={{ color: "#00D084" }}>Termos de Uso</Link>{" "}
-            e a{" "}
-            <Link href="/privacy" style={{ color: "#00D084" }}>Política de Privacidade</Link>
+            <Link href="/terms" className="font-semibold hover:opacity-80" style={{ color: "#00D084" }}>Termos de Uso</Link>
+            {" "}e a{" "}
+            <Link href="/privacy" className="font-semibold hover:opacity-80" style={{ color: "#00D084" }}>Política de Privacidade</Link>
           </span>
         </label>
 
+        {/* Submit */}
         <button
           type="submit"
           disabled={loading || cnpjStatus !== "valid"}
-          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+          className="relative w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group"
           style={{
-            background: selectedPlan === "premium" ? "#A855F7" : selectedPlan === "pro" ? "#F59E0B" : "#00D084",
-            color: selectedPlan === "premium" ? "#fff" : "#0F1117",
+            background: selectedPlan === "premium"
+              ? "linear-gradient(135deg, #A855F7 0%, #9333EA 100%)"
+              : selectedPlan === "pro"
+              ? "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)"
+              : "linear-gradient(135deg, #00D084 0%, #00B872 100%)",
+            color: selectedPlan === "premium" ? "#fff" : "#0A0C14",
+            boxShadow: loading || cnpjStatus !== "valid"
+              ? "none"
+              : selectedPlan === "premium"
+              ? "0 4px 24px rgba(168,85,247,0.4)"
+              : selectedPlan === "pro"
+              ? "0 4px 24px rgba(245,158,11,0.35)"
+              : "0 4px 24px rgba(0,208,132,0.4)",
           }}
         >
+          {/* Shimmer */}
+          <span
+            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+            style={{ background: "linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%)" }}
+          />
           {loading ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> {selectedPlan === "free" ? "Criando conta..." : "Redirecionando para pagamento..."}</>
+            <><Loader2 className="w-4 h-4 animate-spin" /> {selectedPlan === "free" ? "Criando conta..." : "Redirecionando..."}</>
           ) : selectedPlan === "premium" ? (
-            <><Building2 className="w-4 h-4" /> Começar trial Premium — adicionar cartão</>
+            <><Building2 className="w-4 h-4" /> Começar trial Premium <ArrowRight className="w-4 h-4" /></>
           ) : selectedPlan === "pro" ? (
-            <><Star className="w-4 h-4" /> Começar trial Pro — adicionar cartão</>
+            <><Star className="w-4 h-4" /> Começar trial Pro <ArrowRight className="w-4 h-4" /></>
           ) : (
-            "Criar conta grátis"
+            <>Criar conta grátis <ArrowRight className="w-4 h-4" /></>
           )}
         </button>
 
         {(selectedPlan === "pro" || selectedPlan === "premium") && (
           <p className="text-center text-xs" style={{ color: "#4B4F6A" }}>
-            Sem cobrança por 7 dias · Cancele antes e não paga nada
+            ✓ Sem cobrança por 7 dias · Cancele antes e não paga nada
           </p>
         )}
       </form>
 
-      <p className="text-center mt-6 text-sm" style={{ color: "#8B8FA8" }}>
-        Já tem conta?{" "}
-        <Link href="/login" className="font-semibold" style={{ color: "#00D084" }}>Entrar</Link>
-      </p>
+      {/* Divider */}
+      <div className="flex items-center gap-3 my-5">
+        <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, transparent, #2A2D3A)" }} />
+        <span className="text-xs font-medium" style={{ color: "#2A2D3A" }}>OU</span>
+        <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, #2A2D3A, transparent)" }} />
+      </div>
+
+      {/* Login link */}
+      <Link
+        href="/login"
+        className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl transition-all duration-150 group"
+        style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
+      >
+        <div>
+          <p className="text-sm font-semibold" style={{ color: "#D4D4D8" }}>Já tem uma conta?</p>
+          <p className="text-xs mt-0.5" style={{ color: "#4B4F6A" }}>Entre e acesse seu diagnóstico</p>
+        </div>
+        <div
+          className="flex items-center gap-1.5 text-sm font-bold transition-transform duration-150 group-hover:translate-x-0.5"
+          style={{ color: "#00D084" }}
+        >
+          Entrar <ArrowRight className="w-3.5 h-3.5" />
+        </div>
+      </Link>
     </div>
   )
 }
 
 export default function RegisterPage() {
   return (
-    <Suspense fallback={<div className="rounded-2xl p-8" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }} />}>
+    <Suspense fallback={
+      <div className="space-y-4 animate-pulse">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="h-12 rounded-xl" style={{ background: "rgba(26,29,39,0.5)" }} />
+        ))}
+      </div>
+    }>
       <RegisterForm />
     </Suspense>
   )

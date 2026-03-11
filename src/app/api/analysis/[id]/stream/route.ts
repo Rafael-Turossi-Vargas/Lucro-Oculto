@@ -45,12 +45,25 @@ export async function GET(
           break
         }
 
+        // ── Item 16: Include top leaks when done ──────────────────────────
+        let topLeaks: { title: string; amount: string | null }[] = []
+        if (analysis.status === "done") {
+          const leakRecords = await db.insight.findMany({
+            where: { analysisId: id, type: "leak" },
+            orderBy: { amount: "desc" },
+            take: 2,
+            select: { title: true, amount: true },
+          })
+          topLeaks = leakRecords.map(l => ({ title: l.title, amount: l.amount?.toString() ?? null }))
+        }
+
         send({
           type: "status",
           status: analysis.status,
           score: analysis.score,
           savingsMin: analysis.savingsMin,
           savingsMax: analysis.savingsMax,
+          topLeaks,
         })
 
         if (analysis.status === "done" || analysis.status === "error") break

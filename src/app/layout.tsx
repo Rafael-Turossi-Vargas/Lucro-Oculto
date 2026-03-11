@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next"
 import { Inter, JetBrains_Mono } from "next/font/google"
 import "./globals.css"
+import { CookieConsent } from "@/components/ui/cookie-consent"
 
 /* ─── Fonts ─────────────────────────────────────────────────────────────────── */
 const inter = Inter({
@@ -129,6 +130,7 @@ export default function RootLayout({
         }}
       >
         {children}
+        <CookieConsent />
       </body>
     </html>
   )

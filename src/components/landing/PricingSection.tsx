@@ -2,39 +2,41 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Check, Zap, Star, Building2 } from "lucide-react"
+import { Check, Zap, Star, Building2, TrendingUp, ArrowRight } from "lucide-react"
 
 const plans = [
   {
     name: "Grátis",
     icon: Zap,
     price: { monthly: 0, annual: 0 },
-    description: "Para testar e descobrir o diagnóstico",
+    description: "Para testar o diagnóstico",
     cta: "Começar grátis",
+    ctaNote: "Sem cartão de crédito",
     href: "/register",
     popular: false,
-    iconColor: "#8B8FA8",
-    iconBg: "rgba(139,143,168,0.1)",
+    color: "#8B8FA8",
+    bg: "rgba(139,143,168,0.06)",
+    border: "#2A2D3A",
     features: [
       "1 análise por mês",
       "Até 200 linhas de dados",
       "Score de eficiência básico",
       "3 alertas principais",
       "Relatório resumido",
-      "Sem histórico",
     ],
-    missing: ["Análises ilimitadas", "Exportação PDF", "Alertas ilimitados", "Multi-empresa"],
   },
   {
     name: "Pro",
     icon: Star,
     price: { monthly: 97, annual: 970 },
     description: "Para quem leva gestão financeira a sério",
-    cta: "Assinar Pro",
+    cta: "Começar 7 dias grátis",
+    ctaNote: "✓ Sem cobrança no trial · Cancele quando quiser",
     href: "/register?plan=pro",
     popular: true,
-    iconColor: "#00D084",
-    iconBg: "rgba(0,208,132,0.1)",
+    color: "#00D084",
+    bg: "rgba(0,208,132,0.07)",
+    border: "rgba(0,208,132,0.45)",
     features: [
       "Análises ilimitadas",
       "Até 10.000 linhas por upload",
@@ -45,18 +47,19 @@ const plans = [
       "Exportação PDF premium",
       "Suporte por email",
     ],
-    missing: [],
   },
   {
     name: "Premium",
     icon: Building2,
     price: { monthly: 297, annual: 2970 },
-    description: "Para empresas maiores ou múltiplos negócios",
+    description: "Para múltiplos negócios",
     cta: "Assinar Premium",
+    ctaNote: "7 dias grátis incluídos",
     href: "/register?plan=premium",
     popular: false,
-    iconColor: "#F59E0B",
-    iconBg: "rgba(245,158,11,0.1)",
+    color: "#F59E0B",
+    bg: "rgba(245,158,11,0.06)",
+    border: "#2A2D3A",
     features: [
       "Tudo do Pro",
       "Até 3 empresas",
@@ -67,7 +70,6 @@ const plans = [
       "Integração bancária (em breve)",
       "Suporte prioritário",
     ],
-    missing: [],
   },
 ]
 
@@ -77,122 +79,277 @@ export function PricingSection() {
   return (
     <section
       id="pricing"
-      className="py-24"
-      style={{ background: "#1A1D27", borderTop: "1px solid #2A2D3A", borderBottom: "1px solid #2A2D3A" }}
+      className="py-12 relative overflow-hidden"
+      style={{
+        background: "linear-gradient(180deg, #131620 0%, #1A1D27 100%)",
+        borderTop: "1px solid #2A2D3A",
+        borderBottom: "1px solid #2A2D3A",
+      }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Green glow top-center */}
+      <div
+        className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none"
+        style={{
+          width: "800px",
+          height: "500px",
+          background:
+            "radial-gradient(ellipse at 50% 0%, rgba(0,208,132,0.1) 0%, transparent 65%)",
+          filter: "blur(1px)",
+        }}
+      />
+
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-5">
           <span
-            className="inline-block text-xs font-semibold uppercase tracking-widest mb-3 px-3 py-1 rounded-full"
-            style={{ color: "#00D084", background: "rgba(0,208,132,0.08)", border: "1px solid rgba(0,208,132,0.15)" }}
+            className="inline-block text-xs font-semibold uppercase tracking-widest mb-3 px-3 py-1.5 rounded-full"
+            style={{
+              color: "#00D084",
+              background: "rgba(0,208,132,0.08)",
+              border: "1px solid rgba(0,208,132,0.18)",
+            }}
           >
             Preços
           </span>
           <h2
-            className="text-3xl sm:text-4xl font-extrabold mb-4"
+            className="text-2xl sm:text-3xl font-extrabold mb-2"
             style={{ color: "#F4F4F5", letterSpacing: "-0.02em" }}
           >
-            Quanto custa perder R$ 5.000 por mês?
+            Quanto custa{" "}
+            <span
+              style={{
+                background: "linear-gradient(90deg, #FF4D4F 0%, #FF7875 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              perder R$ 5.000/mês?
+            </span>
           </h2>
-          <p className="text-lg max-w-xl mx-auto mb-8" style={{ color: "#8B8FA8" }}>
+          <p className="text-sm max-w-md mx-auto mb-4" style={{ color: "#8B8FA8" }}>
             O diagnóstico custa muito menos do que o desperdício que ele elimina.
           </p>
 
-          {/* Toggle */}
+          {/* ROI callout — above toggle */}
           <div
-            className="inline-flex items-center gap-3 p-1 rounded-xl"
-            style={{ background: "#0F1117", border: "1px solid #2A2D3A" }}
+            className="inline-flex items-center gap-3 px-4 py-2 rounded-full mb-4"
+            style={{
+              background: "linear-gradient(135deg, rgba(0,208,132,0.1) 0%, rgba(0,208,132,0.04) 100%)",
+              border: "1px solid rgba(0,208,132,0.25)",
+              boxShadow: "0 0 24px rgba(0,208,132,0.08)",
+            }}
           >
-            <button
-              className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+            <TrendingUp className="w-4 h-4 shrink-0" style={{ color: "#00D084" }} />
+            <p className="text-sm font-medium" style={{ color: "#D4D4D8" }}>
+              ROI típico: <span style={{ color: "#F59E0B", fontWeight: 700 }}>R$97/mês</span>
+              <span style={{ color: "#4B4F6A" }}> → </span>
+              <span style={{ color: "#00D084", fontWeight: 700 }}>R$2.400+ em economia identificada</span>
+            </p>
+          </div>
+
+          {/* Toggle */}
+          <div className="flex justify-center">
+            <div
+              className="inline-flex items-center p-1 rounded-full"
               style={{
-                background: !annual ? "#1A1D27" : "transparent",
-                color: !annual ? "#F4F4F5" : "#8B8FA8",
-                border: !annual ? "1px solid #2A2D3A" : "1px solid transparent",
+                background: "#0D0F18",
+                border: "1px solid #2A2D3A",
               }}
-              onClick={() => setAnnual(false)}
             >
-              Mensal
-            </button>
-            <button
-              className="px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
-              style={{
-                background: annual ? "#1A1D27" : "transparent",
-                color: annual ? "#F4F4F5" : "#8B8FA8",
-                border: annual ? "1px solid #2A2D3A" : "1px solid transparent",
-              }}
-              onClick={() => setAnnual(true)}
-            >
-              Anual
-              <span
-                className="text-xs px-1.5 py-0.5 rounded-full font-semibold"
-                style={{ background: "rgba(0,208,132,0.15)", color: "#00D084" }}
+              <button
+                className="px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200"
+                style={{
+                  background: !annual ? "#1A1D27" : "transparent",
+                  color: !annual ? "#F4F4F5" : "#4B4F6A",
+                  boxShadow: !annual ? "0 1px 6px rgba(0,0,0,0.5)" : "none",
+                }}
+                onClick={() => setAnnual(false)}
               >
-                -17%
-              </span>
-            </button>
+                Mensal
+              </button>
+              <button
+                className="px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 flex items-center gap-2"
+                style={{
+                  background: annual ? "#1A1D27" : "transparent",
+                  color: annual ? "#F4F4F5" : "#4B4F6A",
+                  boxShadow: annual ? "0 1px 6px rgba(0,0,0,0.5)" : "none",
+                }}
+                onClick={() => setAnnual(true)}
+              >
+                Anual
+                <span
+                  className="text-[10px] px-1.5 py-0.5 rounded-full font-bold"
+                  style={{
+                    background: "rgba(0,208,132,0.15)",
+                    color: "#00D084",
+                    border: "1px solid rgba(0,208,132,0.25)",
+                  }}
+                >
+                  -17%
+                </span>
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Plans */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-4 items-stretch">
           {plans.map((plan, i) => {
             const Icon = plan.icon
             const price = annual ? plan.price.annual / 12 : plan.price.monthly
             const displayPrice = plan.price.monthly === 0 ? "R$0" : `R$${Math.round(price)}`
 
-            return (
-              <div
-                key={i}
-                className="relative rounded-2xl p-6 flex flex-col transition-all duration-200"
-                style={{
-                  background: plan.popular
-                    ? "linear-gradient(135deg, rgba(0,208,132,0.06) 0%, rgba(15,17,23,0) 60%)"
-                    : "#0F1117",
-                  border: plan.popular ? "1px solid #00D084" : "1px solid #2A2D3A",
-                  boxShadow: plan.popular ? "0 0 40px rgba(0,208,132,0.1)" : undefined,
-                }}
-              >
-                {/* Popular badge */}
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-2">
+            if (plan.popular) {
+              return (
+                <div
+                  key={i}
+                  className="relative rounded-2xl flex flex-col"
+                  style={{
+                    background: "linear-gradient(160deg, rgba(0,208,132,0.09) 0%, rgba(0,208,132,0.03) 50%, #131620 100%)",
+                    border: "1px solid rgba(0,208,132,0.45)",
+                    boxShadow: "0 0 60px rgba(0,208,132,0.14), 0 0 0 1px rgba(0,208,132,0.08), 0 20px 60px rgba(0,0,0,0.5)",
+                    padding: "20px 20px 20px",
+                  }}
+                >
+                  {/* Top glow line */}
+                  <div
+                    className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px"
+                    style={{ background: "linear-gradient(90deg, transparent, rgba(0,208,132,0.6), transparent)" }}
+                  />
+
+                  {/* "Mais popular" badge */}
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
                     <span
-                      className="px-3 py-1 rounded-full text-xs font-bold"
-                      style={{ background: "#00D084", color: "#0F1117" }}
+                      className="flex items-center gap-1.5 px-4 py-1 rounded-full text-xs font-bold whitespace-nowrap"
+                      style={{
+                        background: "linear-gradient(135deg, #00D084 0%, #00B872 100%)",
+                        color: "#0A0C14",
+                        boxShadow: "0 4px 16px rgba(0,208,132,0.45)",
+                      }}
                     >
+                      <Star className="w-3 h-3 fill-current" />
                       Mais popular
                     </span>
                   </div>
-                )}
 
-                {/* Plan icon + name */}
-                <div className="flex items-center gap-3 mb-4">
-                  <div
-                    className="w-9 h-9 rounded-lg flex items-center justify-center"
-                    style={{ background: plan.iconBg }}
+                  {/* Plan name */}
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <div
+                      className="w-8 h-8 rounded-xl flex items-center justify-center"
+                      style={{
+                        background: "rgba(0,208,132,0.12)",
+                        border: "1px solid rgba(0,208,132,0.3)",
+                        boxShadow: "0 0 16px rgba(0,208,132,0.2)",
+                      }}
+                    >
+                      <Icon className="w-4 h-4" style={{ color: "#00D084" }} />
+                    </div>
+                    <div>
+                      <p className="font-bold text-base" style={{ color: "#F4F4F5" }}>{plan.name}</p>
+                      <p className="text-xs" style={{ color: "#8B8FA8" }}>{plan.description}</p>
+                    </div>
+                  </div>
+
+                  {/* Price */}
+                  <div className="mb-3">
+                    <div className="flex items-baseline gap-1">
+                      <span
+                        className="text-3xl font-extrabold font-mono"
+                        style={{ color: "#F4F4F5", letterSpacing: "-0.02em" }}
+                      >
+                        {displayPrice}
+                      </span>
+                      <span className="text-sm font-medium" style={{ color: "#8B8FA8" }}>/mês</span>
+                    </div>
+                    {annual && (
+                      <p className="text-xs mt-1 font-medium" style={{ color: "#00D084" }}>
+                        R${plan.price.annual}/ano · economia de R${plan.price.monthly * 12 - plan.price.annual}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* CTA */}
+                  <Link
+                    href={plan.href}
+                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-150 mb-1 hover:scale-[1.02] active:scale-[0.98]"
+                    style={{
+                      background: "linear-gradient(135deg, #00D084 0%, #00B872 100%)",
+                      color: "#0A0C14",
+                      boxShadow: "0 4px 24px rgba(0,208,132,0.5), 0 1px 0 rgba(255,255,255,0.1) inset",
+                    }}
                   >
-                    <Icon className="w-4 h-4" style={{ color: plan.iconColor }} />
+                    {plan.cta} <ArrowRight className="w-4 h-4" />
+                  </Link>
+                  <p className="text-center text-xs mb-3" style={{ color: "#00D084" }}>
+                    {plan.ctaNote}
+                  </p>
+
+                  {/* Divider */}
+                  <div className="mb-3 h-px" style={{ background: "rgba(0,208,132,0.12)" }} />
+
+                  {/* Features */}
+                  <div className="space-y-1.5 flex-1">
+                    {plan.features.map((feat, j) => (
+                      <div key={j} className="flex items-center gap-2">
+                        <Check className="w-3 h-3 shrink-0" style={{ color: "#00D084" }} />
+                        <span className="text-xs" style={{ color: "#D4D4D8" }}>{feat}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            }
+
+            return (
+              <div
+                key={i}
+                className="relative rounded-2xl p-4 flex flex-col transition-all duration-200 hover:-translate-y-1"
+                style={{
+                  background: "#1A1D27",
+                  border: "1px solid #2A2D3A",
+                  borderTop: `2px solid ${plan.color}30`,
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.borderColor = plan.color + "30"
+                  e.currentTarget.style.boxShadow = `0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px ${plan.color}20`
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.borderColor = "#2A2D3A"
+                  e.currentTarget.style.boxShadow = "none"
+                }}
+              >
+                {/* Plan name */}
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div
+                    className="w-8 h-8 rounded-xl flex items-center justify-center"
+                    style={{
+                      background: `${plan.color}12`,
+                      border: `1px solid ${plan.color}25`,
+                    }}
+                  >
+                    <Icon className="w-4 h-4" style={{ color: plan.color }} />
                   </div>
                   <div>
-                    <p className="font-bold text-base" style={{ color: "#F4F4F5" }}>{plan.name}</p>
-                    <p className="text-xs" style={{ color: "#8B8FA8" }}>{plan.description}</p>
+                    <p className="font-bold text-sm" style={{ color: "#F4F4F5" }}>{plan.name}</p>
+                    <p className="text-xs" style={{ color: "#4B4F6A" }}>{plan.description}</p>
                   </div>
                 </div>
 
                 {/* Price */}
-                <div className="mb-6">
+                <div className="mb-3">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-extrabold font-mono" style={{ color: "#F4F4F5" }}>
+                    <span className="text-2xl font-extrabold font-mono" style={{ color: "#F4F4F5" }}>
                       {displayPrice}
                     </span>
                     {plan.price.monthly > 0 && (
-                      <span className="text-sm" style={{ color: "#8B8FA8" }}>/mês</span>
+                      <span className="text-xs" style={{ color: "#8B8FA8" }}>/mês</span>
                     )}
                   </div>
                   {annual && plan.price.annual > 0 && (
-                    <p className="text-xs mt-1" style={{ color: "#8B8FA8" }}>
-                      R${plan.price.annual}/ano — economize R${plan.price.monthly * 12 - plan.price.annual}
+                    <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>
+                      R${plan.price.annual}/ano
                     </p>
                   )}
                 </div>
@@ -200,35 +357,28 @@ export function PricingSection() {
                 {/* CTA */}
                 <Link
                   href={plan.href}
-                  className="block text-center px-4 py-3 rounded-xl font-bold text-sm transition-all duration-150 mb-2"
+                  className="block text-center px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-150 mb-1 hover:bg-white/5"
                   style={{
-                    background: plan.popular ? "#00D084" : "transparent",
-                    color: plan.popular ? "#0F1117" : "#F4F4F5",
-                    border: plan.popular ? "none" : "1px solid #2A2D3A",
+                    background: "transparent",
+                    color: "#D4D4D8",
+                    border: "1px solid #2A2D3A",
                   }}
                 >
                   {plan.cta}
                 </Link>
-                {plan.popular && (
-                  <p className="text-center text-xs mb-4" style={{ color: "#00D084" }}>
-                    ✓ 7 dias grátis · Cartão necessário · Sem cobrança no trial
-                  </p>
-                )}
-                {!plan.popular && plan.price.monthly === 0 && (
-                  <p className="text-center text-xs mb-4" style={{ color: "#4B4F6A" }}>
-                    Sem cartão de crédito necessário
-                  </p>
-                )}
-                {!plan.popular && plan.price.monthly > 0 && (
-                  <div className="mb-4" />
-                )}
+                <p className="text-center text-xs mb-3" style={{ color: "#4B4F6A" }}>
+                  {plan.ctaNote}
+                </p>
+
+                {/* Divider */}
+                <div className="mb-2.5 h-px" style={{ background: "#2A2D3A" }} />
 
                 {/* Features */}
-                <div className="space-y-2.5 flex-1">
+                <div className="space-y-1.5 flex-1">
                   {plan.features.map((feat, j) => (
-                    <div key={j} className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "#00D084" }} />
-                      <span className="text-sm" style={{ color: "#8B8FA8" }}>{feat}</span>
+                    <div key={j} className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 shrink-0" style={{ color: plan.color }} />
+                      <span className="text-xs" style={{ color: "#8B8FA8" }}>{feat}</span>
                     </div>
                   ))}
                 </div>
@@ -237,19 +387,9 @@ export function PricingSection() {
           })}
         </div>
 
-        {/* Trial note */}
-        <div
-          className="mt-8 flex items-center justify-center gap-2 py-3 px-5 rounded-xl max-w-lg mx-auto"
-          style={{ background: "rgba(0,208,132,0.06)", border: "1px solid rgba(0,208,132,0.15)" }}
-        >
-          <Zap className="w-4 h-4 shrink-0" style={{ color: "#00D084" }} />
-          <p className="text-sm text-center" style={{ color: "#8B8FA8" }}>
-            Ao criar conta, você recebe <strong style={{ color: "#00D084" }}>7 dias do plano Pro de graça</strong> — sem cartão de crédito. Após o período, volta automaticamente ao plano Grátis.
-          </p>
-        </div>
-
-        <p className="text-center mt-4 text-sm" style={{ color: "#4B4F6A" }}>
-          Sem taxa de setup · Cancele quando quiser · Dados seguros com criptografia
+        {/* Bottom trust */}
+        <p className="text-center mt-4 text-xs" style={{ color: "#4B4F6A" }}>
+          Sem taxa de setup · Cancele quando quiser · Dados criptografados
         </p>
       </div>
     </section>

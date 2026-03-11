@@ -17,6 +17,7 @@ interface UploadResult {
   score?: number
   savingsMin?: number
   savingsMax?: number
+  topLeaks?: { title: string; amount: string | null }[]
 }
 
 interface UseUploadReturn {
@@ -134,6 +135,7 @@ export function useUpload(): UseUploadReturn {
             savingsMin?: string | number | null
             savingsMax?: string | number | null
             message?: string
+            topLeaks?: { title: string; amount: string | null }[]
           }
 
           if (msg.type === "status") {
@@ -145,6 +147,7 @@ export function useUpload(): UseUploadReturn {
                 score: msg.score,
                 savingsMin: msg.savingsMin !== null && msg.savingsMin !== undefined ? Number(msg.savingsMin) : undefined,
                 savingsMax: msg.savingsMax !== null && msg.savingsMax !== undefined ? Number(msg.savingsMax) : undefined,
+                topLeaks: msg.topLeaks as { title: string; amount: string | null }[] | undefined,
               })
               setStatus("done")
             } else if (msg.status === "error") {

@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, TrendingDown, Lightbulb, Bell, ClipboardList, FileText, CheckCircle, Loader2 } from "lucide-react"
+import {
+  ArrowLeft, TrendingDown, Lightbulb, Bell, ClipboardList,
+  FileText, CheckCircle, Loader2, X, HelpCircle, Printer,
+} from "lucide-react"
 import { CardSkeleton } from "@/components/ui/skeletons"
 import { PageTransition } from "@/components/ui/page-transition"
 
@@ -15,6 +18,14 @@ function n(v: string | number | null | undefined) { return Number(v ?? 0) }
 const IMPACT_COLOR: Record<string, string> = { high: "#FF4D4F", medium: "#F59E0B", low: "#8B8FA8" }
 const SEV_COLOR: Record<string, string> = { critical: "#FF4D4F", warning: "#F59E0B", info: "#3B82F6" }
 
+const SUBSCORE_LABELS: Record<string, string> = {
+  subscriptions: "Assinaturas recorrentes",
+  vendors: "Concentração de fornecedores",
+  recurring: "Padrões de recorrência",
+  concentration: "Concentração de gastos",
+  cashflow: "Fluxo de caixa",
+}
+
 type Analysis = {
   id: string; score: number; status: string
   totalExpenses: string; totalIncome: string; netResult: string
@@ -23,6 +34,7 @@ type Analysis = {
   insights: { id: string; type: string; title: string; description: string; impact: string; urgency: string | null; amount: string | null }[]
   alerts: { id: string; type: string; severity: string; title: string; message: string; amount: string | null }[]
   recommendations: { id: string; title: string; description: string; impact: string | null; urgency: string | null; savingsEstimate: string | null; priority: number }[]
+  scoreSnapshots: { subscores: Record<string, number> | null }[]
   upload: { fileName: string; rowsCount: number | null } | null
 }
 
@@ -44,6 +56,62 @@ function ScoreRing({ score }: { score: number }) {
   )
 }
 
+// ── Item 9: Score explained modal ─────────────────────────────────────────────
+function ScoreModal({ score, subscores, onClose }: {
+  score: number
+  subscores: Record<string, number> | null
+  onClose: () => void
+}) {
+  const color = score >= 75 ? "#00D084" : score >= 50 ? "#F59E0B" : "#FF4D4F"
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={onClose}>
+      <div className="rounded-2xl p-6 w-full max-w-sm mx-4" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}
+        onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-base font-bold" style={{ color: "#F4F4F5" }}>Composição do Score</h3>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-[#212435] transition-colors" style={{ color: "#8B8FA8" }}>
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="flex justify-center mb-6">
+          <div className="text-center">
+            <p className="text-5xl font-black" style={{ color }}>{score}</p>
+            <p className="text-xs mt-1" style={{ color: "#4B4F6A" }}>
+              {score >= 75 ? "Saúde financeira boa" : score >= 50 ? "Atenção necessária" : "Situação crítica"}
+            </p>
+          </div>
+        </div>
+        {subscores && Object.keys(subscores).length > 0 ? (
+          <div className="space-y-3.5">
+            {Object.entries(subscores).map(([key, val]) => {
+              const c2 = val >= 75 ? "#00D084" : val >= 50 ? "#F59E0B" : "#FF4D4F"
+              return (
+                <div key={key}>
+                  <div className="flex justify-between mb-1.5">
+                    <span className="text-xs" style={{ color: "#8B8FA8" }}>{SUBSCORE_LABELS[key] ?? key}</span>
+                    <span className="text-xs font-bold" style={{ color: c2 }}>{val}/100</span>
+                  </div>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "#212435" }}>
+                    <div className="h-full rounded-full" style={{ width: `${val}%`, background: c2, transition: "width 0.8s ease" }} />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <p className="text-sm text-center py-4" style={{ color: "#4B4F6A" }}>
+            Dados de subscore não disponíveis para esta análise.
+          </p>
+        )}
+        <p className="text-[10px] mt-5" style={{ color: "#4B4F6A" }}>
+          O score combina 5 dimensões de saúde financeira. Cada subscore pode ser melhorado implementando as recomendações do Plano de Ação.
+        </p>
+      </div>
+    </div>
+  )
+}
+
 export default function AnalysisPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
@@ -54,6 +122,7 @@ export default function AnalysisPage() {
   const [aiInsight, setAiInsight] = useState<string | null>(null)
   const [loadingInsight, setLoadingInsight] = useState(false)
   const [benchmarks, setBenchmarks] = useState<{ label: string; actual: number; benchmark: number; suffix: string; betterWhenHigher: boolean }[] | null>(null)
+  const [scoreModal, setScoreModal] = useState(false)
 
   async function exportPdf() {
     if (!analysis || exporting) return
@@ -74,6 +143,11 @@ export default function AnalysisPage() {
     } finally {
       setExporting(false)
     }
+  }
+
+  // ── Item 14: Print mode ──────────────────────────────────────────────────
+  function handlePrint() {
+    window.print()
   }
 
   useEffect(() => {
@@ -119,243 +193,311 @@ export default function AnalysisPage() {
   const leaks = a.insights.filter(i => i.type === "leak")
   const opps = a.insights.filter(i => i.type === "opportunity")
   const fmtPeriod = (d: string) => new Date(d).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })
+  const subscores = a.scoreSnapshots?.[0]?.subscores ?? null
 
   const TABS = [
-    { id: "leaks" as const, label: "Vazamentos", count: leaks.length, color: "#FF4D4F" },
-    { id: "opportunities" as const, label: "Oportunidades", count: opps.length, color: "#00D084" },
-    { id: "alerts" as const, label: "Alertas", count: a.alerts.length, color: "#F59E0B" },
-    { id: "actions" as const, label: "Plano de ação", count: a.recommendations.length, color: "#3B82F6" },
+    { id: "leaks" as const, label: "Vazamentos", count: leaks.length, color: "#FF4D4F", icon: TrendingDown },
+    { id: "opportunities" as const, label: "Oportunidades", count: opps.length, color: "#00D084", icon: Lightbulb },
+    { id: "alerts" as const, label: "Alertas", count: a.alerts.length, color: "#F59E0B", icon: Bell },
+    { id: "actions" as const, label: "Plano de ação", count: a.recommendations.length, color: "#3B82F6", icon: ClipboardList },
   ]
 
   return (
-    <PageTransition>
-    <div className="px-6 py-8 space-y-6">
-      {/* Back */}
-      <Link href="/app/history" className="inline-flex items-center gap-2 text-sm"
-        style={{ color: "#8B8FA8" }}>
-        <ArrowLeft className="w-4 h-4" /> Voltar ao histórico
-      </Link>
+    <>
+      {/* ── Item 14: Print CSS ──────────────────────────────────────────── */}
+      <style>{`
+        @media print {
+          aside, nav, [data-no-print] { display: none !important; }
+          body { background: white !important; color: black !important; }
+          .rounded-2xl { border-radius: 8px !important; border: 1px solid #ddd !important; }
+        }
+      `}</style>
 
-      {/* Header */}
-      <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-        <div className="flex items-start gap-6">
-          <ScoreRing score={a.score ?? 0} />
-          <div className="flex-1 min-w-0">
-            <p className="text-lg font-black mb-1" style={{ color: "#F4F4F5" }}>
-              {a.upload?.fileName ?? "Análise"}
-            </p>
-            <p className="text-sm mb-4" style={{ color: "#8B8FA8" }}>
-              {a.periodStart ? `${fmtPeriod(a.periodStart)} — ${fmtPeriod(a.periodEnd)}` : "—"}
-              {a.upload?.rowsCount && ` · ${a.upload.rowsCount.toLocaleString("pt-BR")} transações`}
-            </p>
-            <div className="grid grid-cols-4 gap-3">
-              {[
-                { label: "Despesas", value: fmt(a.totalExpenses), color: "#FF4D4F" },
-                { label: "Receita", value: fmt(a.totalIncome), color: "#00D084" },
-                { label: "Resultado", value: fmt(a.netResult), color: n(a.netResult) >= 0 ? "#00D084" : "#FF4D4F" },
-                { label: "Economia est.", value: `até ${fmt(a.savingsMax)}/mês`, color: "#F59E0B" },
-              ].map(({ label, value, color }) => (
-                <div key={label} className="rounded-xl p-3" style={{ background: "#212435" }}>
-                  <p className="text-xs mb-1" style={{ color: "#4B4F6A" }}>{label}</p>
-                  <p className="text-sm font-bold truncate" style={{ color }}>{value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-          <button onClick={exportPdf} disabled={exporting}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold shrink-0 disabled:opacity-60"
+      {/* ── Item 9: Score modal ──────────────────────────────────────────── */}
+      {scoreModal && (
+        <ScoreModal score={a.score ?? 0} subscores={subscores} onClose={() => setScoreModal(false)} />
+      )}
+
+      <PageTransition>
+      <div className="px-6 py-8 space-y-6">
+        {/* Back */}
+        <div className="flex items-center justify-between" data-no-print>
+          <Link href="/app/history" className="inline-flex items-center gap-2 text-sm"
+            style={{ color: "#8B8FA8" }}>
+            <ArrowLeft className="w-4 h-4" /> Voltar ao histórico
+          </Link>
+          {/* ── Item 14: Print button ─────────────────────────────────── */}
+          <button onClick={handlePrint}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors hover:opacity-80"
             style={{ background: "#212435", color: "#8B8FA8", border: "1px solid #2A2D3A" }}>
-            {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-            {exporting ? "Gerando..." : "Exportar PDF"}
+            <Printer className="w-3.5 h-3.5" /> Imprimir
           </button>
         </div>
-      </div>
 
-      {/* Benchmarks por Setor */}
-      {benchmarks && benchmarks.length > 0 && (
-        <div className="rounded-2xl p-5" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-          <p className="text-xs font-semibold mb-4" style={{ color: "#4B4F6A", textTransform: "uppercase", letterSpacing: "1px" }}>
-            Comparativo com o Setor
-          </p>
-          <div className="grid grid-cols-3 gap-3">
-            {benchmarks.map(b => {
-              const isGood = b.betterWhenHigher ? b.actual >= b.benchmark * 0.9 : b.actual <= b.benchmark * 1.1
-              const color = isGood ? "#00D084" : b.actual >= b.benchmark * 0.7 ? "#F59E0B" : "#FF4D4F"
+        {/* Header */}
+        <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+          <div className="flex items-start gap-6">
+            {/* ── Item 9: Score ring with ? button ─────────────────────── */}
+            <div className="flex flex-col items-center gap-2 shrink-0">
+              <ScoreRing score={a.score ?? 0} />
+              <button onClick={() => setScoreModal(true)}
+                className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-lg transition-colors hover:opacity-80"
+                style={{ background: "#212435", color: "#4B4F6A", border: "1px solid #2A2D3A" }}>
+                <HelpCircle className="w-3 h-3" /> Como é calculado?
+              </button>
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <p className="text-lg font-black mb-1" style={{ color: "#F4F4F5" }}>
+                {a.upload?.fileName ?? "Análise"}
+              </p>
+              <p className="text-sm mb-4" style={{ color: "#8B8FA8" }}>
+                {a.periodStart ? `${fmtPeriod(a.periodStart)} — ${fmtPeriod(a.periodEnd)}` : "—"}
+                {a.upload?.rowsCount && ` · ${a.upload.rowsCount.toLocaleString("pt-BR")} transações`}
+              </p>
+              <div className="grid grid-cols-4 gap-3">
+                {[
+                  { label: "Despesas", value: fmt(a.totalExpenses), color: "#FF4D4F" },
+                  { label: "Receita", value: fmt(a.totalIncome), color: "#00D084" },
+                  { label: "Resultado", value: fmt(a.netResult), color: n(a.netResult) >= 0 ? "#00D084" : "#FF4D4F" },
+                  { label: "Economia est.", value: `até ${fmt(a.savingsMax)}/mês`, color: "#F59E0B" },
+                ].map(({ label, value, color }) => (
+                  <div key={label} className="rounded-xl p-3" style={{ background: "#212435" }}>
+                    <p className="text-xs mb-1" style={{ color: "#4B4F6A" }}>{label}</p>
+                    <p className="text-sm font-bold truncate" style={{ color }}>{value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <button onClick={exportPdf} disabled={exporting} data-no-print
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold shrink-0 disabled:opacity-60"
+              style={{ background: "#212435", color: "#8B8FA8", border: "1px solid #2A2D3A" }}>
+              {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+              {exporting ? "Gerando..." : "Exportar PDF"}
+            </button>
+          </div>
+        </div>
+
+        {/* Benchmarks por Setor */}
+        {benchmarks && benchmarks.length > 0 && (
+          <div className="rounded-2xl p-5" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+            <p className="text-xs font-semibold mb-4" style={{ color: "#4B4F6A", textTransform: "uppercase", letterSpacing: "1px" }}>
+              Comparativo com o Setor
+            </p>
+            <div className="grid grid-cols-3 gap-3">
+              {benchmarks.map(b => {
+                const isGood = b.betterWhenHigher ? b.actual >= b.benchmark * 0.9 : b.actual <= b.benchmark * 1.1
+                const color = isGood ? "#00D084" : b.actual >= b.benchmark * 0.7 ? "#F59E0B" : "#FF4D4F"
+                return (
+                  <div key={b.label} className="rounded-xl p-3" style={{ background: "#212435", borderLeft: `3px solid ${color}` }}>
+                    <p className="text-[10px] mb-1.5" style={{ color: "#4B4F6A" }}>{b.label}</p>
+                    <p className="text-sm font-bold" style={{ color }}>{b.actual.toFixed(1)}{b.suffix}</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: "#4B4F6A" }}>Setor: {b.benchmark.toFixed(1)}{b.suffix}</p>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── Item 6: AI Insight with signature ──────────────────────────── */}
+        {(aiInsight || loadingInsight) && (
+          <div className="rounded-2xl p-5" style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(0,208,132,0.05) 100%)", border: "1px solid rgba(59,130,246,0.2)" }}>
+            <div className="flex items-start gap-3">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-sm" style={{ background: "rgba(59,130,246,0.15)", color: "#3B82F6" }}>✦</div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold mb-1.5" style={{ color: "#3B82F6" }}>Diagnóstico por IA</p>
+                {loadingInsight ? (
+                  <div className="space-y-2">
+                    <div className="h-3 rounded-full animate-pulse w-full" style={{ background: "#2A2D3A" }} />
+                    <div className="h-3 rounded-full animate-pulse w-4/5" style={{ background: "#2A2D3A" }} />
+                    <div className="h-3 rounded-full animate-pulse w-3/5" style={{ background: "#2A2D3A" }} />
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-sm leading-relaxed mb-3" style={{ color: "#8B8FA8" }}>{aiInsight}</p>
+                    <div className="flex items-center gap-3 pt-3" style={{ borderTop: "1px solid rgba(59,130,246,0.1)" }}>
+                      <span className="text-[10px]" style={{ color: "#4B4F6A" }}>
+                        Baseado em {a.upload?.rowsCount?.toLocaleString("pt-BR") ?? "—"} transações
+                      </span>
+                      <span className="text-[10px]" style={{ color: "#2A2D3A" }}>·</span>
+                      <span className="text-[10px]" style={{ color: "#4B4F6A" }}>
+                        {a.periodStart ? `${new Date(a.periodStart).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })} — ${new Date(a.periodEnd).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })}` : "—"}
+                      </span>
+                      <span className="text-[10px]" style={{ color: "#2A2D3A" }}>·</span>
+                      <span className="text-[10px]" style={{ color: "#4B4F6A" }}>Modelo CFO-AI v2</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Item 13: Tabs ────────────────────────────────────────────────── */}
+        <div className="flex gap-2 flex-wrap" data-no-print>
+          {TABS.map(({ id: tid, label, count, color }) => (
+            <button key={tid} onClick={() => setTab(tid)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
+              style={{
+                background: tab === tid ? `${color}14` : "#1A1D27",
+                border: tab === tid ? `1px solid ${color}40` : "1px solid #2A2D3A",
+                color: tab === tid ? color : "#8B8FA8",
+              }}>
+              {label}
+              <span className="text-xs font-bold px-1.5 py-0.5 rounded-full"
+                style={{ background: tab === tid ? `${color}20` : "#212435", color: tab === tid ? color : "#4B4F6A" }}>
+                {count}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* ── Item 13: Tab content with fade animation (key triggers remount) */}
+        <div key={tab} style={{ animation: "fadeIn 0.2s ease" }} className="space-y-3">
+          <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+
+          {tab === "leaks" && (
+            leaks.length === 0 ? (
+              <p className="text-sm py-8 text-center" style={{ color: "#4B4F6A" }}>Nenhum vazamento detectado</p>
+            ) : leaks.map(leak => (
+              // ── Item 15: Left border on cards ──────────────────────────
+              <div key={leak.id} className="rounded-2xl p-5"
+                style={{ background: "#1A1D27", border: "1px solid #2A2D3A", borderLeft: `3px solid ${IMPACT_COLOR[leak.impact] ?? "#8B8FA8"}` }}>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <TrendingDown className="w-4 h-4 shrink-0 mt-0.5" style={{ color: IMPACT_COLOR[leak.impact] ?? "#8B8FA8" }} />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>{leak.title}</p>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
+                          style={{ background: `${IMPACT_COLOR[leak.impact] ?? "#8B8FA8"}14`, color: IMPACT_COLOR[leak.impact] ?? "#8B8FA8" }}>
+                          {leak.impact === "high" ? "Alto impacto" : leak.impact === "medium" ? "Médio impacto" : "Baixo impacto"}
+                        </span>
+                      </div>
+                      <p className="text-xs leading-relaxed" style={{ color: "#8B8FA8" }}>{leak.description}</p>
+                    </div>
+                  </div>
+                  {leak.amount && (
+                    <div className="text-right shrink-0">
+                      <p className="text-base font-black" style={{ color: "#FF4D4F" }}>−{fmt(leak.amount)}</p>
+                      <p className="text-xs" style={{ color: "#4B4F6A" }}>por mês</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+
+          {tab === "opportunities" && (
+            opps.length === 0 ? (
+              <p className="text-sm py-8 text-center" style={{ color: "#4B4F6A" }}>Nenhuma oportunidade identificada</p>
+            ) : opps.map(opp => {
+              // ── Item 8: Annualized ROI ────────────────────────────────
+              const monthly = n(opp.amount)
+              const annual = monthly * 12
               return (
-                <div key={b.label} className="rounded-xl p-3" style={{ background: "#212435" }}>
-                  <p className="text-[10px] mb-1.5" style={{ color: "#4B4F6A" }}>{b.label}</p>
-                  <p className="text-sm font-bold" style={{ color }}>{b.actual.toFixed(1)}{b.suffix}</p>
-                  <p className="text-[10px] mt-0.5" style={{ color: "#4B4F6A" }}>Setor: {b.benchmark.toFixed(1)}{b.suffix}</p>
+                <div key={opp.id} className="rounded-2xl p-5"
+                  style={{ background: "#1A1D27", border: "1px solid #2A2D3A", borderLeft: "3px solid #00D084" }}>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                      <Lightbulb className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#00D084" }} />
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold mb-1" style={{ color: "#F4F4F5" }}>{opp.title}</p>
+                        <p className="text-xs leading-relaxed" style={{ color: "#8B8FA8" }}>{opp.description}</p>
+                      </div>
+                    </div>
+                    {opp.amount && (
+                      <div className="text-right shrink-0">
+                        <p className="text-base font-black" style={{ color: "#00D084" }}>+{fmt(opp.amount)}</p>
+                        <p className="text-xs" style={{ color: "#4B4F6A" }}>por mês</p>
+                        {annual > 0 && (
+                          <p className="text-[10px] mt-0.5 font-semibold" style={{ color: "#00D084", opacity: 0.7 }}>
+                            = {fmt(annual)}/ano
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )
-            })}
-          </div>
-        </div>
-      )}
+            })
+          )}
 
-      {/* AI Insight */}
-      {(aiInsight || loadingInsight) && (
-        <div className="rounded-2xl p-5" style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(0,208,132,0.05) 100%)", border: "1px solid rgba(59,130,246,0.2)" }}>
-          <div className="flex items-start gap-3">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-sm" style={{ background: "rgba(59,130,246,0.15)", color: "#3B82F6" }}>✦</div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold mb-1.5" style={{ color: "#3B82F6" }}>Diagnóstico por IA</p>
-              {loadingInsight ? (
-                <div className="space-y-2">
-                  <div className="h-3 rounded-full animate-pulse w-full" style={{ background: "#2A2D3A" }} />
-                  <div className="h-3 rounded-full animate-pulse w-4/5" style={{ background: "#2A2D3A" }} />
-                  <div className="h-3 rounded-full animate-pulse w-3/5" style={{ background: "#2A2D3A" }} />
-                </div>
-              ) : (
-                <p className="text-sm leading-relaxed" style={{ color: "#8B8FA8" }}>{aiInsight}</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tabs */}
-      <div className="flex gap-2 flex-wrap">
-        {TABS.map(({ id: tid, label, count, color }) => (
-          <button key={tid} onClick={() => setTab(tid)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
-            style={{
-              background: tab === tid ? `${color}14` : "#1A1D27",
-              border: tab === tid ? `1px solid ${color}40` : "1px solid #2A2D3A",
-              color: tab === tid ? color : "#8B8FA8",
-            }}>
-            {label}
-            <span className="text-xs font-bold px-1.5 py-0.5 rounded-full"
-              style={{ background: tab === tid ? `${color}20` : "#212435", color: tab === tid ? color : "#4B4F6A" }}>
-              {count}
-            </span>
-          </button>
-        ))}
-      </div>
-
-      {/* Tab content */}
-      <div className="space-y-3">
-        {tab === "leaks" && (
-          leaks.length === 0 ? (
-            <p className="text-sm py-8 text-center" style={{ color: "#4B4F6A" }}>Nenhum vazamento detectado</p>
-          ) : leaks.map(leak => (
-            <div key={leak.id} className="rounded-2xl p-5" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <TrendingDown className="w-4 h-4 shrink-0 mt-0.5" style={{ color: IMPACT_COLOR[leak.impact] ?? "#8B8FA8" }} />
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>{leak.title}</p>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
-                        style={{ background: `${IMPACT_COLOR[leak.impact] ?? "#8B8FA8"}14`, color: IMPACT_COLOR[leak.impact] ?? "#8B8FA8" }}>
-                        {leak.impact === "high" ? "Alto" : leak.impact === "medium" ? "Médio" : "Baixo"}
-                      </span>
+          {tab === "alerts" && (
+            a.alerts.length === 0 ? (
+              <p className="text-sm py-8 text-center" style={{ color: "#4B4F6A" }}>Nenhum alerta registrado</p>
+            ) : a.alerts.map(alert => (
+              <div key={alert.id} className="rounded-2xl p-5"
+                style={{
+                  background: `${SEV_COLOR[alert.severity] ?? "#8B8FA8"}08`,
+                  border: `1px solid ${SEV_COLOR[alert.severity] ?? "#8B8FA8"}25`,
+                  borderLeft: `3px solid ${SEV_COLOR[alert.severity] ?? "#8B8FA8"}`,
+                }}>
+                <div className="flex items-start gap-3">
+                  <Bell className="w-4 h-4 shrink-0 mt-0.5" style={{ color: SEV_COLOR[alert.severity] ?? "#8B8FA8" }} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>{alert.title}</p>
+                      {alert.amount && (
+                        <p className="text-sm font-bold shrink-0" style={{ color: SEV_COLOR[alert.severity] ?? "#8B8FA8" }}>
+                          {fmt(alert.amount)}
+                        </p>
+                      )}
                     </div>
-                    <p className="text-xs leading-relaxed" style={{ color: "#8B8FA8" }}>{leak.description}</p>
+                    <p className="text-xs leading-relaxed" style={{ color: "#8B8FA8" }}>{alert.message}</p>
                   </div>
                 </div>
-                {leak.amount && (
-                  <div className="text-right shrink-0">
-                    <p className="text-base font-black" style={{ color: "#FF4D4F" }}>−{fmt(leak.amount)}</p>
-                    <p className="text-xs" style={{ color: "#4B4F6A" }}>por mês</p>
-                  </div>
-                )}
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
 
-        {tab === "opportunities" && (
-          opps.length === 0 ? (
-            <p className="text-sm py-8 text-center" style={{ color: "#4B4F6A" }}>Nenhuma oportunidade identificada</p>
-          ) : opps.map(opp => (
-            <div key={opp.id} className="rounded-2xl p-5" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <Lightbulb className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#00D084" }} />
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold mb-1" style={{ color: "#F4F4F5" }}>{opp.title}</p>
-                    <p className="text-xs leading-relaxed" style={{ color: "#8B8FA8" }}>{opp.description}</p>
+          {tab === "actions" && (
+            a.recommendations.length === 0 ? (
+              <p className="text-sm py-8 text-center" style={{ color: "#4B4F6A" }}>Nenhuma recomendação gerada</p>
+            ) : a.recommendations.map((rec, i) => (
+              <div key={rec.id} className="rounded-2xl p-5"
+                style={{ background: "#1A1D27", border: "1px solid #2A2D3A", borderLeft: "3px solid #3B82F6" }}>
+                <div className="flex items-start gap-4">
+                  <div className="flex items-center justify-center w-7 h-7 rounded-lg shrink-0 font-bold text-xs"
+                    style={{ background: "rgba(59,130,246,0.1)", color: "#3B82F6", border: "1px solid rgba(59,130,246,0.2)" }}>
+                    {i + 1}
                   </div>
-                </div>
-                {opp.amount && (
-                  <div className="text-right shrink-0">
-                    <p className="text-base font-black" style={{ color: "#00D084" }}>+{fmt(opp.amount)}</p>
-                    <p className="text-xs" style={{ color: "#4B4F6A" }}>por mês</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>{rec.title}</p>
+                      {rec.savingsEstimate && n(rec.savingsEstimate) > 0 && (
+                        <div className="text-right shrink-0">
+                          <p className="text-sm font-black" style={{ color: "#00D084" }}>
+                            +{fmt(rec.savingsEstimate)}/mês
+                          </p>
+                          <p className="text-[10px]" style={{ color: "#00D084", opacity: 0.6 }}>
+                            = {fmt(n(rec.savingsEstimate) * 12)}/ano
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs leading-relaxed mb-2" style={{ color: "#8B8FA8" }}>{rec.description}</p>
+                    <div className="flex items-center gap-2">
+                      {rec.urgency && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-medium"
+                          style={{
+                            background: rec.urgency === "immediate" ? "rgba(255,77,79,0.1)" : rec.urgency === "soon" ? "rgba(245,158,11,0.1)" : "rgba(59,130,246,0.08)",
+                            color: rec.urgency === "immediate" ? "#FF4D4F" : rec.urgency === "soon" ? "#F59E0B" : "#3B82F6",
+                          }}>
+                          {rec.urgency === "immediate" ? "Imediato" : rec.urgency === "soon" ? "Em breve" : "Monitorar"}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                )}
-              </div>
-            </div>
-          ))
-        )}
-
-        {tab === "alerts" && (
-          a.alerts.length === 0 ? (
-            <p className="text-sm py-8 text-center" style={{ color: "#4B4F6A" }}>Nenhum alerta registrado</p>
-          ) : a.alerts.map(alert => (
-            <div key={alert.id} className="rounded-2xl p-5"
-              style={{
-                background: `${SEV_COLOR[alert.severity] ?? "#8B8FA8"}08`,
-                border: `1px solid ${SEV_COLOR[alert.severity] ?? "#8B8FA8"}25`,
-              }}>
-              <div className="flex items-start gap-3">
-                <Bell className="w-4 h-4 shrink-0 mt-0.5" style={{ color: SEV_COLOR[alert.severity] ?? "#8B8FA8" }} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2 mb-1">
-                    <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>{alert.title}</p>
-                    {alert.amount && (
-                      <p className="text-sm font-bold shrink-0" style={{ color: SEV_COLOR[alert.severity] ?? "#8B8FA8" }}>
-                        {fmt(alert.amount)}
-                      </p>
-                    )}
-                  </div>
-                  <p className="text-xs leading-relaxed" style={{ color: "#8B8FA8" }}>{alert.message}</p>
+                  <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: "#2A2D3A" }} />
                 </div>
               </div>
-            </div>
-          ))
-        )}
-
-        {tab === "actions" && (
-          a.recommendations.length === 0 ? (
-            <p className="text-sm py-8 text-center" style={{ color: "#4B4F6A" }}>Nenhuma recomendação gerada</p>
-          ) : a.recommendations.map((rec, i) => (
-            <div key={rec.id} className="rounded-2xl p-5" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-              <div className="flex items-start gap-4">
-                <div className="flex items-center justify-center w-7 h-7 rounded-lg shrink-0 font-bold text-xs"
-                  style={{ background: "#212435", color: "#4B4F6A" }}>
-                  {i + 1}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2 mb-1">
-                    <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>{rec.title}</p>
-                    {rec.savingsEstimate && (
-                      <p className="text-sm font-black shrink-0" style={{ color: "#00D084" }}>
-                        +{fmt(rec.savingsEstimate)}/mês
-                      </p>
-                    )}
-                  </div>
-                  <p className="text-xs leading-relaxed mb-2" style={{ color: "#8B8FA8" }}>{rec.description}</p>
-                  <div className="flex items-center gap-2">
-                    {rec.urgency && (
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-medium"
-                        style={{
-                          background: rec.urgency === "immediate" ? "rgba(255,77,79,0.1)" : "rgba(245,158,11,0.1)",
-                          color: rec.urgency === "immediate" ? "#FF4D4F" : "#F59E0B",
-                        }}>
-                        {rec.urgency === "immediate" ? "Imediato" : rec.urgency === "soon" ? "Em breve" : "Monitorar"}
-                      </span>
-                    )}
-                    <ClipboardList className="w-3.5 h-3.5" style={{ color: "#4B4F6A" }} />
-                  </div>
-                </div>
-                <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: "#2A2D3A" }} />
-              </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
-    </div>
-    </PageTransition>
+      </PageTransition>
+    </>
   )
 }

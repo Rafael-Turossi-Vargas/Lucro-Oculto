@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: ["card"],
+      billing_address_collection: "required",
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${appUrl}/app/settings?upgraded=true`,
       cancel_url: `${appUrl}/app/settings#upgrade`,

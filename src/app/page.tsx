@@ -4,7 +4,6 @@ import { NichesBar } from "@/components/landing/NichesBar"
 import { ProblemSection } from "@/components/landing/ProblemSection"
 import { HowItWorks } from "@/components/landing/HowItWorks"
 import { FeaturesSection } from "@/components/landing/FeaturesSection"
-import { TestimonialsSection } from "@/components/landing/TestimonialsSection"
 import { PricingSection } from "@/components/landing/PricingSection"
 import { SecuritySection } from "@/components/landing/SecuritySection"
 import { FAQSection } from "@/components/landing/FAQSection"
@@ -20,7 +19,6 @@ export default function LandingPage() {
       <ProblemSection />
       <HowItWorks />
       <FeaturesSection />
-      <TestimonialsSection />
       <PricingSection />
       <SecuritySection />
       <FAQSection />

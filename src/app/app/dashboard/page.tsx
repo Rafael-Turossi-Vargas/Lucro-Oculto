@@ -7,7 +7,7 @@ import {
   AreaChart, Area, XAxis, YAxis, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell,
 } from "recharts"
-import { TrendingDown, TrendingUp, AlertTriangle, Lightbulb, ArrowRight, Upload, Loader2, FileText, Info } from "lucide-react"
+import { TrendingDown, TrendingUp, AlertTriangle, Lightbulb, ArrowRight, Upload, Loader2, FileText, Info, AlertCircle } from "lucide-react"
 import { DashboardSkeleton } from "@/components/ui/skeletons"
 import { PageTransition } from "@/components/ui/page-transition"
 import { SimpleTooltip } from "@/components/ui/tooltip"
@@ -30,7 +30,28 @@ function fmtDate(d: string | Date) {
 }
 function n(v: string | number | null | undefined) { return Number(v ?? 0) }
 
-function ScoreRing({ score }: { score: number }) {
+// ── Item 2: Mini sparkline SVG ────────────────────────────────────────────────
+function Sparkline({ values, color }: { values: number[]; color: string }) {
+  if (values.length < 2) return null
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+  const range = max - min || 1
+  const W = 80, H = 24
+  const points = values.map((v, i) => {
+    const x = (i / (values.length - 1)) * W
+    const y = H - ((v - min) / range) * (H - 4) - 2
+    return `${x.toFixed(1)},${y.toFixed(1)}`
+  }).join(" ")
+  return (
+    <svg width={W} height={H} className="opacity-50">
+      <polyline points={points} fill="none" stroke={color} strokeWidth="1.5"
+        strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+// ── Item 1: Score ring with delta ─────────────────────────────────────────────
+function ScoreRing({ score, delta }: { score: number; delta: number | null }) {
   const color = score >= 75 ? "#00D084" : score >= 50 ? "#F59E0B" : "#FF4D4F"
   const c = 2 * Math.PI * 44
   return (
@@ -45,11 +66,28 @@ function ScoreRing({ score }: { score: number }) {
         <p className="text-2xl font-black leading-none" style={{ color }}>{score}</p>
         <p className="text-[10px]" style={{ color: "#4B4F6A" }}>score</p>
       </div>
+      {delta !== null && delta !== 0 && (
+        <div className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full text-[9px] font-black"
+          style={{
+            background: delta > 0 ? "rgba(0,208,132,0.15)" : "rgba(255,77,79,0.15)",
+            color: delta > 0 ? "#00D084" : "#FF4D4F",
+            border: `1px solid ${delta > 0 ? "rgba(0,208,132,0.3)" : "rgba(255,77,79,0.3)"}`,
+          }}>
+          {delta > 0 ? "+" : ""}{delta}
+        </div>
+      )}
     </div>
   )
 }
 
+// ── Item 5: Empty state with benchmarks ───────────────────────────────────────
 function EmptyState({ pending, canUpload }: { pending?: { id: string; status: string } | null; canUpload: boolean }) {
+  const BENCHMARKS = [
+    { label: "Custo com fornecedores", value: "32%", desc: "da receita — média PMEs BR" },
+    { label: "Despesas fixas mensais", value: "18%", desc: "da receita — meta saudável" },
+    { label: "Assinaturas e SaaS", value: "3–5%", desc: "da receita — referência de mercado" },
+  ]
+
   return (
     <div className="px-6 py-8">
       <h1 className="text-2xl font-black mb-10" style={{ color: "#F4F4F5" }}>Dashboard</h1>
@@ -64,25 +102,46 @@ function EmptyState({ pending, canUpload }: { pending?: { id: string; status: st
             style={{ background: "#00D084", color: "#0F1117" }}>Atualizar</button>
         </div>
       ) : (
-        <div className="rounded-2xl p-10 text-center max-w-md mx-auto"
-          style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-          <div className="flex items-center justify-center w-14 h-14 rounded-2xl mx-auto mb-4"
-            style={{ background: "#212435" }}>
-            <FileText className="w-7 h-7" style={{ color: "#4B4F6A" }} />
+        <div className="max-w-2xl mx-auto space-y-6">
+          <div className="rounded-2xl p-10 text-center"
+            style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+            <div className="flex items-center justify-center w-14 h-14 rounded-2xl mx-auto mb-4"
+              style={{ background: "#212435" }}>
+              <FileText className="w-7 h-7" style={{ color: "#4B4F6A" }} />
+            </div>
+            <h2 className="text-base font-bold mb-2" style={{ color: "#F4F4F5" }}>Nenhuma análise ainda</h2>
+            <p className="text-sm mb-6" style={{ color: "#8B8FA8" }}>
+              {canUpload
+                ? "Faça upload do extrato bancário para descobrir onde seu lucro está vazando."
+                : "Aguardando análise — o responsável pelo upload ainda não enviou dados."}
+            </p>
+            {canUpload && (
+              <Link href="/app/upload"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm"
+                style={{ background: "#00D084", color: "#0F1117" }}>
+                <Upload className="w-4 h-4" /> Fazer primeiro upload
+              </Link>
+            )}
           </div>
-          <h2 className="text-base font-bold mb-2" style={{ color: "#F4F4F5" }}>Nenhuma análise ainda</h2>
-          <p className="text-sm mb-6" style={{ color: "#8B8FA8" }}>
-            {canUpload
-              ? "Faça upload do extrato bancário para descobrir onde seu lucro está vazando."
-              : "Aguardando análise — o responsável pelo upload ainda não enviou dados."}
-          </p>
-          {canUpload && (
-            <Link href="/app/upload"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm"
-              style={{ background: "#00D084", color: "#0F1117" }}>
-              <Upload className="w-4 h-4" /> Fazer primeiro upload
-            </Link>
-          )}
+
+          {/* Benchmarks de mercado */}
+          <div className="rounded-2xl p-5" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+            <p className="text-xs font-semibold mb-4" style={{ color: "#4B4F6A", textTransform: "uppercase", letterSpacing: "1px" }}>
+              Benchmarks de mercado — PMEs brasileiras
+            </p>
+            <div className="grid grid-cols-3 gap-3">
+              {BENCHMARKS.map(b => (
+                <div key={b.label} className="rounded-xl p-3.5" style={{ background: "#212435" }}>
+                  <p className="text-xl font-black mb-1" style={{ color: "#F59E0B" }}>{b.value}</p>
+                  <p className="text-xs font-medium mb-0.5" style={{ color: "#F4F4F5" }}>{b.label}</p>
+                  <p className="text-[10px]" style={{ color: "#4B4F6A" }}>{b.desc}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs mt-3" style={{ color: "#4B4F6A" }}>
+              Faça upload do seu extrato para comparar com esses benchmarks e descobrir onde está seu lucro oculto.
+            </p>
+          </div>
         </div>
       )}
     </div>
@@ -91,6 +150,7 @@ function EmptyState({ pending, canUpload }: { pending?: { id: string; status: st
 
 type Insight = { id: string; type: string; title: string; description: string; impact: string; amount: string | null }
 type DashAlert = { id: string; severity: string; title: string; message: string }
+type DashRecommendation = { id: string; title: string; description: string; urgency: string | null; savingsEstimate: string | null }
 type DashData = {
   analysis: {
     id: string; score: number
@@ -103,11 +163,13 @@ type DashData = {
     } | null
     insights: Insight[]
     alerts: DashAlert[]
+    recommendations: DashRecommendation[]
   } | null
   scoreHistory: { score: number; createdAt: string }[]
   analysesCount: number
   pending: { id: string; status: string } | null
 }
+
 
 export default function DashboardPage() {
   const [data, setData] = useState<DashData | null>(null)
@@ -129,22 +191,41 @@ export default function DashboardPage() {
   const opps = a.insights.filter(i => i.type === "opportunity")
   const monthlyTrend = a.summary?.monthlyTrend ?? []
   const cats = a.summary?.categoryBreakdown ?? []
+  const topCat = cats[0]
+  const hasConcentration = topCat && topCat.percentage >= 40
   const scoreChart = data.scoreHistory.map(s => ({
     date: new Date(s.createdAt).toLocaleDateString("pt-BR", { month: "short" }),
     score: s.score,
   }))
 
+  // ── Item 1: Score delta ───────────────────────────────────────────────────
+  const prevScore = data.scoreHistory.length >= 2
+    ? data.scoreHistory[data.scoreHistory.length - 2]?.score ?? null
+    : null
+  const scoreDelta = prevScore !== null ? (a.score ?? 0) - prevScore : null
+
+  // ── Item 2: Sparklines data ───────────────────────────────────────────────
+  const expSparkline = monthlyTrend.map(m => m.expenses)
+  const incSparkline = monthlyTrend.map(m => m.income)
+  const netSparkline = monthlyTrend.map(m => m.income - m.expenses)
+
+  // ── Item 12: Contextual subtitle ─────────────────────────────────────────
+  const periodLabel = a.periodStart ? `${fmtDate(a.periodStart)} — ${fmtDate(a.periodEnd)}` : "Última análise"
+  const analysisCountLabel = data.analysesCount > 1 ? ` · ${data.analysesCount} análises no histórico` : ""
+
   return (
     <PageTransition>
     <div className="px-6 py-8 space-y-6">
+
+      {/* ── Item 12: Contextual header ─────────────────────────────────── */}
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-black" style={{ color: "#F4F4F5" }}>Dashboard</h1>
           <p className="text-sm" style={{ color: "#8B8FA8" }}>
-            {a.periodStart ? `${fmtDate(a.periodStart)} — ${fmtDate(a.periodEnd)}` : "Última análise"}
+            {periodLabel}
             {data.analysesCount > 1 && (
-              <Link href="/app/history" className="ml-3 font-medium" style={{ color: "#00D084" }}>
-                {data.analysesCount} análises no histórico →
+              <Link href="/app/history" className="ml-2 font-medium" style={{ color: "#00D084" }}>
+                {analysisCountLabel} →
               </Link>
             )}
           </p>
@@ -158,16 +239,16 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* KPIs */}
+      {/* ── Item 2: KPIs com sparklines ───────────────────────────────────── */}
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label: "Total de Despesas", value: fmt(n(a.totalExpenses)), color: "#FF4D4F", icon: TrendingDown },
-          { label: "Receita Total", value: fmt(n(a.totalIncome)), color: "#00D084", icon: TrendingUp },
-          { label: "Resultado Líquido", value: fmt(n(a.netResult)), color: n(a.netResult) >= 0 ? "#00D084" : "#FF4D4F", icon: TrendingUp },
-          { label: "Economia Potencial", value: `${fmt(n(a.savingsMin))}–${fmt(n(a.savingsMax))}/mês`, color: "#F59E0B", icon: Lightbulb },
-        ].map(({ label, value, color, icon: Icon }) => (
+          { label: "Total de Despesas", value: n(a.totalExpenses), color: "#FF4D4F", icon: TrendingDown, spark: expSparkline },
+          { label: "Receita Total", value: n(a.totalIncome), color: "#00D084", icon: TrendingUp, spark: incSparkline },
+          { label: "Resultado Líquido", value: n(a.netResult), color: n(a.netResult) >= 0 ? "#00D084" : "#FF4D4F", icon: TrendingUp, spark: netSparkline },
+          { label: "Economia Potencial", value: null, color: "#F59E0B", icon: Lightbulb, spark: [] as number[] },
+        ].map(({ label, value, color, icon: Icon, spark }) => (
           <div key={label} className="rounded-2xl p-5" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-1.5">
                 <p className="text-xs font-medium" style={{ color: "#8B8FA8" }}>{label}</p>
                 <SimpleTooltip content={KPI_TOOLTIPS[label]} side="top">
@@ -178,17 +259,31 @@ export default function DashboardPage() {
               </div>
               <Icon className="w-4 h-4" style={{ color }} />
             </div>
-            <p className="text-xl font-black truncate" style={{ color }}>{value}</p>
+            <p className="text-xl font-black truncate mb-1" style={{ color }}>
+              {value !== null ? fmt(value) : `${fmt(n(a.savingsMin))}–${fmt(n(a.savingsMax))}/mês`}
+            </p>
+            {spark.length >= 2 && <Sparkline values={spark} color={color} />}
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-3 gap-6">
-        {/* Score */}
+        {/* ── Item 1: Score card com delta ───────────────────────────────── */}
         <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-          <p className="text-sm font-semibold mb-4" style={{ color: "#F4F4F5" }}>Score Financeiro</p>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Score Financeiro</p>
+            {scoreDelta !== null && scoreDelta !== 0 && (
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full"
+                style={{
+                  background: scoreDelta > 0 ? "rgba(0,208,132,0.1)" : "rgba(255,77,79,0.1)",
+                  color: scoreDelta > 0 ? "#00D084" : "#FF4D4F",
+                }}>
+                {scoreDelta > 0 ? "↑" : "↓"} {Math.abs(scoreDelta)} pts vs anterior
+              </span>
+            )}
+          </div>
           <div className="flex flex-col items-center mb-5">
-            <ScoreRing score={a.score ?? 0} />
+            <ScoreRing score={a.score ?? 0} delta={scoreDelta} />
             <p className="text-xs mt-2" style={{ color: "#8B8FA8" }}>
               {(a.score ?? 0) >= 75 ? "Saúde boa" : (a.score ?? 0) >= 50 ? "Atenção necessária" : "Situação crítica"}
             </p>
@@ -246,20 +341,44 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-2 gap-6">
         {cats.length > 0 && (
-          <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-            <p className="text-sm font-semibold mb-4" style={{ color: "#F4F4F5" }}>Despesas por categoria</p>
+          // ── Item 4: Pie chart with concentration warning ─────────────────
+          <div className="rounded-2xl p-6"
+            style={{
+              background: "#1A1D27",
+              border: hasConcentration ? "1px solid rgba(255,77,79,0.3)" : "1px solid #2A2D3A",
+            }}>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Despesas por categoria</p>
+              {hasConcentration && (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg"
+                  style={{ background: "rgba(255,77,79,0.08)", border: "1px solid rgba(255,77,79,0.2)" }}>
+                  <AlertCircle className="w-3 h-3" style={{ color: "#FF4D4F" }} />
+                  <span className="text-[10px] font-semibold" style={{ color: "#FF4D4F" }}>
+                    Concentração: {topCat.percentage}% em {topCat.category}
+                  </span>
+                </div>
+              )}
+            </div>
             <div className="flex gap-4 items-center">
               <PieChart width={140} height={140}>
                 <Pie data={cats} cx={70} cy={70} innerRadius={40} outerRadius={65} paddingAngle={2} dataKey="amount">
-                  {cats.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                  {cats.map((cat, i) => (
+                    <Cell key={i}
+                      fill={hasConcentration && i === 0 ? "#FF4D4F" : PIE_COLORS[i % PIE_COLORS.length]}
+                    />
+                  ))}
                 </Pie>
               </PieChart>
               <div className="flex-1 space-y-2">
                 {cats.slice(0, 5).map((cat, i) => (
                   <div key={cat.category} className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full shrink-0" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
+                    <div className="w-2 h-2 rounded-full shrink-0"
+                      style={{ background: hasConcentration && i === 0 ? "#FF4D4F" : PIE_COLORS[i % PIE_COLORS.length] }} />
                     <span className="text-xs flex-1 truncate" style={{ color: "#8B8FA8" }}>{cat.category}</span>
-                    <span className="text-xs font-medium shrink-0" style={{ color: "#F4F4F5" }}>{cat.percentage}%</span>
+                    <span className="text-xs font-medium shrink-0"
+                      style={{ color: hasConcentration && i === 0 ? "#FF4D4F" : "#F4F4F5" }}>
+                      {cat.percentage}%
+                    </span>
                   </div>
                 ))}
               </div>
@@ -280,7 +399,8 @@ export default function DashboardPage() {
                 <div key={alert.id} className="flex items-start gap-3 p-3 rounded-xl"
                   style={{
                     background: alert.severity === "critical" ? "rgba(255,77,79,0.06)" : "rgba(245,158,11,0.06)",
-                    border: `1px solid ${alert.severity === "critical" ? "rgba(255,77,79,0.2)" : "rgba(245,158,11,0.2)"}`,
+                    borderLeft: `3px solid ${alert.severity === "critical" ? "#FF4D4F" : "#F59E0B"}`,
+                    border: `1px solid ${alert.severity === "critical" ? "rgba(255,77,79,0.15)" : "rgba(245,158,11,0.15)"}`,
                   }}>
                   <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5"
                     style={{ color: alert.severity === "critical" ? "#FF4D4F" : "#F59E0B" }} />
@@ -295,6 +415,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* ── Item 15: Leaks with left border ───────────────────────────────── */}
       {leaks.filter(l => l.impact === "high").length > 0 && (
         <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
           <div className="flex items-center justify-between mb-4">
@@ -310,7 +431,8 @@ export default function DashboardPage() {
           </div>
           <div className="space-y-3">
             {leaks.filter(l => l.impact === "high").slice(0, 3).map(leak => (
-              <div key={leak.id} className="flex items-center gap-4 p-3 rounded-xl" style={{ background: "#212435" }}>
+              <div key={leak.id} className="flex items-center gap-4 p-3 rounded-xl"
+                style={{ background: "#212435", borderLeft: "3px solid #FF4D4F" }}>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate" style={{ color: "#F4F4F5" }}>{leak.title}</p>
                   <p className="text-xs truncate mt-0.5" style={{ color: "#8B8FA8" }}>{leak.description}</p>

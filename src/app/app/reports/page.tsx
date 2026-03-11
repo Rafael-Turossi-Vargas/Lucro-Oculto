@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
-import { FileText, Download, CheckCircle, Upload, RefreshCw, Check, Link2 } from "lucide-react"
+import { FileText, Download, CheckCircle, Upload, RefreshCw, Check, Link2, Crown, Sparkles } from "lucide-react"
 import { useAnalysisData } from "@/hooks/useAnalysisData"
 import { CardSkeleton } from "@/components/ui/skeletons"
 import { can } from "@/lib/roles"
@@ -13,7 +13,6 @@ function formatDate(date: string) {
 }
 
 type ReportStatus = "idle" | "generating" | "done" | "error"
-
 type Report = {
   id: string
   title: string
@@ -21,6 +20,15 @@ type Report = {
   createdAt: string
   fileUrl: string | null
 }
+
+const REPORT_ITEMS = [
+  "Resumo executivo com score e KPIs",
+  "Lista completa de vazamentos financeiros",
+  "Oportunidades de economia priorizadas",
+  "Análise por categoria de despesa",
+  "Top fornecedores e concentração de gastos",
+  "Plano de ação recomendado",
+]
 
 export default function ReportsPage() {
   const { data: dashData, loading: dashLoading } = useAnalysisData()
@@ -34,15 +42,13 @@ export default function ReportsPage() {
 
   const fetchReports = () => {
     fetch("/api/reports")
-      .then((r) => r.json())
-      .then((d) => setReports(Array.isArray(d) ? (d as Report[]) : []))
+      .then(r => r.json())
+      .then(d => setReports(Array.isArray(d) ? (d as Report[]) : []))
       .catch(() => {})
       .finally(() => setLoadingReports(false))
   }
 
-  useEffect(() => {
-    fetchReports()
-  }, [])
+  useEffect(() => { fetchReports() }, [])
 
   const handleGenerate = async () => {
     if (!dashData?.analysis?.id) return
@@ -61,10 +67,6 @@ export default function ReportsPage() {
     }
   }
 
-  const handleDownload = async (reportId: string) => {
-    window.open(`/api/reports/${reportId}`, "_blank")
-  }
-
   function copyLink(id: string) {
     navigator.clipboard.writeText(`${window.location.origin}/report/${id}`).then(() => {
       setCopiedId(id)
@@ -75,134 +77,139 @@ export default function ReportsPage() {
   if (dashLoading || loadingReports) {
     return (
       <div className="px-6 py-8 space-y-4">
+        <CardSkeleton rows={1} />
         <CardSkeleton rows={5} />
-        <CardSkeleton rows={3} />
       </div>
     )
   }
 
   return (
-    <div className="px-6 py-8">
-      <div className="mb-6">
+    <div className="px-6 py-8 space-y-6">
+
+      {/* Header */}
+      <div>
         <h1 className="text-2xl font-black" style={{ color: "#F4F4F5" }}>Relatórios</h1>
-        <p className="text-sm mt-0.5" style={{ color: "#8B8FA8" }}>Exporte um resumo completo da análise financeira</p>
+        <p className="text-sm mt-0.5" style={{ color: "#8B8FA8" }}>
+          Exporte um resumo completo da análise financeira
+        </p>
       </div>
 
-      {/* Generate new report */}
+      {/* Generate card */}
       {!dashData?.analysis ? (
-        <div className="rounded-2xl p-12 text-center mb-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-          <div className="flex items-center justify-center w-16 h-16 rounded-2xl mx-auto mb-4" style={{ background: "#212435" }}>
-            <FileText className="w-8 h-8" style={{ color: "#2A2D3A" }} />
+        <div className="rounded-2xl p-12 text-center" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+          <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "#212435" }}>
+            <FileText className="w-8 h-8" style={{ color: "#4B4F6A" }} />
           </div>
           <p className="text-base font-semibold mb-1" style={{ color: "#F4F4F5" }}>Nenhuma análise disponível</p>
           <p className="text-sm mb-6" style={{ color: "#8B8FA8" }}>
-            {canUpload ? "Faça upload do extrato bancário para gerar relatórios financeiros." : "Aguardando análise — o responsável pelo upload ainda não enviou dados."}
+            {canUpload
+              ? "Faça upload do extrato bancário para gerar relatórios financeiros."
+              : "Aguardando análise — o responsável pelo upload ainda não enviou dados."}
           </p>
           {canUpload && (
-            <Link
-              href="/app/upload"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm"
-              style={{ background: "#00D084", color: "#0F1117" }}
-            >
-              <Upload className="w-4 h-4" />
-              Fazer primeiro upload
+            <Link href="/app/upload" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm"
+              style={{ background: "#00D084", color: "#0F1117" }}>
+              <Upload className="w-4 h-4" /> Fazer primeiro upload
             </Link>
           )}
         </div>
       ) : (
-        <div className="rounded-2xl p-6 mb-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-          <div className="flex items-start gap-4 mb-6">
-            <div className="flex items-center justify-center w-12 h-12 rounded-xl shrink-0" style={{ background: "#212435" }}>
-              <FileText className="w-6 h-6" style={{ color: "#00D084" }} />
-            </div>
-            <div>
-              <p className="text-base font-bold" style={{ color: "#F4F4F5" }}>Relatório Completo de Análise</p>
-              <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>
-                Score: {dashData.analysis.score ?? "—"}/100 · Gerado com dados reais da sua organização
-              </p>
+        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(0,208,132,0.2)" }}>
+          {/* Card header */}
+          <div className="p-6" style={{ background: "rgba(0,208,132,0.04)", borderBottom: "1px solid rgba(0,208,132,0.12)" }}>
+            <div className="flex items-start gap-4">
+              <div className="flex items-center justify-center w-12 h-12 rounded-xl shrink-0"
+                style={{ background: "rgba(0,208,132,0.12)", border: "1px solid rgba(0,208,132,0.2)" }}>
+                <FileText className="w-6 h-6" style={{ color: "#00D084" }} />
+              </div>
+              <div>
+                <p className="text-base font-bold" style={{ color: "#F4F4F5" }}>Relatório Completo de Análise</p>
+                <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>
+                  Score: <span style={{ color: "#00D084", fontWeight: 700 }}>{dashData.analysis.score ?? "—"}/100</span>
+                  {" "}· Gerado com dados reais da sua organização
+                </p>
+              </div>
             </div>
           </div>
 
-          <ul className="space-y-1 mb-6">
-            {[
-              "Resumo executivo com score e KPIs",
-              "Lista completa de vazamentos financeiros",
-              "Oportunidades de economia priorizadas",
-              "Análise por categoria de despesa",
-              "Top fornecedores e concentração de gastos",
-              "Plano de ação recomendado",
-            ].map((item) => (
-              <li key={item} className="flex items-center gap-2">
-                <CheckCircle className="w-3.5 h-3.5 shrink-0" style={{ color: "#00D084" }} />
-                <span className="text-xs" style={{ color: "#8B8FA8" }}>{item}</span>
-              </li>
-            ))}
-          </ul>
-
-          {status === "idle" && canGenerate && (
-            <button
-              onClick={handleGenerate}
-              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm"
-              style={{ background: "#00D084", color: "#0F1117" }}
-            >
-              <FileText className="w-4 h-4" />
-              Gerar relatório PDF
-            </button>
-          )}
-
-          {status === "generating" && (
-            <div className="flex items-center justify-center gap-3 py-3.5 rounded-xl" style={{ background: "#212435", border: "1px solid #2A2D3A" }}>
-              <RefreshCw className="w-4 h-4 animate-spin" style={{ color: "#00D084" }} />
-              <span className="text-sm" style={{ color: "#8B8FA8" }}>Gerando relatório...</span>
+          {/* Content items */}
+          <div className="px-6 py-5" style={{ background: "#1A1D27" }}>
+            <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: "#4B4F6A" }}>
+              O que está incluído
+            </p>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-6">
+              {REPORT_ITEMS.map((item) => (
+                <div key={item} className="flex items-center gap-2">
+                  <CheckCircle className="w-3.5 h-3.5 shrink-0" style={{ color: "#00D084" }} />
+                  <span className="text-xs" style={{ color: "#8B8FA8" }}>{item}</span>
+                </div>
+              ))}
             </div>
-          )}
 
-          {status === "done" && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: "rgba(0,208,132,0.08)", border: "1px solid rgba(0,208,132,0.2)" }}>
-                <CheckCircle className="w-4 h-4 shrink-0" style={{ color: "#00D084" }} />
-                <span className="text-sm" style={{ color: "#00D084" }}>Relatório gerado com sucesso!</span>
+            {/* CTA */}
+            {status === "idle" && canGenerate && (
+              <button onClick={handleGenerate}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm transition-all hover:opacity-90"
+                style={{ background: "#00D084", color: "#0F1117" }}>
+                <FileText className="w-4 h-4" /> Gerar relatório PDF
+              </button>
+            )}
+            {!canGenerate && (
+              <div className="flex items-center gap-3 p-4 rounded-xl"
+                style={{ background: "#212435", border: "1px solid #2A2D3A" }}>
+                <FileText className="w-4 h-4 shrink-0" style={{ color: "#4B4F6A" }} />
+                <p className="text-xs" style={{ color: "#4B4F6A" }}>Você não tem permissão para gerar relatórios.</p>
               </div>
-              <button
-                onClick={() => setStatus("idle")}
-                className="w-full py-2.5 rounded-xl text-sm font-medium"
-                style={{ color: "#8B8FA8" }}
-              >
-                Gerar novo relatório
-              </button>
-            </div>
-          )}
-
-          {status === "error" && (
-            <div className="space-y-3">
-              <p className="text-xs text-center" style={{ color: "#FF4D4F" }}>Erro ao gerar relatório. Tente novamente.</p>
-              <button
-                onClick={() => setStatus("idle")}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm"
-                style={{ background: "#212435", color: "#8B8FA8", border: "1px solid #2A2D3A" }}
-              >
-                <RefreshCw className="w-4 h-4" />
-                Tentar novamente
-              </button>
-            </div>
-          )}
+            )}
+            {status === "generating" && (
+              <div className="flex items-center justify-center gap-3 py-3.5 rounded-xl"
+                style={{ background: "#212435", border: "1px solid #2A2D3A" }}>
+                <RefreshCw className="w-4 h-4 animate-spin" style={{ color: "#00D084" }} />
+                <span className="text-sm" style={{ color: "#8B8FA8" }}>Gerando relatório...</span>
+              </div>
+            )}
+            {status === "done" && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl"
+                  style={{ background: "rgba(0,208,132,0.08)", border: "1px solid rgba(0,208,132,0.2)" }}>
+                  <CheckCircle className="w-4 h-4 shrink-0" style={{ color: "#00D084" }} />
+                  <span className="text-sm font-medium" style={{ color: "#00D084" }}>Relatório gerado com sucesso!</span>
+                </div>
+                <button onClick={() => setStatus("idle")}
+                  className="w-full py-2.5 rounded-xl text-xs font-medium"
+                  style={{ color: "#8B8FA8" }}>
+                  Gerar novo relatório
+                </button>
+              </div>
+            )}
+            {status === "error" && (
+              <div className="space-y-3">
+                <p className="text-xs text-center" style={{ color: "#FF4D4F" }}>Erro ao gerar relatório. Tente novamente.</p>
+                <button onClick={() => setStatus("idle")}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm"
+                  style={{ background: "#212435", color: "#8B8FA8", border: "1px solid #2A2D3A" }}>
+                  <RefreshCw className="w-4 h-4" /> Tentar novamente
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
       {/* Reports history */}
       {reports.length > 0 && (
-        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #2A2D3A" }}>
-          <div className="px-5 py-4" style={{ background: "#1A1D27", borderBottom: "1px solid #2A2D3A" }}>
-            <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Relatórios gerados</p>
+        <div className="rounded-2xl overflow-hidden" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+          <div className="px-5 py-4" style={{ borderBottom: "1px solid #2A2D3A" }}>
+            <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>
+              Relatórios gerados
+              <span className="ml-2 text-xs font-normal" style={{ color: "#4B4F6A" }}>{reports.length}</span>
+            </p>
           </div>
-          <div style={{ background: "#1A1D27" }}>
-            {reports.map((report, i) => (
-              <div
-                key={report.id}
-                className="flex items-center gap-4 px-5 py-4"
-                style={{ borderBottom: i < reports.length - 1 ? "1px solid #212435" : "none" }}
-              >
-                <div className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0" style={{ background: "#212435" }}>
+          <div className="divide-y" style={{ borderColor: "#212435" }}>
+            {reports.map((report) => (
+              <div key={report.id} className="flex items-center gap-4 px-5 py-4">
+                <div className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0"
+                  style={{ background: "rgba(0,208,132,0.08)", border: "1px solid rgba(0,208,132,0.15)" }}>
                   <FileText className="w-4 h-4" style={{ color: "#00D084" }} />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -211,33 +218,28 @@ export default function ReportsPage() {
                 </div>
                 {report.status === "done" && (
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => copyLink(report.id)}
+                    <button onClick={() => copyLink(report.id)}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                       style={{
-                        background: copiedId === report.id ? "rgba(0,208,132,0.15)" : "#212435",
+                        background: copiedId === report.id ? "rgba(0,208,132,0.12)" : "#212435",
                         color: copiedId === report.id ? "#00D084" : "#8B8FA8",
-                        border: "1px solid #2A2D3A",
-                      }}
-                    >
-                      {copiedId === report.id ? (
-                        <><Check className="w-3 h-3" /> Copiado!</>
-                      ) : (
-                        <><Link2 className="w-3 h-3" /> Compartilhar</>
-                      )}
+                        border: `1px solid ${copiedId === report.id ? "rgba(0,208,132,0.2)" : "#2A2D3A"}`,
+                      }}>
+                      {copiedId === report.id
+                        ? <><Check className="w-3 h-3" /> Copiado!</>
+                        : <><Link2 className="w-3 h-3" /> Compartilhar</>}
                     </button>
-                    <button
-                      onClick={() => handleDownload(report.id)}
+                    <button onClick={() => window.open(`/api/reports/${report.id}`, "_blank")}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-                      style={{ background: "rgba(0,208,132,0.1)", color: "#00D084", border: "1px solid rgba(0,208,132,0.2)" }}
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      Baixar PDF
+                      style={{ background: "rgba(0,208,132,0.1)", color: "#00D084", border: "1px solid rgba(0,208,132,0.2)" }}>
+                      <Download className="w-3.5 h-3.5" /> Baixar PDF
                     </button>
                   </div>
                 )}
                 {report.status === "generating" && (
-                  <span className="text-xs" style={{ color: "#F59E0B" }}>Gerando...</span>
+                  <span className="flex items-center gap-1.5 text-xs" style={{ color: "#F59E0B" }}>
+                    <RefreshCw className="w-3 h-3 animate-spin" /> Gerando...
+                  </span>
                 )}
               </div>
             ))}
@@ -245,19 +247,34 @@ export default function ReportsPage() {
         </div>
       )}
 
-      {/* Pro upgrade hint */}
-      <div className="rounded-2xl p-5 mt-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-        <p className="text-sm font-semibold mb-1" style={{ color: "#F4F4F5" }}>Relatórios em PDF com marca</p>
-        <p className="text-xs mb-3" style={{ color: "#8B8FA8" }}>
-          No plano Pro, gere PDFs com logo da sua empresa, gráficos detalhados e análises comparativas do seu setor.
-        </p>
-        <Link
-          href="/app/settings#upgrade"
-          className="inline-flex px-4 py-2 rounded-lg text-xs font-semibold transition-all"
-          style={{ background: "#212435", color: "#F59E0B", border: "1px solid rgba(245,158,11,0.2)" }}
-        >
-          Fazer upgrade para Pro
-        </Link>
+      {/* Pro upgrade card */}
+      <div className="rounded-2xl p-5"
+        style={{ background: "rgba(245,158,11,0.04)", border: "1px solid rgba(245,158,11,0.2)" }}>
+        <div className="flex items-start gap-3">
+          <div className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0"
+            style={{ background: "rgba(245,158,11,0.1)" }}>
+            <Crown className="w-4 h-4" style={{ color: "#F59E0B" }} />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-bold mb-1" style={{ color: "#F4F4F5" }}>Relatórios PDF com marca</p>
+            <p className="text-xs mb-3" style={{ color: "#8B8FA8" }}>
+              No plano Pro, gere PDFs com logo da sua empresa, gráficos detalhados e análises comparativas do seu setor.
+            </p>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {["Logo da empresa", "Gráficos detalhados", "Comparativo setorial", "Compartilhamento externo"].map(f => (
+                <span key={f} className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-lg"
+                  style={{ background: "rgba(245,158,11,0.08)", color: "#F59E0B", border: "1px solid rgba(245,158,11,0.15)" }}>
+                  <Sparkles className="w-2.5 h-2.5" /> {f}
+                </span>
+              ))}
+            </div>
+            <Link href="/app/settings#upgrade"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all"
+              style={{ background: "#F59E0B", color: "#0F1117" }}>
+              <Crown className="w-3.5 h-3.5" /> Fazer upgrade para Pro
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -27,6 +27,7 @@ const PERMISSIONS = {
   "action_plan:view":     ["owner", "manager", "analyst"],
   "action_plan:edit":     ["owner", "manager"],
   "upload:create":        ["owner", "manager", "analyst"],
+  "upload:delete":        ["owner", "manager"],
   "team:view":            ["owner", "manager"],
   "team:invite":          ["owner", "manager"],
   "team:remove":          ["owner"],

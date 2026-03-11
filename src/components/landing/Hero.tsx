@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Link from "next/link"
-import { ArrowRight, AlertTriangle, Zap } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { ArrowRight, AlertTriangle, Zap, TrendingDown, ShieldCheck, CreditCard, Clock } from "lucide-react"
 
 function useCountUp(target: number, duration = 1400, startDelay = 400) {
   const [value, setValue] = useState(0)
@@ -24,7 +24,7 @@ function useCountUp(target: number, duration = 1400, startDelay = 400) {
 }
 
 const stats = [
-  { value: "R$ 2,8M", label: "em desperdício identificado" },
+  { value: "R$ 2,8M+", label: "em desperdício identificado" },
   { value: "1.240+", label: "empresas analisadas" },
   { value: "34pts", label: "melhora média no score" },
 ]
@@ -35,34 +35,40 @@ function DashboardMock() {
 
   return (
     <div
-      className="relative w-full max-w-lg mx-auto"
-      style={{ perspective: "1000px" }}
+      className="relative w-full max-w-md mx-auto"
+      style={{ perspective: "1200px" }}
     >
+      {/* Outer glow */}
       <div
-        className="absolute inset-0 rounded-2xl blur-3xl opacity-20"
-        style={{ background: "linear-gradient(135deg, #00D084 0%, #3B82F6 100%)" }}
+        className="absolute -inset-4 rounded-3xl blur-3xl opacity-25 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse at 30% 50%, rgba(0,208,132,0.5) 0%, transparent 55%), radial-gradient(ellipse at 80% 60%, rgba(59,130,246,0.4) 0%, transparent 55%)",
+        }}
       />
 
+      {/* Main card */}
       <div
         className="relative rounded-2xl overflow-hidden"
         style={{
           background: "#1A1D27",
-          border: "1px solid #2A2D3A",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          boxShadow:
+            "0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,208,132,0.07), inset 0 1px 0 rgba(255,255,255,0.05)",
           transform: "rotateX(2deg) rotateY(-2deg)",
         }}
       >
+        {/* Title bar */}
         <div
-          className="flex items-center gap-2 px-4 py-3"
-          style={{ background: "#212435", borderBottom: "1px solid #2A2D3A" }}
+          className="flex items-center gap-2 px-4 py-2.5"
+          style={{
+            background: "linear-gradient(90deg, #212435 0%, #1E2132 100%)",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+          }}
         >
           <div className="flex gap-1.5">
             {["#FF4D4F", "#F59E0B", "#00D084"].map((color, index) => (
-              <div
-                key={index}
-                className="w-3 h-3 rounded-full"
-                style={{ background: color, opacity: 0.7 }}
-              />
+              <div key={index} className="w-2.5 h-2.5 rounded-full" style={{ background: color, opacity: 0.75 }} />
             ))}
           </div>
           <div
@@ -73,76 +79,83 @@ function DashboardMock() {
           </div>
         </div>
 
-        <div className="p-4 space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+        {/* Body */}
+        <div className="p-3.5 space-y-2.5">
+          {/* KPI row */}
+          <div className="grid grid-cols-2 gap-2.5">
             <div
               className="rounded-xl p-3"
               style={{
-                background: "#212435",
-                border: "1px solid rgba(0,208,132,0.2)",
+                background: "linear-gradient(135deg, rgba(0,208,132,0.1) 0%, rgba(0,208,132,0.03) 100%)",
+                border: "1px solid rgba(0,208,132,0.22)",
               }}
             >
-              <p className="text-xs mb-1" style={{ color: "#8B8FA8" }}>
-                Score de Eficiência
-              </p>
+              <p className="text-xs mb-1" style={{ color: "#8B8FA8" }}>Score de Eficiência</p>
               <div className="flex items-baseline gap-1">
                 <span
                   className="text-2xl font-bold font-mono tabular-nums"
-                  style={{ color: "#00D084" }}
+                  style={{ color: "#00D084", textShadow: "0 0 20px rgba(0,208,132,0.4)" }}
                 >
                   {score}
                 </span>
-                <span className="text-xs" style={{ color: "#4B4F6A" }}>
-                  /100
-                </span>
+                <span className="text-xs" style={{ color: "#4B4F6A" }}>/100</span>
               </div>
-              <p className="text-xs mt-0.5" style={{ color: "#F59E0B" }}>
-                ⚠ Atenção
-              </p>
+              <p className="text-xs mt-0.5" style={{ color: "#F59E0B" }}>⚠ Atenção</p>
             </div>
 
             <div
               className="rounded-xl p-3"
               style={{
-                background:
-                  "linear-gradient(135deg, rgba(0,208,132,0.08) 0%, rgba(0,168,107,0.04) 100%)",
-                border: "1px solid rgba(0,208,132,0.15)",
+                background: "linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(59,130,246,0.03) 100%)",
+                border: "1px solid rgba(59,130,246,0.18)",
               }}
             >
-              <p className="text-xs mb-1" style={{ color: "#8B8FA8" }}>
-                Economia potencial
-              </p>
-              <p
-                className="text-sm font-bold leading-tight"
-                style={{ color: "#00D084" }}
-              >
-                R$ {saving.toLocaleString("pt-BR")}
-              </p>
-              <p className="text-xs" style={{ color: "#4B4F6A" }}>
-                – R$ 7.800 / mês
-              </p>
+              <p className="text-xs mb-1" style={{ color: "#8B8FA8" }}>Receita / Despesa</p>
+              <div className="flex items-baseline gap-1">
+                <span className="text-base font-bold font-mono" style={{ color: "#3B82F6" }}>R$42k</span>
+                <span className="text-xs" style={{ color: "#4B4F6A" }}>/R$37k</span>
+              </div>
+              <p className="text-xs mt-0.5" style={{ color: "#4B4F6A" }}>Margem 11,9%</p>
             </div>
           </div>
 
+          {/* Economia */}
           <div
             className="rounded-xl p-3"
-            style={{ background: "#212435", border: "1px solid #2A2D3A" }}
+            style={{
+              background: "linear-gradient(135deg, rgba(0,208,132,0.08) 0%, rgba(0,168,107,0.04) 100%)",
+              border: "1px solid rgba(0,208,132,0.15)",
+            }}
           >
+            <p className="text-xs mb-1" style={{ color: "#8B8FA8" }}>Economia potencial detectada</p>
+            <div className="flex items-center justify-between">
+              <div className="flex items-baseline gap-1">
+                <span className="text-lg font-bold font-mono" style={{ color: "#00D084" }}>
+                  R$ {saving.toLocaleString("pt-BR")}
+                </span>
+                <span className="text-xs" style={{ color: "#4B4F6A" }}>– R$ 7.800 / mês</span>
+              </div>
+              <div
+                className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
+                style={{ background: "rgba(0,208,132,0.12)", color: "#00D084", border: "1px solid rgba(0,208,132,0.2)" }}
+              >
+                <TrendingDown className="w-3 h-3" />
+                -18%
+              </div>
+            </div>
+          </div>
+
+          {/* Leaks */}
+          <div className="rounded-xl p-3" style={{ background: "#212435", border: "1px solid #2A2D3A" }}>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium" style={{ color: "#F4F4F5" }}>
-                Vazamentos Detectados
-              </p>
+              <p className="text-xs font-medium" style={{ color: "#F4F4F5" }}>Vazamentos Detectados</p>
               <span
-                className="text-xs px-1.5 py-0.5 rounded-full font-medium"
-                style={{
-                  background: "rgba(255,77,79,0.15)",
-                  color: "#FF4D4F",
-                }}
+                className="text-xs px-1.5 py-0.5 rounded-full font-bold"
+                style={{ background: "rgba(255,77,79,0.18)", color: "#FF4D4F" }}
               >
                 5
               </span>
             </div>
-
             {[
               { icon: "🔄", text: "Assinaturas sobrepostas", val: "R$ 380/mês" },
               { icon: "📈", text: "Custo de marketing +43%", val: "R$ 1.200/mês" },
@@ -151,37 +164,25 @@ function DashboardMock() {
               <div
                 key={index}
                 className="flex items-center justify-between py-1.5"
-                style={{
-                  borderTop: index > 0 ? "1px solid #2A2D3A" : undefined,
-                }}
+                style={{ borderTop: index > 0 ? "1px solid #2A2D3A" : undefined }}
               >
                 <div className="flex items-center gap-2">
                   <span className="text-sm">{item.icon}</span>
-                  <span className="text-xs" style={{ color: "#8B8FA8" }}>
-                    {item.text}
-                  </span>
+                  <span className="text-xs" style={{ color: "#8B8FA8" }}>{item.text}</span>
                 </div>
-                <span className="text-xs font-medium" style={{ color: "#FF4D4F" }}>
-                  {item.val}
-                </span>
+                <span className="text-xs font-semibold" style={{ color: "#FF4D4F" }}>{item.val}</span>
               </div>
             ))}
           </div>
 
+          {/* Alert */}
           <div
             className="rounded-lg px-3 py-2 flex items-center gap-2"
-            style={{
-              background: "rgba(245,158,11,0.08)",
-              border: "1px solid rgba(245,158,11,0.2)",
-            }}
+            style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)" }}
           >
-            <AlertTriangle
-              className="w-3.5 h-3.5 shrink-0"
-              style={{ color: "#F59E0B" }}
-            />
+            <AlertTriangle className="w-3.5 h-3.5 shrink-0" style={{ color: "#F59E0B" }} />
             <p className="text-xs" style={{ color: "#F4F4F5" }}>
-              Seu caixa pode entrar em pressão em{" "}
-              <strong style={{ color: "#F59E0B" }}>22 dias</strong>
+              Caixa pode entrar em pressão em <strong style={{ color: "#F59E0B" }}>22 dias</strong>
             </p>
           </div>
         </div>
@@ -190,105 +191,155 @@ function DashboardMock() {
   )
 }
 
+function HeroEmailForm() {
+  const router = useRouter()
+  const [email, setEmail] = useState("")
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const q = email ? `?email=${encodeURIComponent(email)}` : ""
+    router.push(`/register${q}`)
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 w-full max-w-md mx-auto lg:mx-0">
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Seu melhor email"
+        className="flex-1 px-4 py-3 rounded-xl text-sm outline-none placeholder-[#4B4F6A]"
+        style={{
+          background: "#1A1D27",
+          border: "1px solid #2A2D3A",
+          color: "#F4F4F5",
+        }}
+      />
+      <button
+        type="submit"
+        className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold text-sm whitespace-nowrap transition-all duration-150 hover:scale-[1.02] active:scale-[0.98]"
+        style={{
+          background: "linear-gradient(135deg, #00D084 0%, #00B872 100%)",
+          color: "#0A0C14",
+          boxShadow: "0 0 24px rgba(0,208,132,0.4)",
+        }}
+      >
+        Fazer diagnóstico grátis <ArrowRight className="w-3.5 h-3.5" />
+      </button>
+    </form>
+  )
+}
+
 export function Hero() {
   return (
     <section
-      className="relative min-h-screen flex items-center pt-16 overflow-hidden"
+      className="relative flex items-center pt-14 overflow-hidden"
       style={{ background: "#0F1117" }}
     >
+      {/* Grid */}
       <div
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0 opacity-[0.12] pointer-events-none"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(42,45,58,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(42,45,58,0.5) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
+            "linear-gradient(rgba(42,45,58,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(42,45,58,0.6) 1px, transparent 1px)",
+          backgroundSize: "56px 56px",
         }}
       />
 
+      {/* Top-center glow */}
       <div
-        className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] opacity-20 blur-3xl"
-        style={{ background: "radial-gradient(ellipse, #00D084 0%, transparent 70%)" }}
+        className="absolute pointer-events-none"
+        style={{
+          top: 0,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "800px",
+          height: "400px",
+          background: "radial-gradient(ellipse at 50% 0%, rgba(0,208,132,0.08) 0%, transparent 65%)",
+          filter: "blur(2px)",
+        }}
       />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-16 w-full">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+
+          {/* Left: copy */}
           <div className="text-center lg:text-left">
+
+            {/* Pill badge */}
             <div
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 animate-fade-in"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-5"
               style={{
                 background: "rgba(0,208,132,0.08)",
-                border: "1px solid rgba(0,208,132,0.2)",
+                border: "1px solid rgba(0,208,132,0.22)",
               }}
             >
-              <Zap className="w-3.5 h-3.5" style={{ color: "#00D084" }} />
-              <span className="text-xs font-medium" style={{ color: "#00D084" }}>
-                Diagnóstico financeiro inteligente
+              <Zap className="w-3 h-3" style={{ color: "#00D084" }} />
+              <span className="text-xs font-semibold" style={{ color: "#00D084" }}>
+                7 dias Pro grátis ao criar conta · Sem cartão de crédito
               </span>
             </div>
 
+            {/* Headline */}
             <h1
-              className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-6 animate-slide-up stagger-1"
+              className="text-4xl sm:text-5xl font-extrabold leading-tight mb-4"
               style={{ color: "#F4F4F5", letterSpacing: "-0.03em" }}
             >
-              Descubra onde sua empresa está{" "}
-              <span style={{ color: "#00D084" }}>perdendo dinheiro.</span>
+              Seu diagnóstico{" "}
+              <br className="hidden sm:block" />
+              começa em{" "}
+              <span
+                style={{
+                  background: "linear-gradient(90deg, #00D084 0%, #3FFFB0 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                30 segundos.
+              </span>
             </h1>
 
-            <p
-              className="text-lg sm:text-xl mb-8 leading-relaxed max-w-xl mx-auto lg:mx-0 animate-slide-up stagger-2"
-              style={{ color: "#8B8FA8" }}
-            >
-              Analise despesas, assinaturas, fornecedores e padrões financeiros
-              para encontrar vazamentos e aumentar o lucro — sem contratar um consultor.
+            <p className="text-base mb-6 leading-relaxed max-w-lg mx-auto lg:mx-0" style={{ color: "#8B8FA8" }}>
+              Descubra agora quanto dinheiro sua empresa está perdendo.
+              Sem consultores. Sem planilhas. Sem cartão de crédito.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start animate-slide-up stagger-3">
-              <Link
-                href="/register"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-base transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                style={{
-                  background: "#00D084",
-                  color: "#0F1117",
-                  boxShadow: "0 0 24px rgba(0,208,132,0.3)",
-                }}
-              >
-                Fazer diagnóstico grátis
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+            {/* Email CTA */}
+            <HeroEmailForm />
 
-              <a
-                href="#how-it-works"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-medium text-base transition-all duration-200 hover:border-opacity-80"
-                style={{
-                  color: "#F4F4F5",
-                  border: "1px solid #2A2D3A",
-                  background: "transparent",
-                }}
-              >
-                Ver como funciona
-              </a>
+            {/* Trust badges */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-1.5 mt-3">
+              {[
+                { icon: ShieldCheck, label: "Dados criptografados" },
+                { icon: CreditCard, label: "Sem cartão de crédito" },
+                { icon: Clock, label: "Resultado em 1 minuto" },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex items-center gap-1.5">
+                  <Icon className="w-3 h-3" style={{ color: "#4B4F6A" }} />
+                  <span className="text-xs" style={{ color: "#4B4F6A" }}>{label}</span>
+                </div>
+              ))}
             </div>
 
-            <p
-              className="mt-4 text-xs animate-fade-in stagger-4"
-              style={{ color: "#4B4F6A" }}
-            >
-              Plano Free sem cartão · Trial Pro 7 dias com cartão, sem cobrança · Cancele quando quiser
-            </p>
-
+            {/* Stats */}
             <div
-              className="mt-10 grid grid-cols-3 gap-4 pt-8 border-t animate-slide-up stagger-5"
-              style={{ borderColor: "#2A2D3A" }}
+              className="mt-8 grid grid-cols-3 gap-4 pt-6"
+              style={{ borderTop: "1px solid #2A2D3A" }}
             >
               {stats.map((stat, index) => (
-                <div key={index} className="text-center lg:text-left">
-                  <p
-                    className="text-xl sm:text-2xl font-bold font-mono"
-                    style={{ color: "#F4F4F5" }}
-                  >
+                <div
+                  key={index}
+                  className="text-center lg:text-left"
+                  style={{
+                    paddingLeft: index > 0 ? "1rem" : 0,
+                    borderLeft: index > 0 ? "1px solid #2A2D3A" : "none",
+                  }}
+                >
+                  <p className="text-lg sm:text-xl font-bold font-mono" style={{ color: "#F4F4F5" }}>
                     {stat.value}
                   </p>
-                  <p className="text-xs" style={{ color: "#8B8FA8" }}>
+                  <p className="text-xs mt-0.5 leading-snug" style={{ color: "#8B8FA8" }}>
                     {stat.label}
                   </p>
                 </div>
@@ -296,7 +347,8 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="animate-scale-in stagger-3">
+          {/* Right: dashboard mock */}
+          <div className="flex justify-center lg:justify-end pb-6 lg:pb-0">
             <DashboardMock />
           </div>
         </div>

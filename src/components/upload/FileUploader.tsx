@@ -90,7 +90,7 @@ export function FileUploader() {
         </p>
 
         {result.score !== undefined && (
-          <div className="flex items-center justify-center gap-8 mb-6">
+          <div className="flex items-center justify-center gap-8 mb-5">
             <div className="text-center">
               <p className="text-3xl font-black" style={{ color: "#00D084" }}>{result.score}</p>
               <p className="text-xs" style={{ color: "#8B8FA8" }}>Score Financeiro</p>
@@ -103,6 +103,28 @@ export function FileUploader() {
                 <p className="text-xs" style={{ color: "#8B8FA8" }}>Economia estimada/mês</p>
               </div>
             )}
+          </div>
+        )}
+
+        {/* ── Item 16: Top leaks preview ─────────────────────────────── */}
+        {result.topLeaks && result.topLeaks.length > 0 && (
+          <div className="w-full mb-5 rounded-xl overflow-hidden text-left"
+            style={{ border: "1px solid rgba(255,77,79,0.2)" }}>
+            <p className="text-[10px] font-semibold px-3 py-2"
+              style={{ background: "rgba(255,77,79,0.06)", color: "#FF4D4F", textTransform: "uppercase", letterSpacing: "0.8px" }}>
+              Principais problemas encontrados
+            </p>
+            {result.topLeaks.map((leak, i) => (
+              <div key={i} className="flex items-center justify-between px-3 py-2.5"
+                style={{ borderTop: i > 0 ? "1px solid rgba(255,77,79,0.1)" : undefined }}>
+                <p className="text-xs font-medium truncate flex-1 mr-3" style={{ color: "#F4F4F5" }}>{leak.title}</p>
+                {leak.amount && (
+                  <p className="text-xs font-bold shrink-0" style={{ color: "#FF4D4F" }}>
+                    −R${Number(leak.amount).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}/mês
+                  </p>
+                )}
+              </div>
+            ))}
           </div>
         )}
 

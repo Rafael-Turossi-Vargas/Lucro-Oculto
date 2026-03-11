@@ -2,46 +2,25 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { GitBranch, LinkedinIcon, ExternalLink } from "lucide-react"
 
 const links = {
   Produto: [
     { label: "Como funciona", href: "#how-it-works" },
     { label: "Recursos", href: "#features" },
     { label: "Preços", href: "#pricing" },
-    { label: "Changelog", href: "/changelog" },
     { label: "FAQ", href: "#faq" },
   ],
   Empresa: [
     { label: "Sobre", href: "/about" },
-    { label: "Blog", href: "/blog" },
     { label: "Contato", href: "/contact" },
-    { label: "Status", href: "/status" },
   ],
   Legal: [
     { label: "Termos de uso", href: "/terms" },
     { label: "Privacidade", href: "/privacy" },
+    { label: "Reembolso", href: "/refund" },
     { label: "Cookies", href: "/cookies" },
   ],
 }
-
-const socials = [
-  {
-    Icon: ExternalLink,
-    label: "Twitter / X",
-    href: "https://twitter.com/lucrooculto",
-  },
-  {
-    Icon: LinkedinIcon,
-    label: "LinkedIn",
-    href: "https://linkedin.com/company/lucro-oculto",
-  },
-  {
-    Icon: GitBranch,
-    label: "GitHub",
-    href: "https://github.com/lucro-oculto",
-  },
-]
 
 export function Footer() {
   return (
@@ -53,33 +32,9 @@ export function Footer() {
             <Link href="/" className="flex items-center mb-3 w-fit hover:opacity-85 transition-opacity">
               <Image src="/logo.svg" alt="Lucro Oculto" width={148} height={38} />
             </Link>
-            <p className="text-sm leading-relaxed mb-4" style={{ color: "#8B8FA8" }}>
+            <p className="text-sm leading-relaxed" style={{ color: "#8B8FA8" }}>
               Veja onde seu lucro está vazando. Diagnóstico financeiro inteligente para PMEs.
             </p>
-            {/* Social */}
-            <div className="flex gap-3">
-              {socials.map(({ Icon, label, href }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
-                  style={{ background: "#1A1D27", border: "1px solid #2A2D3A", color: "#8B8FA8" }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.borderColor = "#3D4158"
-                    e.currentTarget.style.color = "#F4F4F5"
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.borderColor = "#2A2D3A"
-                    e.currentTarget.style.color = "#8B8FA8"
-                  }}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                </a>
-              ))}
-            </div>
           </div>
 
           {/* Link groups */}
@@ -116,7 +71,7 @@ export function Footer() {
             © {new Date().getFullYear()} Lucro Oculto. Todos os direitos reservados.
           </p>
           <p className="text-xs" style={{ color: "#4B4F6A" }}>
-            Mais lucro sem vender mais. 💡
+            Mais lucro sem vender mais.
           </p>
         </div>
       </div>
