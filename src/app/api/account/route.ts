@@ -55,22 +55,22 @@ export async function DELETE(req: Request) {
       where: { organizationId },
     })
 
-    await db.$transaction(async (tx) => {
-      if (memberCount === 1) {
-        await tx.organization.delete({
+    if (memberCount === 1) {
+      await db.$transaction([
+        db.organization.delete({
           where: { id: organizationId },
-        })
-        return
-      }
-
-      await tx.membership.deleteMany({
-        where: { userId, organizationId },
-      })
-
-      await tx.user.delete({
-        where: { id: userId },
-      })
-    })
+        }),
+      ])
+    } else {
+      await db.$transaction([
+        db.membership.deleteMany({
+          where: { userId, organizationId },
+        }),
+        db.user.delete({
+          where: { id: userId },
+        }),
+      ])
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {
