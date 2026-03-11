@@ -1,82 +1,76 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import bcrypt from "bcryptjs"
 
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 
-// DELETE /api/account — exclui conta e todos os dados (LGPD) — somente proprietário/admin
-export async function DELETE(req: Request) {
+type PlanDistributionItem = {
+  plan: string
+  _count: {
+    _all: number
+  }
+}
+
+export async function GET() {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session?.user?.id || !session.user.organizationId) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    if (session.user.role !== "owner" && session.user.role !== "admin") {
-      return NextResponse.json(
-        { error: "Apenas o proprietário pode excluir a conta" },
-        { status: 403 }
-      )
+    if (session.user.role !== "admin" && session.user.role !== "owner") {
+      return NextResponse.json({ error: "Acesso negado" }, { status: 403 })
     }
 
-    const body = (await req.json().catch(() => ({}))) as { password?: string }
+    const [
+      totalUsers,
+      totalOrganizations,
+      totalUploads,
+      totalReports,
+      totalAnalyses,
+      planDistribution,
+    ] = await Promise.all([
+      db.user.count(),
+      db.organization.count(),
+      db.upload.count(),
+      db.report.count(),
+      db.analysis.count(),
+      db.organization.groupBy({
+        by: ["plan"],
+        _count: {
+          _all: true,
+        },
+      }),
+    ])
 
-    if (!body.password) {
-      return NextResponse.json(
-        { error: "Senha obrigatória para confirmar exclusão" },
-        { status: 400 }
-      )
-    }
+    const typedPlanDistribution = planDistribution as PlanDistributionItem[]
 
-    const user = await db.user.findUnique({
-      where: { id: session.user.id },
-      select: { passwordHash: true },
-    })
-
-    if (!user?.passwordHash) {
-      return NextResponse.json(
-        { error: "Conta sem senha definida — use o suporte" },
-        { status: 400 }
-      )
-    }
-
-    const passwordValid = await bcrypt.compare(body.password, user.passwordHash)
-
-    if (!passwordValid) {
-      return NextResponse.json({ error: "Senha incorreta" }, { status: 401 })
-    }
-
-    const userId = session.user.id
-    const organizationId = session.user.organizationId
-
-    const memberCount = await db.membership.count({
-      where: { organizationId },
-    })
-
-    if (memberCount === 1) {
-      await db.$transaction([
-        db.organization.delete({
-          where: { id: organizationId },
-        }),
+    const planMap = Object.fromEntries(
+      typedPlanDistribution.map((planItem: PlanDistributionItem) => [
+        planItem.plan,
+        planItem._count._all,
       ])
-    } else {
-      await db.$transaction([
-        db.membership.deleteMany({
-          where: { userId, organizationId },
-        }),
-        db.user.delete({
-          where: { id: userId },
-        }),
-      ])
-    }
+    )
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({
+      totals: {
+        users: totalUsers,
+        organizations: totalOrganizations,
+        uploads: totalUploads,
+        reports: totalReports,
+        analyses: totalAnalyses,
+      },
+      plans: {
+        free: planMap.free ?? 0,
+        pro: planMap.pro ?? 0,
+        enterprise: planMap.enterprise ?? 0,
+      },
+    })
   } catch (error) {
-    console.error("Account deletion error:", error)
+    console.error("Admin stats error:", error)
     return NextResponse.json(
-      { error: "Erro ao excluir conta" },
+      { error: "Erro ao carregar estatísticas" },
       { status: 500 }
     )
   }
