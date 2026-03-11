@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
+import Stripe from "stripe"
 import { stripe } from "@/lib/stripe"
 import { db } from "@/lib/db"
-import Stripe from "stripe"
 
-export const config = { api: { bodyParser: false } }
+export const runtime = "nodejs"
 
 export async function POST(req: NextRequest) {
   const body = await req.text()
@@ -11,20 +11,36 @@ export async function POST(req: NextRequest) {
 
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
   if (!webhookSecret) {
-    return NextResponse.json({ error: "Webhook secret não configurado" }, { status: 500 })
+    return NextResponse.json(
+      { error: "Webhook secret não configurado" },
+      { status: 500 }
+    )
+  }
+
+  if (!sig) {
+    return NextResponse.json(
+      { error: "Stripe signature ausente" },
+      { status: 400 }
+    )
   }
 
   let event: Stripe.Event
+
   try {
-    event = stripe.webhooks.constructEvent(body, sig!, webhookSecret)
-  } catch (err) {
-    console.error("Webhook signature verification failed:", err)
-    return NextResponse.json({ error: "Invalid signature" }, { status: 400 })
+    event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
+  } catch (error) {
+    console.error("Webhook signature verification failed:", error)
+    return NextResponse.json(
+      { error: "Invalid signature" },
+      { status: 400 }
+    )
   }
 
   try {
-    // Idempotency: ignora eventos já processados
-    const existing = await db.stripeEvent.findUnique({ where: { id: event.id } })
+    const existing = await db.stripeEvent.findUnique({
+      where: { id: event.id },
+    })
+
     if (existing) {
       return NextResponse.json({ received: true, duplicate: true })
     }
@@ -33,8 +49,8 @@ export async function POST(req: NextRequest) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session
         const organizationId = session.metadata?.organizationId
-        // Plano vem do metadata; fallback para "pro" por compatibilidade
-        const newPlan = (session.metadata?.plan === "premium" ? "premium" : "pro")
+        const newPlan = session.metadata?.plan === "premium" ? "premium" : "pro"
+
         if (!organizationId) break
 
         await db.organization.update({
@@ -42,8 +58,12 @@ export async function POST(req: NextRequest) {
           data: {
             plan: newPlan,
             trialEndsAt: null,
-            stripeCustomerId: session.customer as string,
-            stripeSubscriptionId: session.subscription as string,
+            stripeCustomerId:
+              typeof session.customer === "string" ? session.customer : null,
+            stripeSubscriptionId:
+              typeof session.subscription === "string"
+                ? session.subscription
+                : null,
           },
         })
         break
@@ -52,18 +72,32 @@ export async function POST(req: NextRequest) {
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription
         const organizationId = subscription.metadata?.organizationId
-        const subPlan = (subscription.metadata?.plan === "premium" ? "premium" : "pro")
+        const subPlan =
+          subscription.metadata?.plan === "premium" ? "premium" : "pro"
+
         if (!organizationId) break
 
-        if (subscription.status === "active" || subscription.status === "trialing") {
+        if (
+          subscription.status === "active" ||
+          subscription.status === "trialing"
+        ) {
           await db.organization.update({
             where: { id: organizationId },
-            data: { plan: subPlan, trialEndsAt: null },
+            data: {
+              plan: subPlan,
+              trialEndsAt: null,
+            },
           })
-        } else if (subscription.status === "canceled" || subscription.status === "unpaid") {
+        } else if (
+          subscription.status === "canceled" ||
+          subscription.status === "unpaid"
+        ) {
           await db.organization.update({
             where: { id: organizationId },
-            data: { plan: "free", trialEndsAt: null },
+            data: {
+              plan: "free",
+              trialEndsAt: null,
+            },
           })
         }
         break
@@ -72,34 +106,53 @@ export async function POST(req: NextRequest) {
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription
         const organizationId = subscription.metadata?.organizationId
+
         if (!organizationId) break
 
         await db.organization.update({
           where: { id: organizationId },
-          data: { plan: "free", trialEndsAt: null },
+          data: {
+            plan: "free",
+            trialEndsAt: null,
+          },
         })
         break
       }
 
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice
-        const customerId = invoice.customer as string
+        const customerId =
+          typeof invoice.customer === "string" ? invoice.customer : null
+
         if (!customerId) break
 
         await db.organization.updateMany({
           where: { stripeCustomerId: customerId },
-          data: { plan: "free", trialEndsAt: null },
+          data: {
+            plan: "free",
+            trialEndsAt: null,
+          },
         })
         break
       }
+
+      default:
+        break
     }
 
-    // Marca evento como processado
-    await db.stripeEvent.create({ data: { id: event.id, type: event.type } })
+    await db.stripeEvent.create({
+      data: {
+        id: event.id,
+        type: event.type,
+      },
+    })
 
     return NextResponse.json({ received: true })
   } catch (error) {
     console.error("Webhook handler error:", error)
-    return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 })
+    return NextResponse.json(
+      { error: "Webhook handler failed" },
+      { status: 500 }
+    )
   }
 }
