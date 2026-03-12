@@ -54,7 +54,7 @@ export async function GET(
             take: 2,
             select: { title: true, amount: true },
           })
-          topLeaks = leakRecords.map(l => ({ title: l.title, amount: l.amount?.toString() ?? null }))
+          topLeaks = leakRecords.map((l) => ({ title: l.title, amount: l.amount != null ? l.amount.toString() : null }))
         }
 
         send({
