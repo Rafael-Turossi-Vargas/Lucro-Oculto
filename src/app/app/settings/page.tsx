@@ -769,6 +769,9 @@ function FinancePinSection() {
 function SecurityTab() {
   const { data: session } = useSession()
   const role = session?.user?.role ?? ""
+  // canChangePassword: apenas owner pode alterar senha (alinhado com /api/app/password)
+  const canChangePassword = role === "owner"
+  // isOwner: owner e admin acessam zona de perigo e exportação LGPD
   const isOwner = role === "owner" || role === "admin"
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
@@ -816,7 +819,7 @@ function SecurityTab() {
   return (
     <div className="space-y-6">
       {/* Change password — owner only */}
-      {isOwner && (
+      {canChangePassword && (
         <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
           <div className="flex items-center gap-3 mb-5">
             <div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ background: "#212435" }}>
