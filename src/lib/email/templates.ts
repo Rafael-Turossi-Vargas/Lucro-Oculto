@@ -1,6 +1,6 @@
 import { Resend } from "resend"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(process.env.RESEND_API_KEY ?? "re_placeholder")
 const FROM = process.env.EMAIL_FROM ?? "onboarding@resend.dev"
 const REPLY_TO = process.env.EMAIL_REPLY_TO
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://lucrooculto.com.br"
