@@ -37,11 +37,12 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const existing = await db.stripeEvent.findUnique({
-      where: { id: event.id },
-    })
-
-    if (existing) {
+    // Save event BEFORE processing for idempotency — if this throws a unique violation
+    // the event was already processed on a previous delivery, so return early.
+    try {
+      await db.stripeEvent.create({ data: { id: event.id, type: event.type } })
+    } catch {
+      // Unique constraint violation = duplicate event
       return NextResponse.json({ received: true, duplicate: true })
     }
 
@@ -139,13 +140,6 @@ export async function POST(req: NextRequest) {
       default:
         break
     }
-
-    await db.stripeEvent.create({
-      data: {
-        id: event.id,
-        type: event.type,
-      },
-    })
 
     return NextResponse.json({ received: true })
   } catch (error) {

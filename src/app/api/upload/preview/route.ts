@@ -14,20 +14,29 @@ export async function POST(request: NextRequest) {
   if (!(file instanceof File)) return NextResponse.json({ error: "Sem arquivo" }, { status: 400 })
 
   const extension = file.name.split(".").pop()?.toLowerCase() ?? ""
-  const buffer = Buffer.from(await file.arrayBuffer())
 
-  let parsed
-  if (extension === "csv") {
-    parsed = await parseCSV(buffer.toString("utf-8"))
-  } else {
-    parsed = await parseXLSX(buffer)
+  if (!["csv", "xlsx", "xls"].includes(extension)) {
+    return NextResponse.json({ error: "Formato inválido. Use .csv ou .xlsx" }, { status: 415 })
   }
 
-  return NextResponse.json({
-    fileName: file.name,
-    headers: parsed.headers,
-    rowsCount: parsed.rowsCount,
-    errors: parsed.errors,
-    sampleRows: parsed.transactions.slice(0, 3),
-  })
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer())
+
+    let parsed
+    if (extension === "csv") {
+      parsed = await parseCSV(buffer.toString("utf-8"))
+    } else {
+      parsed = await parseXLSX(buffer)
+    }
+
+    return NextResponse.json({
+      fileName: file.name,
+      headers: parsed.headers,
+      rowsCount: parsed.rowsCount,
+      errors: parsed.errors,
+      sampleRows: parsed.transactions.slice(0, 3),
+    })
+  } catch {
+    return NextResponse.json({ error: "Erro ao ler o arquivo. Verifique o formato." }, { status: 422 })
+  }
 }

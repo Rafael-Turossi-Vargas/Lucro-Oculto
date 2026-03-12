@@ -14,7 +14,7 @@ export async function GET(req: Request) {
       include: {
         memberships: { include: { user: true }, where: { role: "owner" } },
         analyses: {
-          where: { status: "completed" },
+          where: { status: "done" },
           orderBy: { createdAt: "desc" },
           take: 1,
           include: { alerts: { where: { isDismissed: false } } },

@@ -56,7 +56,7 @@ export async function GET() {
   })
   } catch (err) {
     console.error("[GET /api/app/organizations]", err)
-    return NextResponse.json({ error: "Erro interno", detail: String(err) }, { status: 500 })
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
   }
 }
 

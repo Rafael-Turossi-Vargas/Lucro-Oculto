@@ -18,7 +18,8 @@ export async function GET() {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    if (session.user.role !== "admin" && session.user.role !== "owner") {
+    // Only system-level admin (not org owners) can access global stats
+    if (session.user.role !== "admin") {
       return NextResponse.json({ error: "Acesso negado" }, { status: 403 })
     }
 
