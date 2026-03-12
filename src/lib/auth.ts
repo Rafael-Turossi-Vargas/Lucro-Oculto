@@ -17,16 +17,24 @@ export const authOptions: AuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
 
-        const user = await db.user.findUnique({
-          where: { email: credentials.email.toLowerCase().trim() },
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            passwordHash: true,
-            emailVerified: true,
-          },
-        })
+        let user
+        try {
+          user = await db.user.findUnique({
+            where: { email: credentials.email.toLowerCase().trim() },
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              passwordHash: true,
+              emailVerified: true,
+            },
+          })
+        } catch (e) {
+          console.error("[auth] DB error finding user:", e)
+          return null
+        }
+
+        console.log("[auth] user found:", !!user, "has hash:", !!user?.passwordHash)
 
         if (!user || !user.passwordHash) return null
 
@@ -34,6 +42,8 @@ export const authOptions: AuthOptions = {
           credentials.password,
           user.passwordHash
         )
+
+        console.log("[auth] password valid:", isValid, "emailVerified:", !!user.emailVerified)
 
         if (!isValid) return null
 
