@@ -75,7 +75,12 @@ export async function GET(
       generatedAt: new Date().toLocaleDateString("pt-BR"),
     }
 
-    const pdfBuffer = await generateAnalysisPdf(data)
+    const pdfBuffer = await Promise.race([
+      generateAnalysisPdf(data),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("PDF generation timeout")), 30_000)
+      ),
+    ])
 
     return new NextResponse(new Uint8Array(pdfBuffer), {
       status: 200,

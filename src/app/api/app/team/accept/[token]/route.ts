@@ -1,16 +1,11 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { sendInviteCredentialsEmail } from "@/lib/email/templates"
+import { sendInviteSetupEmail } from "@/lib/email/templates"
+import { rateLimit } from "@/lib/rate-limit"
 import bcrypt from "bcryptjs"
 import crypto from "crypto"
-
-function generatePassword(): string {
-  // 12 chars: letters + digits + symbols — readable, no ambiguous chars (0/O/l/1)
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#%"
-  return Array.from(crypto.randomBytes(12), (b) => chars[b % chars.length]).join("")
-}
 
 // POST /api/app/team/accept/[token] — Accept invite (no auth required)
 export async function POST(
@@ -32,19 +27,23 @@ export async function POST(
   const existingUser = await db.user.findUnique({ where: { email } })
 
   if (!existingUser) {
-    // ── New user: create account with random password ──────────────────────
-    const plainPassword = generatePassword()
-    const passwordHash = await bcrypt.hash(plainPassword, 12)
+    // ── New user: create account with random unusable password, send setup link ──
+    // Never expose a plain-text password — instead generate a password-reset token
+    const randomHash = await bcrypt.hash(crypto.randomUUID(), 12)
 
     const user = await db.user.create({
       data: {
         email,
         name: email.split("@")[0],
-        passwordHash,
+        passwordHash: randomHash,
         isInvitedUser: true,
+        emailVerified: new Date(), // email implicitly verified via invite link
         preferredOrganizationId: invite.organizationId,
       },
     })
+
+    const setupToken = crypto.randomUUID()
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
 
     await db.$transaction([
       db.membership.create({
@@ -58,15 +57,18 @@ export async function POST(
         where: { id: invite.id },
         data: { acceptedAt: new Date() },
       }),
+      db.passwordResetToken.create({
+        data: { userId: user.id, token: setupToken, expiresAt },
+      }),
     ])
 
-    // Send credentials email (fire-and-forget)
-    sendInviteCredentialsEmail(
+    // Send secure setup link email — no plain-text password (fire-and-forget)
+    sendInviteSetupEmail(
       email,
-      plainPassword,
+      setupToken,
       invite.organization.name,
       invite.invitedByName ?? "Seu gestor"
-    ).catch((err) => console.error("[invite:credentials-email]", err))
+    ).catch((err) => console.error("[invite:setup-email]", err))
 
     return NextResponse.json({ success: true, isNewUser: true, email })
   }
@@ -103,9 +105,16 @@ export async function POST(
 
 // GET /api/app/team/accept/[token] — Get invite info (public)
 export async function GET(
-  _req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
+  // Rate limit: 20 lookups per IP per hour
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
+  const rl = rateLimit(`invite-lookup:${ip}`, 20, 60 * 60 * 1000)
+  if (!rl.success) {
+    return NextResponse.json({ error: "Muitas tentativas. Tente novamente mais tarde." }, { status: 429 })
+  }
+
   const { token } = await params
 
   const invite = await db.invite.findUnique({

@@ -123,12 +123,14 @@ export async function POST(req: Request) {
     select: { plan: true },
   })
 
-  // Gera slug único
-  const baseSlug = name.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "")
+  // Gera slug único com limite de iterações para prevenir DoS
+  const baseSlug = (name.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "")) || "empresa"
   let slug = baseSlug
-  let suffix = 1
-  while (await db.organization.findUnique({ where: { slug } })) {
-    slug = `${baseSlug}-${suffix++}`
+  for (let i = 1; i <= 100; i++) {
+    const exists = await db.organization.findUnique({ where: { slug } })
+    if (!exists) break
+    slug = `${baseSlug}-${i}`
+    if (i === 100) slug = `${baseSlug}-${Date.now()}`
   }
 
   const newOrg = await db.organization.create({

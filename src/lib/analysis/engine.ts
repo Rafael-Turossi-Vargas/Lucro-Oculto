@@ -63,6 +63,7 @@ type AIAnalysisResult = {
   opportunities: AIOpportunity[]
   alerts: AIAlert[]
   recommendations: AIRecommendation[]
+  aiUnavailable?: boolean
 }
 
 async function analyzeWithAI(
@@ -75,6 +76,10 @@ async function analyzeWithAI(
   if (!process.env.ANTHROPIC_API_KEY || transactions.length === 0) return empty
 
   try {
+    // Sanitize user-supplied text to prevent prompt injection via transaction descriptions
+    const sanitizeDesc = (s: string) =>
+      s.replace(/[\n\r\t]/g, " ").replace(/[^\x20-\x7E\u00C0-\u024F]/g, "").slice(0, 120)
+
     // Pre-compute financial summary to enrich the prompt
     const expenses = transactions.filter((t) => t.amount < 0)
     const income = transactions.filter((t) => t.amount > 0)
@@ -96,7 +101,7 @@ async function analyzeWithAI(
     const topVendors = [...vendorMap.entries()]
       .sort((a, b) => b[1].total - a[1].total)
       .slice(0, 20)
-      .map(([v, d]) => `  • ${v}: R$ ${d.total.toFixed(2)} (${d.count}x) — datas: ${d.dates.join(", ")}`)
+      .map(([v, d]) => `  • ${sanitizeDesc(v)}: R$ ${d.total.toFixed(2)} (${d.count}x) — datas: ${d.dates.join(", ")}`)
       .join("\n")
 
     // Category totals
@@ -124,7 +129,7 @@ async function analyzeWithAI(
     let transactionList: string
     if (transactions.length <= 500) {
       transactionList = transactions
-        .map((t) => `${t.date.slice(0, 10)} | ${t.description} | ${t.amount >= 0 ? "+" : ""}${t.amount.toFixed(2)}`)
+        .map((t) => `${t.date.slice(0, 10)} | ${sanitizeDesc(t.description)} | ${t.amount >= 0 ? "+" : ""}${t.amount.toFixed(2)}`)
         .join("\n")
     } else {
       transactionList =
@@ -132,7 +137,7 @@ async function analyzeWithAI(
         [...transactions]
           .sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount))
           .slice(0, 150)
-          .map((t) => `${t.date.slice(0, 10)} | ${t.description} | ${t.amount >= 0 ? "+" : ""}${t.amount.toFixed(2)}`)
+          .map((t) => `${t.date.slice(0, 10)} | ${sanitizeDesc(t.description)} | ${t.amount >= 0 ? "+" : ""}${t.amount.toFixed(2)}`)
           .join("\n")
     }
 
@@ -265,8 +270,8 @@ Responda SOMENTE com JSON válido (sem markdown, sem texto extra):
       recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
     }
   } catch (err) {
-    console.error("AI analysis error (non-fatal):", err)
-    return empty
+    console.error("AI analysis error:", err)
+    return { ...empty, aiUnavailable: true }
   }
 }
 
@@ -361,7 +366,20 @@ export async function runAnalysis(
     // Merge AI insights with rule-based (AI supplements, not duplicates)
     const allLeaks = [...insights.leaks, ...aiResult.leaks]
     const allOpportunities = [...insights.opportunities, ...aiResult.opportunities]
-    const allAlerts = [...insights.alerts, ...aiResult.alerts]
+    const baseAlerts = [...insights.alerts, ...aiResult.alerts]
+
+    // If AI was unavailable, add an info alert so user knows detailed analysis is partial
+    if (aiResult.aiUnavailable) {
+      baseAlerts.push({
+        type: "other",
+        severity: "info",
+        title: "Análise por IA temporariamente indisponível",
+        message: "A análise detalhada por inteligência artificial não pôde ser concluída neste momento. O score e os insights exibidos são baseados na análise automática de padrões. Tente gerar uma nova análise em alguns minutos.",
+        amount: 0,
+      })
+    }
+
+    const allAlerts = baseAlerts
     // Merge recommendations: AI gets priority numbers starting after rule-based ones
     const ruleRecCount = insights.actions.length
     const aiRecs = aiResult.recommendations.map((r, i) => ({

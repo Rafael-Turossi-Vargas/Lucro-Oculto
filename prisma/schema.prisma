@@ -26,6 +26,7 @@ model User {
   uploads              Upload[]
   reports              Report[]
   passwordResetTokens  PasswordResetToken[]
+  npsResponses         NpsResponse[]
 }
 
 model PasswordResetToken {
@@ -94,6 +95,8 @@ model Organization {
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 
+  lastWeeklySummaryAt DateTime?
+
   memberships       Membership[]
   onboardingProfile OnboardingProfile?
   uploads           Upload[]
@@ -104,6 +107,7 @@ model Organization {
   scoreSnapshots    ScoreSnapshot[]
   reports           Report[]
   invites           Invite[]
+  npsResponses      NpsResponse[]
 }
 
 model StripeEvent {
@@ -306,4 +310,18 @@ model Invite {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, email])
+}
+
+model NpsResponse {
+  id             String   @id @default(cuid())
+  userId         String
+  organizationId String
+  score          Int
+  comment        String?
+  createdAt      DateTime @default(now())
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId]) // one response per user per org
 }

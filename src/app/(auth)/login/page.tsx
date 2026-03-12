@@ -14,15 +14,19 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [emailNotVerified, setEmailNotVerified] = useState(false)
 
   const registered = params.get("registered") === "true"
   const trialParam = params.get("trial")
   const trialPro = trialParam === "pro"
   const trialPremium = trialParam === "premium"
+  const justVerified = params.get("verified") === "true"
+  const tokenError = params.get("error")
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError("")
+    setEmailNotVerified(false)
     setLoading(true)
 
     try {
@@ -33,7 +37,11 @@ function LoginForm() {
       })
 
       if (result?.error) {
-        setError("Email ou senha incorretos. Tente novamente.")
+        if (result.error === "EMAIL_NOT_VERIFIED") {
+          setEmailNotVerified(true)
+        } else {
+          setError("Email ou senha incorretos. Tente novamente.")
+        }
         setLoading(false)
         return
       }
@@ -101,11 +109,56 @@ function LoginForm() {
       )}
       {registered && !trialPro && !trialPremium && (
         <div
+          className="flex items-start gap-2.5 px-4 py-3 rounded-xl mb-5"
+          style={{ background: "rgba(0,208,132,0.07)", border: "1px solid rgba(0,208,132,0.2)", color: "#00D084" }}
+        >
+          <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold">Conta criada com sucesso!</p>
+            <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>Verifique seu email para ativar o acesso antes de fazer login.</p>
+          </div>
+        </div>
+      )}
+      {justVerified && (
+        <div
           className="flex items-center gap-2.5 px-4 py-3 rounded-xl mb-5"
           style={{ background: "rgba(0,208,132,0.07)", border: "1px solid rgba(0,208,132,0.2)", color: "#00D084" }}
         >
           <CheckCircle2 className="w-4 h-4 shrink-0" />
-          <span className="text-sm font-medium">Conta criada! Faça login para começar.</span>
+          <span className="text-sm font-semibold">Email verificado! Agora faça login para acessar sua conta.</span>
+        </div>
+      )}
+      {tokenError === "token_expired" && (
+        <div
+          className="flex items-start gap-2.5 px-4 py-3 rounded-xl mb-5"
+          style={{ background: "rgba(255,77,79,0.07)", border: "1px solid rgba(255,77,79,0.2)", color: "#FF4D4F" }}
+        >
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold">Link de verificação expirado</p>
+            <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>Tente fazer login para receber um novo link de verificação.</p>
+          </div>
+        </div>
+      )}
+      {(tokenError === "token_invalid" || tokenError === "token_missing" || tokenError === "verify_failed") && (
+        <div
+          className="flex items-center gap-2.5 px-4 py-3 rounded-xl mb-5"
+          style={{ background: "rgba(255,77,79,0.07)", border: "1px solid rgba(255,77,79,0.2)", color: "#FF4D4F" }}
+        >
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span className="text-sm">Link de verificação inválido. Solicite um novo cadastro.</span>
+        </div>
+      )}
+      {emailNotVerified && (
+        <div
+          className="flex items-start gap-2.5 px-4 py-3 rounded-xl mb-5"
+          style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.25)", color: "#F59E0B" }}
+        >
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold">Email ainda não verificado</p>
+            <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>Acesse sua caixa de entrada e clique no link que enviamos. Verifique também o spam.</p>
+          </div>
         </div>
       )}
       {error && (

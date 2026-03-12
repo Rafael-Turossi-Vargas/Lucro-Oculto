@@ -217,20 +217,20 @@ export async function sendTeamInviteEmail(
   })
 }
 
-// ─── Invite Credentials Email ────────────────────────────────────────────────
-export async function sendInviteCredentialsEmail(
+// ─── Invite Setup Email (secure: setup link, no plain password) ──────────────
+export async function sendInviteSetupEmail(
   to: string,
-  temporaryPassword: string,
+  setupToken: string,
   organizationName: string,
   invitedByName: string
 ) {
-  const loginUrl = `${APP_URL}/login`
+  const setupUrl = `${APP_URL}/reset-password?token=${setupToken}&setup=true`
 
   return resend.emails.send({
     from: `Lucro Oculto <${FROM}>`,
     to: DEV_TO ?? to,
     ...(REPLY_TO ? { replyTo: REPLY_TO } : {}),
-    subject: `Sua conta foi criada — ${organizationName} no Lucro Oculto`,
+    subject: `Você foi adicionado à equipe — ${organizationName} no Lucro Oculto`,
     html: `
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -249,39 +249,187 @@ export async function sendInviteCredentialsEmail(
           <tr>
             <td style="padding:40px 32px;">
               <h1 style="margin:0 0 12px;color:#F4F4F5;font-size:22px;font-weight:700;">
-                Convite aceito com sucesso!
+                Você foi adicionado à equipe!
               </h1>
               <p style="margin:0 0 24px;color:#8B8FA8;font-size:15px;line-height:1.6;">
                 <strong style="color:#F4F4F5;">${invitedByName}</strong> te adicionou à equipe de
-                <strong style="color:#A855F7;">${organizationName}</strong>. Sua conta foi criada automaticamente. Use as credenciais abaixo para acessar o sistema:
+                <strong style="color:#A855F7;">${organizationName}</strong>. Sua conta foi criada automaticamente com o email <strong style="color:#F4F4F5;">${to}</strong>.
               </p>
-              <div style="background:#212435;border:1px solid #2A2D3A;border-radius:12px;padding:24px;margin-bottom:28px;">
-                <p style="margin:0 0 16px;color:#F4F4F5;font-size:14px;font-weight:600;">Suas credenciais de acesso:</p>
-                <table width="100%" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <td style="padding:8px 0;border-bottom:1px solid #2A2D3A;">
-                      <p style="margin:0;color:#8B8FA8;font-size:12px;text-transform:uppercase;letter-spacing:0.8px;">Email</p>
-                      <p style="margin:4px 0 0;color:#F4F4F5;font-size:15px;font-weight:500;">${to}</p>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding:8px 0;">
-                      <p style="margin:0;color:#8B8FA8;font-size:12px;text-transform:uppercase;letter-spacing:0.8px;">Senha temporária</p>
-                      <p style="margin:4px 0 0;font-size:20px;font-weight:700;letter-spacing:2px;color:#A855F7;font-family:monospace;">${temporaryPassword}</p>
-                    </td>
-                  </tr>
-                </table>
+              <div style="background:#212435;border:1px solid #2A2D3A;border-radius:12px;padding:20px;margin-bottom:28px;">
+                <p style="margin:0 0 8px;color:#F4F4F5;font-size:14px;font-weight:600;">Próximos passos:</p>
+                <p style="margin:0 0 6px;color:#8B8FA8;font-size:14px;">1. Clique no botão abaixo para criar sua senha</p>
+                <p style="margin:0 0 6px;color:#8B8FA8;font-size:14px;">2. Entre com seu email e a senha criada</p>
+                <p style="margin:0;color:#8B8FA8;font-size:14px;">3. Acesse os relatórios e diagnósticos de ${organizationName}</p>
               </div>
-              <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:14px 18px;margin-bottom:28px;">
-                <p style="margin:0;color:#F59E0B;font-size:13px;">
-                  ⚠️ Por segurança, recomendamos trocar sua senha após o primeiro acesso em <strong>Configurações → Segurança</strong>.
-                </p>
-              </div>
-              <a href="${loginUrl}" style="display:inline-block;background:#A855F7;color:#fff;font-size:15px;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;letter-spacing:-0.3px;">
-                Acessar o sistema →
+              <a href="${setupUrl}" style="display:inline-block;background:#A855F7;color:#fff;font-size:15px;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;letter-spacing:-0.3px;">
+                Criar minha senha →
               </a>
               <p style="margin:20px 0 0;color:#4B4F6A;font-size:13px;">
-                Se você não esperava receber este email, entre em contato com ${invitedByName}.
+                Este link expira em 24 horas. Se você não esperava receber este email, ignore-o com segurança.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 32px;border-top:1px solid #2A2D3A;">
+              <p style="margin:0;color:#4B4F6A;font-size:12px;text-align:center;">
+                Lucro Oculto · <a href="${APP_URL}" style="color:#00D084;">lucrooculto.com.br</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+  })
+}
+
+// ─── Weekly Summary Email ─────────────────────────────────────────────────────
+export async function sendWeeklySummaryEmail(
+  to: string,
+  userName: string,
+  orgName: string,
+  analysis: {
+    score: number | null
+    totalExpenses: number | null
+    totalIncome: number | null
+    netResult: number | null
+    savingsMin: number | null
+    savingsMax: number | null
+    createdAt: Date
+    alerts: Array<{ severity: string; title: string; message: string }>
+  }
+) {
+  const fmt = (v: number) =>
+    new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(v)
+
+  const score = analysis.score ?? 0
+  const scoreColor = score >= 71 ? "#00D084" : score >= 41 ? "#F59E0B" : "#EF4444"
+  const scoreLabel = score >= 71 ? "Bom" : score >= 41 ? "Atenção" : "Crítico"
+  const criticalAlerts = analysis.alerts.filter((a) => a.severity === "critical").slice(0, 3)
+  const analysisDate = analysis.createdAt.toLocaleDateString("pt-BR")
+
+  return resend.emails.send({
+    from: `Lucro Oculto <${FROM}>`,
+    to: DEV_TO ?? to,
+    ...(REPLY_TO ? { replyTo: REPLY_TO } : {}),
+    subject: `Resumo semanal — ${orgName} | Score ${score}/100`,
+    html: `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0F1117;font-family:'Inter',Arial,sans-serif;color:#F4F4F5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0F1117;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background:#1A1D27;border-radius:16px;border:1px solid #2A2D3A;overflow:hidden;">
+          <tr>
+            <td style="padding:32px;background:linear-gradient(135deg,rgba(0,208,132,0.1) 0%,rgba(59,130,246,0.05) 100%);border-bottom:1px solid #2A2D3A;">
+              <p style="margin:0;color:#00D084;font-size:22px;font-weight:700;">💡 Lucro Oculto</p>
+              <p style="margin:4px 0 0;color:#8B8FA8;font-size:13px;">Resumo semanal — ${orgName}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:40px 32px;">
+              <h1 style="margin:0 0 8px;color:#F4F4F5;font-size:22px;font-weight:700;">
+                Olá, ${userName}! Seu resumo semanal chegou.
+              </h1>
+              <p style="margin:0 0 28px;color:#8B8FA8;font-size:15px;line-height:1.6;">
+                Baseado na última análise de ${analysisDate}.
+              </p>
+              <!-- Score -->
+              <div style="background:#212435;border:1px solid #2A2D3A;border-radius:12px;padding:24px;margin-bottom:16px;text-align:center;">
+                <p style="margin:0 0 4px;color:#8B8FA8;font-size:12px;text-transform:uppercase;letter-spacing:1px;">Score de Eficiência</p>
+                <p style="margin:0;font-size:48px;font-weight:800;font-family:monospace;letter-spacing:-2px;color:${scoreColor};">${score}<span style="font-size:20px;color:#4B4F6A;">/100</span></p>
+                <p style="margin:4px 0 0;color:#8B8FA8;font-size:14px;">${scoreLabel}</p>
+              </div>
+              <!-- Financials -->
+              <div style="display:flex;gap:12px;margin-bottom:16px;">
+                <div style="flex:1;background:#212435;border:1px solid #2A2D3A;border-radius:10px;padding:16px;">
+                  <p style="margin:0 0 4px;color:#8B8FA8;font-size:12px;">Despesas</p>
+                  <p style="margin:0;color:#EF4444;font-size:16px;font-weight:700;">${analysis.totalExpenses != null ? fmt(analysis.totalExpenses) : "—"}</p>
+                </div>
+                <div style="flex:1;background:#212435;border:1px solid #2A2D3A;border-radius:10px;padding:16px;">
+                  <p style="margin:0 0 4px;color:#8B8FA8;font-size:12px;">Receitas</p>
+                  <p style="margin:0;color:#00D084;font-size:16px;font-weight:700;">${analysis.totalIncome != null ? fmt(analysis.totalIncome) : "—"}</p>
+                </div>
+              </div>
+              ${analysis.savingsMin != null && analysis.savingsMax != null ? `
+              <!-- Savings -->
+              <div style="background:linear-gradient(135deg,rgba(0,208,132,0.08) 0%,rgba(0,168,107,0.04) 100%);border:1px solid rgba(0,208,132,0.2);border-radius:12px;padding:16px;margin-bottom:16px;">
+                <p style="margin:0 0 4px;color:#8B8FA8;font-size:13px;">Economia potencial identificada</p>
+                <p style="margin:0;color:#00D084;font-size:18px;font-weight:700;">${fmt(analysis.savingsMin)} – ${fmt(analysis.savingsMax)}<span style="color:#8B8FA8;font-size:13px;"> / mês</span></p>
+              </div>` : ""}
+              ${criticalAlerts.length > 0 ? `
+              <!-- Alerts -->
+              <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:16px;margin-bottom:28px;">
+                <p style="margin:0 0 12px;color:#EF4444;font-size:14px;font-weight:600;">⚠️ Alertas críticos</p>
+                ${criticalAlerts.map((a) => `<p style="margin:0 0 6px;color:#8B8FA8;font-size:13px;"><strong style="color:#F4F4F5;">${a.title}:</strong> ${a.message}</p>`).join("")}
+              </div>` : ""}
+              <a href="${APP_URL}/app/dashboard" style="display:inline-block;background:#00D084;color:#0F1117;font-size:15px;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;">
+                Ver diagnóstico completo →
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 32px;border-top:1px solid #2A2D3A;">
+              <p style="margin:0;color:#4B4F6A;font-size:12px;text-align:center;">
+                Lucro Oculto · <a href="${APP_URL}" style="color:#00D084;">lucrooculto.com.br</a> ·
+                <a href="${APP_URL}/app/settings?tab=notifications" style="color:#4B4F6A;">Gerenciar notificações</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+  })
+}
+
+// ─── Email Verification Email ─────────────────────────────────────────────────
+export async function sendEmailVerificationEmail(
+  to: string,
+  name: string,
+  verificationToken: string
+) {
+  const verifyUrl = `${APP_URL}/api/auth/verify-email?token=${verificationToken}`
+
+  return resend.emails.send({
+    from: `Lucro Oculto <${FROM}>`,
+    to: DEV_TO ?? to,
+    ...(REPLY_TO ? { replyTo: REPLY_TO } : {}),
+    subject: "Confirme seu email — Lucro Oculto",
+    html: `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0F1117;font-family:'Inter',Arial,sans-serif;color:#F4F4F5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0F1117;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background:#1A1D27;border-radius:16px;border:1px solid #2A2D3A;overflow:hidden;">
+          <tr>
+            <td style="padding:32px;background:linear-gradient(135deg,rgba(0,208,132,0.1) 0%,rgba(59,130,246,0.05) 100%);border-bottom:1px solid #2A2D3A;">
+              <p style="margin:0;color:#00D084;font-size:22px;font-weight:700;">💡 Lucro Oculto</p>
+              <p style="margin:4px 0 0;color:#8B8FA8;font-size:13px;">Confirme seu endereço de email</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:40px 32px;">
+              <h1 style="margin:0 0 12px;color:#F4F4F5;font-size:22px;font-weight:700;">
+                Olá, ${name}! Confirme seu email para ativar sua conta.
+              </h1>
+              <p style="margin:0 0 28px;color:#8B8FA8;font-size:15px;line-height:1.6;">
+                Você está a um clique de ter acesso ao diagnóstico financeiro completo da sua empresa.
+              </p>
+              <a href="${verifyUrl}" style="display:inline-block;background:#00D084;color:#0F1117;font-size:15px;font-weight:700;padding:14px 32px;border-radius:8px;text-decoration:none;letter-spacing:-0.3px;">
+                Confirmar email →
+              </a>
+              <p style="margin:24px 0 0;color:#4B4F6A;font-size:13px;">
+                Este link expira em 24 horas. Se você não criou uma conta no Lucro Oculto, ignore este email.
               </p>
             </td>
           </tr>

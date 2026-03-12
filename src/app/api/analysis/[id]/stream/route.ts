@@ -39,7 +39,7 @@ export async function GET(
 
       send({ type: "connected" })
 
-      for (let i = 0; i < 60; i++) {
+      for (let i = 0; i < 300; i++) { // 300 × 2s = 10 min max
         if (closed) break
 
         const analysis = await db.analysis.findUnique({

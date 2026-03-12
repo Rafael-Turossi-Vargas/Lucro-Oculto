@@ -45,29 +45,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (organization.plan === "free") {
-      const thisMonth = new Date()
-      thisMonth.setDate(1)
-      thisMonth.setHours(0, 0, 0, 0)
-
-      const uploadCount = await db.upload.count({
-        where: {
-          organizationId,
-          createdAt: { gte: thisMonth },
-        },
-      })
-
-      if (uploadCount >= 1) {
-        return NextResponse.json(
-          {
-            error:
-              "Limite do plano gratuito atingido. Faça upgrade para o plano Pro para análises ilimitadas.",
-          },
-          { status: 429 }
-        )
-      }
-    }
-
     const formData = await request.formData()
     const file = formData.get("file")
 
@@ -94,25 +71,76 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const upload = await db.upload.create({
-      data: {
-        organizationId,
-        userId,
-        fileName: file.name,
-        fileUrl: `local://${file.name}`,
-        fileSize: file.size,
-        fileType: extension,
-        status: "processing",
-      },
-    })
+    // Validate MIME type alongside extension (defense in depth)
+    const allowedMimes = [
+      "text/csv",
+      "text/plain",
+      "application/csv",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/octet-stream", // some browsers send this for xlsx
+    ]
+    if (file.type && !allowedMimes.includes(file.type)) {
+      return NextResponse.json(
+        { error: "Tipo de arquivo inválido. Use .csv ou .xlsx" },
+        { status: 415 }
+      )
+    }
 
-    const analysis = await db.analysis.create({
-      data: {
-        organizationId,
-        uploadId: upload.id,
-        status: "pending",
-      },
-    })
+    // For free plan: verify monthly limit atomically inside a transaction to prevent race conditions
+    let upload: Awaited<ReturnType<typeof db.upload.create>>
+    let analysis: Awaited<ReturnType<typeof db.analysis.create>>
+
+    try {
+      const result = await db.$transaction(async (tx) => {
+        if (organization.plan === "free") {
+          const thisMonth = new Date()
+          thisMonth.setDate(1)
+          thisMonth.setHours(0, 0, 0, 0)
+
+          const uploadCount = await tx.upload.count({
+            where: { organizationId, createdAt: { gte: thisMonth } },
+          })
+
+          if (uploadCount >= 1) {
+            throw new Error("PLAN_LIMIT")
+          }
+        }
+
+        const newUpload = await tx.upload.create({
+          data: {
+            organizationId,
+            userId,
+            fileName: file.name,
+            fileUrl: `local://${file.name}`,
+            fileSize: file.size,
+            fileType: extension,
+            status: "processing",
+          },
+        })
+
+        const newAnalysis = await tx.analysis.create({
+          data: {
+            organizationId,
+            uploadId: newUpload.id,
+            status: "pending",
+          },
+        })
+
+        return { upload: newUpload, analysis: newAnalysis }
+      })
+
+      upload = result.upload
+      analysis = result.analysis
+    } catch (txErr) {
+      if (txErr instanceof Error && txErr.message === "PLAN_LIMIT") {
+        return NextResponse.json(
+          { error: "Limite do plano gratuito atingido. Faça upgrade para o plano Pro para análises ilimitadas." },
+          { status: 429 }
+        )
+      }
+      throw txErr
+    }
 
     let parsed
 

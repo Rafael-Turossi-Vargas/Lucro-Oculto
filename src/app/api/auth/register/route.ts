@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
+import { randomUUID } from "crypto"
 import { z } from "zod"
 import { db } from "@/lib/db"
 
 type TxClient = Parameters<Parameters<typeof db.$transaction>[0]>[0]
-import { sendWelcomeEmail } from "@/lib/email/templates"
+import { sendWelcomeEmail, sendEmailVerificationEmail } from "@/lib/email/templates"
 import { rateLimit } from "@/lib/rate-limit"
 import { stripe } from "@/lib/stripe"
 
@@ -29,20 +30,19 @@ function slugify(text: string): string {
 }
 
 async function generateUniqueSlug(base: string): Promise<string> {
-  const baseSlug = slugify(base)
-  let attempt = 0
+  const baseSlug = slugify(base) || "empresa"
+  const MAX_ATTEMPTS = 100
 
-  while (true) {
+  for (let attempt = 0; attempt <= MAX_ATTEMPTS; attempt++) {
     const suffix = attempt === 0 ? "" : `-${attempt}`
     const candidate = `${baseSlug}${suffix}`
 
-    const existing = await db.organization.findUnique({
-      where: { slug: candidate },
-    })
-
+    const existing = await db.organization.findUnique({ where: { slug: candidate } })
     if (!existing) return candidate
-    attempt++
   }
+
+  // Fallback: append random suffix to guarantee uniqueness
+  return `${baseSlug}-${Date.now()}`
 }
 
 async function verifyCnpj(cnpj: string): Promise<boolean> {
@@ -175,6 +175,21 @@ export async function POST(request: NextRequest) {
       return { organization }
     })
 
+    // Cria token de verificação de email (expira em 24h)
+    const verificationToken = randomUUID()
+    await db.verificationToken.create({
+      data: {
+        identifier: normalizedEmail,
+        token: verificationToken,
+        expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      },
+    })
+
+    // Envia email de verificação (fire-and-forget)
+    sendEmailVerificationEmail(normalizedEmail, name, verificationToken).catch(err =>
+      console.error("Failed to send verification email:", err)
+    )
+
     // Envia email de boas-vindas (fire-and-forget)
     sendWelcomeEmail(normalizedEmail, name).catch(err =>
       console.error("Failed to send welcome email:", err)
@@ -205,7 +220,7 @@ export async function POST(request: NextRequest) {
           })
 
           return NextResponse.json(
-            { message: "Conta criada com sucesso", checkoutUrl: checkoutSession.url },
+            { message: "Conta criada com sucesso", checkoutUrl: checkoutSession.url, requiresEmailVerification: true },
             { status: 201 }
           )
         } catch (stripeErr) {
@@ -216,7 +231,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { message: "Conta criada com sucesso" },
+      { message: "Conta criada com sucesso", requiresEmailVerification: true },
       { status: 201 }
     )
   } catch (error) {

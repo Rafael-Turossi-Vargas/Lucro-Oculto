@@ -22,6 +22,13 @@ export const authOptions: AuthOptions = {
 
         const user = await db.user.findUnique({
           where: { email: credentials.email.toLowerCase().trim() },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            passwordHash: true,
+            emailVerified: true,
+          },
         })
 
         if (!user || !user.passwordHash) return null
@@ -32,6 +39,17 @@ export const authOptions: AuthOptions = {
         )
 
         if (!isValid) return null
+
+        // Bloqueia login se email ainda não foi verificado.
+        // Usuários antigos (sem token pendente) são liberados automaticamente.
+        if (!user.emailVerified) {
+          const pendingToken = await db.verificationToken.findFirst({
+            where: { identifier: user.email },
+          })
+          if (pendingToken) {
+            throw new Error("EMAIL_NOT_VERIFIED")
+          }
+        }
 
         return {
           id: user.id,
