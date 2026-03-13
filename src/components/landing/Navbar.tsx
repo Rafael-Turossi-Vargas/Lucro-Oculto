@@ -125,12 +125,13 @@ export function Navbar() {
           top: 0,
           left: 0,
           right: 0,
+          bottom: 0,
           zIndex: 99998,
           transform: mobileOpen ? "translateY(0)" : "translateY(-100%)",
           transition: "transform 0.35s cubic-bezier(0.32,0.72,0,1)",
           paddingTop: "64px", // below header
-          background: "linear-gradient(180deg, #0A0C12 0%, #0D0F18 100%)",
-          borderBottom: "1px solid rgba(0,208,132,0.15)",
+          background: "#0A0C12",
+          overflowY: "auto",
           boxShadow: mobileOpen ? "0 20px 60px rgba(0,0,0,0.7)" : "none",
         }}
         className="md:hidden"

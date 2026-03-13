@@ -7,7 +7,6 @@ import { FeaturesSection } from "@/components/landing/FeaturesSection"
 import { PricingSection } from "@/components/landing/PricingSection"
 import { SecuritySection } from "@/components/landing/SecuritySection"
 import { FAQSection } from "@/components/landing/FAQSection"
-import { CTASection } from "@/components/landing/CTASection"
 import { Footer } from "@/components/landing/Footer"
 
 export default function LandingPage() {
@@ -22,7 +21,6 @@ export default function LandingPage() {
       <PricingSection />
       <SecuritySection />
       <FAQSection />
-      <CTASection />
       <Footer />
     </main>
   )
