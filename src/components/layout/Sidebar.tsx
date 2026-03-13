@@ -267,7 +267,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             <p className="text-xs text-[#4B4F6A] truncate">{userEmail}</p>
           </div>
           <button type="button" onClick={() => signOut({ callbackUrl: "/login" })}
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-[#FF4D4F]/10 hover:text-[#FF4D4F] text-[#4B4F6A]"
+            className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-[#FF4D4F]/10 hover:text-[#FF4D4F] text-[#4B4F6A]"
             title="Sair">
             <LogOut className="w-3.5 h-3.5" />
           </button>

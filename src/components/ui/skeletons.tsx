@@ -9,8 +9,8 @@ export function Skeleton({ className = "", style = {} }: { className?: string; s
 
 export function DashboardSkeleton() {
   return (
-    <div className="px-6 py-8 space-y-6">
-      <div className="flex items-start justify-between">
+    <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3">
         <div className="space-y-2">
           <Skeleton style={{ width: 160, height: 28 }} />
           <Skeleton style={{ width: 220, height: 16 }} />
@@ -18,7 +18,7 @@ export function DashboardSkeleton() {
         <Skeleton style={{ width: 140, height: 40, borderRadius: 12 }} />
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="rounded-2xl p-5 space-y-3" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
             <div className="flex justify-between">
@@ -31,7 +31,7 @@ export function DashboardSkeleton() {
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="rounded-2xl p-6 space-y-4" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
           <Skeleton style={{ width: 120, height: 16 }} />
           <Skeleton className="mx-auto" style={{ width: 112, height: 112, borderRadius: "50%" }} />
@@ -39,7 +39,7 @@ export function DashboardSkeleton() {
             <Skeleton key={i} style={{ height: 8 }} />
           ))}
         </div>
-        <div className="col-span-2 rounded-2xl p-6 space-y-4" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+        <div className="lg:col-span-2 rounded-2xl p-6 space-y-4" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
           <Skeleton style={{ width: 200, height: 16 }} />
           <Skeleton style={{ height: 200 }} />
         </div>

@@ -129,7 +129,7 @@ function EmptyState({ pending, canUpload }: { pending?: { id: string; status: st
             <p className="text-xs font-semibold mb-4" style={{ color: "#4B4F6A", textTransform: "uppercase", letterSpacing: "1px" }}>
               Benchmarks de mercado — PMEs brasileiras
             </p>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {BENCHMARKS.map(b => (
                 <div key={b.label} className="rounded-xl p-3.5" style={{ background: "#212435" }}>
                   <p className="text-xl font-black mb-1" style={{ color: "#F59E0B" }}>{b.value}</p>
@@ -215,10 +215,10 @@ export default function DashboardPage() {
 
   return (
     <PageTransition>
-    <div className="px-6 py-8 space-y-6">
+    <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-6">
 
       {/* ── Item 12: Contextual header ─────────────────────────────────── */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-black" style={{ color: "#F4F4F5" }}>Dashboard</h1>
           <p className="text-sm" style={{ color: "#8B8FA8" }}>
@@ -240,7 +240,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Item 2: KPIs com sparklines ───────────────────────────────────── */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: "Total de Despesas", value: n(a.totalExpenses), color: "#FF4D4F", icon: TrendingDown, spark: expSparkline },
           { label: "Receita Total", value: n(a.totalIncome), color: "#00D084", icon: TrendingUp, spark: incSparkline },
@@ -267,7 +267,7 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* ── Item 1: Score card com delta ───────────────────────────────── */}
         <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
           <div className="flex items-center justify-between mb-4">
@@ -305,7 +305,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Chart */}
-        <div className="col-span-2 rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+        <div className="lg:col-span-2 rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
           <p className="text-sm font-semibold mb-4" style={{ color: "#F4F4F5" }}>
             {monthlyTrend.length > 0 ? "Despesas x Receita" : "Evolução do Score"}
           </p>
@@ -339,7 +339,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {cats.length > 0 && (
           // ── Item 4: Pie chart with concentration warning ─────────────────
           <div className="rounded-2xl p-6"

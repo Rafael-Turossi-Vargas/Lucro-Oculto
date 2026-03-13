@@ -183,7 +183,7 @@ export default function AnalysisPage() {
   }, [id, router])
 
   if (loading) return (
-    <div className="px-6 py-8 space-y-4">
+    <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-4">
       <CardSkeleton rows={1} /><CardSkeleton /><CardSkeleton />
     </div>
   )
@@ -219,7 +219,7 @@ export default function AnalysisPage() {
       )}
 
       <PageTransition>
-      <div className="px-6 py-8 space-y-6">
+      <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-6">
         {/* Back */}
         <div className="flex items-center justify-between" data-no-print>
           <Link href="/app/history" className="inline-flex items-center gap-2 text-sm"
@@ -236,9 +236,9 @@ export default function AnalysisPage() {
 
         {/* Header */}
         <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-          <div className="flex items-start gap-6">
+          <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
             {/* ── Item 9: Score ring with ? button ─────────────────────── */}
-            <div className="flex flex-col items-center gap-2 shrink-0">
+            <div className="flex flex-row sm:flex-col items-center gap-4 sm:gap-2 shrink-0">
               <ScoreRing score={a.score ?? 0} />
               <button onClick={() => setScoreModal(true)}
                 className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-lg transition-colors hover:opacity-80"
@@ -255,7 +255,7 @@ export default function AnalysisPage() {
                 {a.periodStart ? `${fmtPeriod(a.periodStart)} — ${fmtPeriod(a.periodEnd)}` : "—"}
                 {a.upload?.rowsCount && ` · ${a.upload.rowsCount.toLocaleString("pt-BR")} transações`}
               </p>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
                   { label: "Despesas", value: fmt(a.totalExpenses), color: "#FF4D4F" },
                   { label: "Receita", value: fmt(a.totalIncome), color: "#00D084" },
@@ -270,7 +270,7 @@ export default function AnalysisPage() {
               </div>
             </div>
             <button onClick={exportPdf} disabled={exporting} data-no-print
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold shrink-0 disabled:opacity-60"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold self-start disabled:opacity-60"
               style={{ background: "#212435", color: "#8B8FA8", border: "1px solid #2A2D3A" }}>
               {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
               {exporting ? "Gerando..." : "Exportar PDF"}
@@ -284,7 +284,7 @@ export default function AnalysisPage() {
             <p className="text-xs font-semibold mb-4" style={{ color: "#4B4F6A", textTransform: "uppercase", letterSpacing: "1px" }}>
               Comparativo com o Setor
             </p>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {benchmarks.map(b => {
                 const isGood = b.betterWhenHigher ? b.actual >= b.benchmark * 0.9 : b.actual <= b.benchmark * 1.1
                 const color = isGood ? "#00D084" : b.actual >= b.benchmark * 0.7 ? "#F59E0B" : "#FF4D4F"

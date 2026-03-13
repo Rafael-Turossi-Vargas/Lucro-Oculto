@@ -62,7 +62,7 @@ export default function HistoryPage() {
   const bestScore = doneAnalyses.length > 0 ? Math.max(...doneAnalyses.map(a => a.score ?? 0)) : null
 
   return (
-    <div className="px-6 py-8 space-y-6">
+    <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-6">
 
       {/* Delete modal */}
       {confirmId && (
@@ -89,7 +89,7 @@ export default function HistoryPage() {
       )}
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-black" style={{ color: "#F4F4F5" }}>Histórico de análises</h1>
           <p className="text-sm mt-0.5" style={{ color: "#8B8FA8" }}>
@@ -131,7 +131,7 @@ export default function HistoryPage() {
         <>
           {/* Stats summary */}
           {doneAnalyses.length > 0 && (
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="rounded-2xl p-4" style={{ background: "#1A1D27", border: "1px solid #2A2D3A", borderLeft: "3px solid #00D084" }}>
                 <p className="text-xs font-semibold mb-2" style={{ color: "#8B8FA8" }}>Total de análises</p>
                 <p className="text-2xl font-black" style={{ color: "#F4F4F5" }}>{analyses.length}</p>
@@ -253,9 +253,9 @@ export default function HistoryPage() {
                     <div className="flex items-center gap-2 shrink-0">
                       {isDone && (
                         <Link href={`/app/analysis/${a.id}`}
-                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all"
+                          className="flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-semibold transition-all"
                           style={{ background: "#212435", color: "#8B8FA8", border: "1px solid #2A2D3A" }}>
-                          Ver detalhes <ArrowRight className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Ver detalhes</span> <ArrowRight className="w-3.5 h-3.5" />
                         </Link>
                       )}
                       {canDelete && (

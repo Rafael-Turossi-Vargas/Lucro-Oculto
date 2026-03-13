@@ -32,7 +32,7 @@ const FEATURES = [
 export default function UploadPage() {
   return (
     <AccessGuard permission="upload:create">
-      <div className="px-6 py-10 max-w-2xl">
+      <div className="px-4 sm:px-6 py-8 sm:py-10 max-w-2xl mx-auto w-full">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-black mb-1" style={{ color: "#F4F4F5" }}>
@@ -47,7 +47,7 @@ export default function UploadPage() {
         <FileUploader />
 
         {/* Features grid */}
-        <div className="grid grid-cols-2 gap-3 mt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-8">
           {FEATURES.map(({ icon: Icon, color, title, desc }) => (
             <div key={title} className="rounded-xl p-4 flex items-start gap-3"
               style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>

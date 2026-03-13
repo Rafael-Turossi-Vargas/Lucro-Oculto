@@ -33,7 +33,7 @@ export default function LeaksPage() {
 
   if (loading) {
     return (
-      <div className="px-6 py-8 space-y-4">
+      <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-4">
         <CardSkeleton rows={1} />
         <CardSkeleton rows={5} />
       </div>
@@ -42,7 +42,7 @@ export default function LeaksPage() {
 
   if (!data?.analysis) {
     return (
-      <div className="px-6 py-8">
+      <div className="px-4 sm:px-6 py-6 sm:py-8">
         <h1 className="text-2xl font-black mb-6" style={{ color: "#F4F4F5" }}>Vazamentos detectados</h1>
         <div className="rounded-2xl p-12 text-center" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
           <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
@@ -93,10 +93,10 @@ export default function LeaksPage() {
   const highTotal = leaks.filter(l => l.impact === "high").reduce((s, l) => s + l.amount, 0)
 
   return (
-    <div className="px-6 py-8 space-y-6">
+    <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-6">
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-black" style={{ color: "#F4F4F5" }}>Vazamentos detectados</h1>
           <p className="text-sm mt-0.5" style={{ color: "#8B8FA8" }}>
@@ -125,7 +125,7 @@ export default function LeaksPage() {
       ) : (
         <>
           {/* Summary cards with progress bar */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {(["high", "medium", "low"] as Impact[]).map((impact) => {
               const count = leaks.filter((l) => l.impact === impact).length
               const total = leaks.filter((l) => l.impact === impact).reduce((s, l) => s + l.amount, 0)
@@ -250,7 +250,7 @@ export default function LeaksPage() {
           </div>
 
           {/* Footer summary */}
-          <div className="rounded-2xl p-5 flex items-center justify-between"
+          <div className="rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-3"
             style={{ background: "rgba(255,77,79,0.04)", border: "1px solid rgba(255,77,79,0.12)" }}>
             <div>
               <p className="text-xs font-semibold mb-0.5" style={{ color: "#8B8FA8" }}>

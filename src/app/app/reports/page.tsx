@@ -76,7 +76,7 @@ export default function ReportsPage() {
 
   if (dashLoading || loadingReports) {
     return (
-      <div className="px-6 py-8 space-y-4">
+      <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-4">
         <CardSkeleton rows={1} />
         <CardSkeleton rows={5} />
       </div>
@@ -84,7 +84,7 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="px-6 py-8 space-y-6">
+    <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-6">
 
       {/* Header */}
       <div>
@@ -137,7 +137,7 @@ export default function ReportsPage() {
             <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: "#4B4F6A" }}>
               O que está incluído
             </p>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 mb-6">
               {REPORT_ITEMS.map((item) => (
                 <div key={item} className="flex items-center gap-2">
                   <CheckCircle className="w-3.5 h-3.5 shrink-0" style={{ color: "#00D084" }} />
@@ -207,7 +207,7 @@ export default function ReportsPage() {
           </div>
           <div className="divide-y" style={{ borderColor: "#212435" }}>
             {reports.map((report) => (
-              <div key={report.id} className="flex items-center gap-4 px-5 py-4">
+              <div key={report.id} className="flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-4">
                 <div className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0"
                   style={{ background: "rgba(0,208,132,0.08)", border: "1px solid rgba(0,208,132,0.15)" }}>
                   <FileText className="w-4 h-4" style={{ color: "#00D084" }} />

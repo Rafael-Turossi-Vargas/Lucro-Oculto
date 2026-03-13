@@ -41,7 +41,7 @@ export default function AlertsPage() {
 
   if (loading) {
     return (
-      <div className="px-6 py-8 space-y-4">
+      <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-4">
         <CardSkeleton rows={1} />
         <CardSkeleton rows={5} />
       </div>
@@ -50,7 +50,7 @@ export default function AlertsPage() {
 
   if (!data?.analysis) {
     return (
-      <div className="px-6 py-8">
+      <div className="px-4 sm:px-6 py-6 sm:py-8">
         <h1 className="text-2xl font-black mb-6" style={{ color: "#F4F4F5" }}>Alertas</h1>
         <div className="rounded-2xl p-12 text-center" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
           <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
@@ -97,7 +97,7 @@ export default function AlertsPage() {
   const dismissedCount = dismissed.size
 
   return (
-    <div className="px-6 py-8 space-y-6">
+    <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-6">
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
@@ -122,7 +122,7 @@ export default function AlertsPage() {
       </div>
 
       {/* Summary pills */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           { sev: "critical", label: "Críticos", count: criticalCount, icon: AlertTriangle },
           { sev: "warning", label: "Atenção", count: warningCount, icon: Bell },

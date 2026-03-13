@@ -43,7 +43,7 @@ export function TrialBanner() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.2 }}
-          className="relative w-full flex items-center justify-center gap-3 px-4 py-2.5 text-sm"
+          className="relative w-full flex flex-wrap items-center justify-center gap-3 px-4 pr-10 py-2.5 text-sm"
           style={{
             background: "linear-gradient(90deg, rgba(245,158,11,0.10) 0%, rgba(0,208,132,0.10) 100%)",
             borderBottom: "1px solid rgba(245,158,11,0.20)",

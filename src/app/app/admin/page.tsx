@@ -108,7 +108,7 @@ export default function AdminPage() {
   const pct = (n: number) => totalPlans > 0 ? Math.round((n / totalPlans) * 100) : 0
 
   return (
-    <div className="px-6 py-8 space-y-8">
+    <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-8">
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="flex items-center justify-center w-10 h-10 rounded-xl" style={{ background: "rgba(59,130,246,0.12)" }}>
@@ -125,7 +125,7 @@ export default function AdminPage() {
       </div>
 
       {/* Totals */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <StatCard icon={Users} label="Usuários" value={totals.users} color="#00D084" />
         <StatCard icon={Building2} label="Organizações" value={totals.orgs} color="#3B82F6" />
         <StatCard icon={BarChart3} label="Análises" value={totals.analyses} color="#F59E0B" />
@@ -135,7 +135,7 @@ export default function AdminPage() {
       {/* Plan distribution */}
       <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
         <p className="text-sm font-semibold mb-5" style={{ color: "#F4F4F5" }}>Distribuição de planos</p>
-        <div className="grid grid-cols-3 gap-4 mb-5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
           {[
             { label: "Grátis", count: planDistribution.free, color: "#8B8FA8", icon: Zap },
             { label: "Pro", count: planDistribution.pro, color: "#F59E0B", icon: Crown },
@@ -160,7 +160,7 @@ export default function AdminPage() {
       </div>
 
       {/* Recent analyses + users */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Recent analyses */}
         <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #2A2D3A" }}>
           <div className="flex items-center gap-2 px-5 py-4" style={{ background: "#1A1D27", borderBottom: "1px solid #2A2D3A" }}>

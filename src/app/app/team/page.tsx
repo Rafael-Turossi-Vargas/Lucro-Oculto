@@ -169,7 +169,7 @@ export default function TeamPage() {
   const maxMembers  = data?.maxMembers ?? 5
 
   return (
-    <div className="px-6 py-8 space-y-8">
+    <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-[#F4F4F5]">Equipe</h1>
         <p className="text-[#8B8FA8] mt-1">{memberCount}/{maxMembers} membros · Plano Premium</p>

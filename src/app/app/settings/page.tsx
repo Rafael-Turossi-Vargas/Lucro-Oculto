@@ -126,7 +126,7 @@ function ProfileTab() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "#4B4F6A" }}>
               Nome completo
@@ -170,7 +170,7 @@ function ProfileTab() {
             <p className="text-xs" style={{ color: "#4B4F6A" }}>{isOwner ? "Dados da organização" : "Dados da organização (somente leitura)"}</p>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "#4B4F6A" }}>
               Nome da empresa
@@ -287,7 +287,7 @@ function PlanUpgradeCard({
         </div>
       </div>
       <div className="px-6 py-5" style={{ background: "#1A1D27" }}>
-        <div className="grid grid-cols-2 gap-2.5 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-6">
           {features.map((f) => (
             <div key={f} className="flex items-center gap-2.5">
               <Sparkles className="w-3.5 h-3.5 shrink-0" style={{ color: accentColor }} />
@@ -434,41 +434,43 @@ function PlanTab({ showUpgradedBanner }: { showUpgradedBanner: boolean }) {
           <div className="px-5 py-4" style={{ background: "#212435", borderBottom: "1px solid #2A2D3A" }}>
             <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>O que você está perdendo no plano Grátis</p>
           </div>
-          <div className="grid grid-cols-3 divide-x" style={{ background: "#1A1D27", borderColor: "#2A2D3A" }}>
-            {[
-              { label: "Uploads/mês", free: "1", pro: "Ilimitado", premium: "Ilimitado" },
-              { label: "Transações", free: "200", pro: "10.000", premium: "50.000" },
-              { label: "Empresas", free: "1", pro: "1", premium: "Até 3" },
-              { label: "PDF", free: "—", pro: "✓", premium: "✓" },
-              { label: "Webhooks", free: "—", pro: "—", premium: "✓" },
-              { label: "Usuários", free: "1", pro: "1", premium: "Até 5" },
-            ].map((row, i) => (
-              <div key={i} className="contents">
-                <div className="px-4 py-2.5 col-span-1" style={{ borderBottom: "1px solid #2A2D3A" }}>
-                  <p className="text-xs font-medium" style={{ color: "#8B8FA8" }}>{row.label}</p>
+          <div className="overflow-x-auto">
+            <div className="grid grid-cols-3 divide-x min-w-[360px]" style={{ background: "#1A1D27", borderColor: "#2A2D3A" }}>
+              {[
+                { label: "Uploads/mês", free: "1", pro: "Ilimitado", premium: "Ilimitado" },
+                { label: "Transações", free: "200", pro: "10.000", premium: "50.000" },
+                { label: "Empresas", free: "1", pro: "1", premium: "Até 3" },
+                { label: "PDF", free: "—", pro: "✓", premium: "✓" },
+                { label: "Webhooks", free: "—", pro: "—", premium: "✓" },
+                { label: "Usuários", free: "1", pro: "1", premium: "Até 5" },
+              ].map((row, i) => (
+                <div key={i} className="contents">
+                  <div className="px-4 py-2.5 col-span-1" style={{ borderBottom: "1px solid #2A2D3A" }}>
+                    <p className="text-xs font-medium" style={{ color: "#8B8FA8" }}>{row.label}</p>
+                  </div>
+                  <div className="px-4 py-2.5 text-center" style={{ borderBottom: "1px solid #2A2D3A" }}>
+                    <p className="text-xs" style={{ color: row.free === "—" ? "#4B4F6A" : "#F4F4F5" }}>{row.free}</p>
+                  </div>
+                  <div className="px-4 py-2.5 text-center" style={{ borderBottom: "1px solid #2A2D3A", background: "rgba(245,158,11,0.03)" }}>
+                    <p className="text-xs font-medium" style={{ color: row.pro === "—" ? "#4B4F6A" : "#F59E0B" }}>{row.pro}</p>
+                  </div>
+                  <div className="px-4 py-2.5 text-center" style={{ borderBottom: "1px solid #2A2D3A", background: "rgba(168,85,247,0.03)" }}>
+                    <p className="text-xs font-medium" style={{ color: row.premium === "—" ? "#4B4F6A" : "#A855F7" }}>{row.premium}</p>
+                  </div>
                 </div>
-                <div className="px-4 py-2.5 text-center" style={{ borderBottom: "1px solid #2A2D3A" }}>
-                  <p className="text-xs" style={{ color: row.free === "—" ? "#4B4F6A" : "#F4F4F5" }}>{row.free}</p>
-                </div>
-                <div className="px-4 py-2.5 text-center" style={{ borderBottom: "1px solid #2A2D3A", background: "rgba(245,158,11,0.03)" }}>
-                  <p className="text-xs font-medium" style={{ color: row.pro === "—" ? "#4B4F6A" : "#F59E0B" }}>{row.pro}</p>
-                </div>
-                <div className="px-4 py-2.5 text-center" style={{ borderBottom: "1px solid #2A2D3A", background: "rgba(168,85,247,0.03)" }}>
-                  <p className="text-xs font-medium" style={{ color: row.premium === "—" ? "#4B4F6A" : "#A855F7" }}>{row.premium}</p>
-                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-4 px-0 min-w-[360px]" style={{ background: "#1A1D27" }}>
+              <div className="px-4 py-3" />
+              <div className="px-4 py-3 text-center">
+                <p className="text-xs font-bold" style={{ color: "#4B4F6A" }}>Grátis</p>
               </div>
-            ))}
-          </div>
-          <div className="grid grid-cols-4 px-0" style={{ background: "#1A1D27" }}>
-            <div className="px-4 py-3" />
-            <div className="px-4 py-3 text-center">
-              <p className="text-xs font-bold" style={{ color: "#4B4F6A" }}>Grátis</p>
-            </div>
-            <div className="px-4 py-3 text-center" style={{ background: "rgba(245,158,11,0.03)" }}>
-              <p className="text-xs font-bold" style={{ color: "#F59E0B" }}>Pro — R$97</p>
-            </div>
-            <div className="px-4 py-3 text-center" style={{ background: "rgba(168,85,247,0.03)" }}>
-              <p className="text-xs font-bold" style={{ color: "#A855F7" }}>Premium — R$297</p>
+              <div className="px-4 py-3 text-center" style={{ background: "rgba(245,158,11,0.03)" }}>
+                <p className="text-xs font-bold" style={{ color: "#F59E0B" }}>Pro — R$97</p>
+              </div>
+              <div className="px-4 py-3 text-center" style={{ background: "rgba(168,85,247,0.03)" }}>
+                <p className="text-xs font-bold" style={{ color: "#A855F7" }}>Premium — R$297</p>
+              </div>
             </div>
           </div>
         </div>
@@ -1094,7 +1096,7 @@ function IntegrationTab() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {SUPPORTED_BANKS.map(bank => (
             <div
               key={bank.name}
@@ -1288,15 +1290,15 @@ function SettingsContent() {
         }
 
   return (
-    <div className="px-6 py-8">
+    <div className="px-4 sm:px-6 py-6 sm:py-8">
       <div className="mb-8">
         <h1 className="text-2xl font-black" style={{ color: "#F4F4F5" }}>Configurações</h1>
         <p className="text-sm mt-0.5" style={{ color: "#8B8FA8" }}>Gerencie sua conta, plano e preferências</p>
       </div>
 
-      <div className="flex gap-8">
+      <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
         {/* Sidebar nav */}
-        <aside className="w-52 shrink-0">
+        <aside className="w-full sm:w-52 sm:shrink-0">
           <nav className="space-y-1">
             {visibleTabs.map(({ id, label, icon: Icon }) => (
               <button

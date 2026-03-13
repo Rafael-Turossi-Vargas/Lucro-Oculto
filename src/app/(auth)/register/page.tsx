@@ -273,7 +273,7 @@ function RegisterForm() {
       <form onSubmit={handleSubmit} className="space-y-3.5">
 
         {/* Name + org — 2 col */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "#4B4F6A" }}>
               Nome
