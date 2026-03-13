@@ -9,8 +9,16 @@ import { useSearchParams } from "next/navigation"
 import {
   Save, Loader2, CheckCircle, Zap, Crown, User, Building2, Shield,
   CreditCard, Bell, KeyRound, ChevronRight, Sparkles, AlertTriangle, Lock,
-  Plug, Webhook, Plus, Eye, EyeOff,
+  Plug, Webhook, Plus, Eye, EyeOff, Link2, Unlink, RefreshCw, WifiOff,
 } from "lucide-react"
+import { BANK_LOGOS } from "@/components/bank-logos"
+import dynamic from "next/dynamic"
+
+// Load PluggyConnect only client-side (it manipulates the DOM directly)
+const PluggyConnect = dynamic(
+  () => import("react-pluggy-connect").then(m => m.PluggyConnect),
+  { ssr: false }
+)
 import { can } from "@/lib/roles"
 
 type Tab = "profile" | "plan" | "notifications" | "security" | "integracoes"
@@ -1045,8 +1053,16 @@ const SUPPORTED_BANKS = [
   { name: "Banco do Brasil", color: "#F9CF00" },
   { name: "Caixa Econômica", color: "#0070AF" },
   { name: "Inter", color: "#FF7A00" },
-  { name: "C6 Bank", color: "#242424" },
+  { name: "C6 Bank", color: "#1A1A1A" },
 ]
+
+interface BankConnection {
+  id: string
+  pluggyItemId: string
+  bankName: string
+  status: string
+  lastSyncAt: string | null
+}
 
 const WEBHOOK_EVENTS = [
   { key: "leak_detected", label: "Novo vazamento detectado" },
@@ -1062,6 +1078,95 @@ function IntegrationTab() {
   const [webhookUrl, setWebhookUrl] = useState("")
   const [webhookEvents, setWebhookEvents] = useState<Set<string>>(new Set(["analysis_done", "critical_alert"]))
   const [webhookSaved, setWebhookSaved] = useState(false)
+
+  // Bank connections state
+  const [connections, setConnections] = useState<BankConnection[]>([])
+  const [connectingBank, setConnectingBank] = useState<string | null>(null)
+  const [activeConnectToken, setActiveConnectToken] = useState<string | null>(null)
+  const [disconnecting, setDisconnecting] = useState<string | null>(null)
+  const [bankError, setBankError] = useState<string | null>(null)
+  const [pluggyConfigured, setPluggyConfigured] = useState(true)
+
+  useEffect(() => {
+    fetch("/api/app/bank/connections")
+      .then(r => r.json())
+      .then(d => setConnections(d.connections ?? []))
+      .catch(() => null)
+  }, [])
+
+  const isConnected = (bankName: string) =>
+    connections.some(c => c.bankName.toLowerCase().includes(bankName.toLowerCase()) && c.status !== "disconnected")
+
+  const getConnection = (bankName: string) =>
+    connections.find(c => c.bankName.toLowerCase().includes(bankName.toLowerCase()) && c.status !== "disconnected")
+
+  const handleConnect = async (bankName: string) => {
+    setBankError(null)
+    setConnectingBank(bankName)
+
+    try {
+      const res = await fetch("/api/app/bank/connect-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      })
+
+      if (res.status === 503) {
+        setPluggyConfigured(false)
+        setBankError("Credenciais Pluggy não configuradas. Adicione PLUGGY_CLIENT_ID e PLUGGY_CLIENT_SECRET no .env.")
+        setConnectingBank(null)
+        return
+      }
+
+      if (!res.ok) {
+        const d = await res.json()
+        throw new Error(d.error ?? "Erro ao conectar banco")
+      }
+
+      const { connectToken } = await res.json()
+      setActiveConnectToken(connectToken)
+    } catch (err) {
+      setBankError(err instanceof Error ? err.message : "Erro desconhecido")
+      setConnectingBank(null)
+    }
+  }
+
+  const handlePluggySuccess = async (itemData: { item: { id: string; connector: { id: number; name: string } } }) => {
+    const itemId = itemData.item.id
+    const bankName = itemData.item.connector.name
+
+    setActiveConnectToken(null)
+
+    const saveRes = await fetch("/api/app/bank/connections", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ itemId, bankName }),
+    })
+
+    if (saveRes.ok) {
+      const { connection } = await saveRes.json()
+      setConnections(prev => [...prev.filter(c => c.pluggyItemId !== itemId), connection])
+    }
+
+    setConnectingBank(null)
+  }
+
+  const handlePluggyClose = () => {
+    setActiveConnectToken(null)
+    setConnectingBank(null)
+  }
+
+  const handleDisconnect = async (bankName: string) => {
+    const conn = getConnection(bankName)
+    if (!conn) return
+    setDisconnecting(conn.pluggyItemId)
+
+    const res = await fetch(`/api/app/bank/connections/${conn.pluggyItemId}`, { method: "DELETE" })
+    if (res.ok) {
+      setConnections(prev => prev.filter(c => c.pluggyItemId !== conn.pluggyItemId))
+    }
+    setDisconnecting(null)
+  }
 
   const toggleEvent = (key: string) =>
     setWebhookEvents(prev => {
@@ -1088,7 +1193,11 @@ function IntegrationTab() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-0.5">
               <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Open Finance & Conexões Bancárias</p>
-              <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: "rgba(59,130,246,0.15)", color: "#3B82F6" }}>Em breve</span>
+              {connections.length > 0 && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: "rgba(0,208,132,0.15)", color: "#00D084" }}>
+                  {connections.length} conectado{connections.length > 1 ? "s" : ""}
+                </span>
+              )}
             </div>
             <p className="text-xs" style={{ color: "#4B4F6A" }}>
               Conecte sua conta bancária para análises automáticas sem precisar fazer upload manual de extratos.
@@ -1096,39 +1205,112 @@ function IntegrationTab() {
           </div>
         </div>
 
+        {bankError && (
+          <div className="flex items-start gap-2 mb-4 px-3 py-2.5 rounded-xl text-xs" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}>
+            <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+            <span>{bankError}</span>
+          </div>
+        )}
+
+        {!pluggyConfigured && (
+          <div className="flex items-start gap-2 mb-4 px-3 py-2.5 rounded-xl text-xs" style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)", color: "#F59E0B" }}>
+            <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+            <span>Configure as variáveis <strong>PLUGGY_CLIENT_ID</strong> e <strong>PLUGGY_CLIENT_SECRET</strong> no seu ambiente para ativar as conexões bancárias via Open Finance.</span>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {SUPPORTED_BANKS.map(bank => (
-            <div
-              key={bank.name}
-              className="flex items-center justify-between px-4 py-3 rounded-xl"
-              style={{ background: "#212435", border: "1px solid #2A2D3A" }}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black"
-                  style={{ background: bank.color + "22", color: bank.color, border: `1px solid ${bank.color}33` }}
-                >
-                  {bank.name.slice(0, 2).toUpperCase()}
-                </div>
-                <span className="text-sm font-medium" style={{ color: "#F4F4F5" }}>{bank.name}</span>
-              </div>
-              <button
-                disabled
-                className="text-xs px-2.5 py-1 rounded-lg font-medium opacity-40 cursor-not-allowed"
-                style={{ background: "#2A2D3A", color: "#8B8FA8" }}
-                title="Em breve"
+          {SUPPORTED_BANKS.map(bank => {
+            const Logo = BANK_LOGOS[bank.name]
+            const connected = isConnected(bank.name)
+            const conn = getConnection(bank.name)
+            const isConnecting = connectingBank === bank.name
+            const isDisconnecting = disconnecting === conn?.pluggyItemId
+
+            return (
+              <div
+                key={bank.name}
+                className="flex items-center justify-between px-4 py-3 rounded-xl transition-all"
+                style={{
+                  background: connected ? "rgba(0,208,132,0.05)" : "#212435",
+                  border: connected ? "1px solid rgba(0,208,132,0.25)" : "1px solid #2A2D3A",
+                }}
               >
-                Conectar
-              </button>
-            </div>
-          ))}
+                <div className="flex items-center gap-3">
+                  {Logo ? (
+                    <Logo size={28} />
+                  ) : (
+                    <div
+                      className="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black"
+                      style={{ background: bank.color + "22", color: bank.color }}
+                    >
+                      {bank.name.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                  <div>
+                    <span className="text-sm font-medium" style={{ color: "#F4F4F5" }}>{bank.name}</span>
+                    {connected && conn?.lastSyncAt && (
+                      <p className="text-[10px]" style={{ color: "#4B4F6A" }}>
+                        Sync {new Date(conn.lastSyncAt).toLocaleDateString("pt-BR")}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {connected ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-semibold flex items-center gap-1" style={{ color: "#00D084" }}>
+                      <CheckCircle className="w-3 h-3" />
+                      Conectado
+                    </span>
+                    <button
+                      onClick={() => handleDisconnect(bank.name)}
+                      disabled={isDisconnecting}
+                      className="p-1 rounded-lg transition-all hover:opacity-80"
+                      style={{ color: "#EF4444" }}
+                      title="Desconectar"
+                    >
+                      {isDisconnecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Unlink className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => handleConnect(bank.name)}
+                    disabled={isConnecting || connectingBank !== null}
+                    className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-semibold transition-all disabled:opacity-50"
+                    style={{ background: "#00D084", color: "#0F1117" }}
+                  >
+                    {isConnecting ? (
+                      <><Loader2 className="w-3 h-3 animate-spin" />Conectando...</>
+                    ) : (
+                      <><Link2 className="w-3 h-3" />Conectar</>
+                    )}
+                  </button>
+                )}
+              </div>
+            )
+          })}
         </div>
 
         <p className="text-xs mt-4 flex items-center gap-1.5" style={{ color: "#4B4F6A" }}>
           <Shield className="w-3 h-3 shrink-0" />
-          Integração via Pluggy.ai — seus dados bancários nunca são armazenados em nossos servidores
+          Integração via Pluggy.ai (Open Finance) — seus dados bancários nunca são armazenados em nossos servidores
         </p>
       </div>
+
+      {/* Pluggy Connect widget — rendered when user clicks Conectar */}
+      {activeConnectToken && (
+        <PluggyConnect
+          connectToken={activeConnectToken}
+          includeSandbox={process.env.NODE_ENV !== "production"}
+          onSuccess={handlePluggySuccess}
+          onError={(err) => {
+            setBankError(err.message ?? "Erro ao conectar")
+            handlePluggyClose()
+          }}
+          onClose={handlePluggyClose}
+        />
+      )}
 
       {/* Webhooks */}
       <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #2A2D3A" }}>
