@@ -1,5 +1,6 @@
 import { createPluggyClient } from "@/lib/pluggy"
 import { db } from "@/lib/db"
+import { runConsolidatedBankAnalysis } from "@/lib/analysis/engine"
 
 /**
  * Syncs bank transactions for a connected Pluggy item.
@@ -50,10 +51,8 @@ export async function syncBankTransactions(
     },
   })
 
-  // Date range: last 90 days
-  const from = new Date()
-  from.setDate(from.getDate() - 90)
-  const fromStr = from.toISOString().slice(0, 10)
+  // Fixed early start date to capture all history including sandbox test data (which uses past fixed dates)
+  const fromStr = "2020-01-01"
 
   // Collect all transactions across all accounts
   let imported = 0
@@ -122,7 +121,7 @@ export async function syncBankTransactions(
     data: {
       status: "done",
       rowsCount: imported,
-      periodStart: from,
+      periodStart: new Date(fromStr),
       periodEnd: new Date(),
     },
   })
@@ -132,6 +131,22 @@ export async function syncBankTransactions(
     where: { pluggyItemId: itemId },
     data: { status: "connected", lastSyncAt: new Date() },
   })
+
+  // Trigger automatic analysis if any transactions were imported
+  if (imported > 0) {
+    const analysis = await db.analysis.create({
+      data: {
+        organizationId,
+        uploadId: upload.id,
+        status: "pending",
+      },
+    })
+
+    // Fire-and-forget: consolidated analysis across ALL bank connections, don't block sync response
+    runConsolidatedBankAnalysis(upload.id, organizationId, analysis.id).catch(err => {
+      console.error(`[bank-sync] auto-analysis failed for upload ${upload.id}:`, err)
+    })
+  }
 
   return { uploadId: upload.id, imported, skipped }
 }

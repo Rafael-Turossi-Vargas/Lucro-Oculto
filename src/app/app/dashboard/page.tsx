@@ -178,9 +178,31 @@ export default function DashboardPage() {
   const canUpload = can(session?.user?.role ?? "", "upload:create")
 
   useEffect(() => {
-    fetch("/api/app/dashboard").then(r => r.json()).then(setData)
-      .catch(() => setData({ analysis: null, scoreHistory: [], analysesCount: 0, pending: null }))
-      .finally(() => setLoading(false))
+    let interval: ReturnType<typeof setInterval> | null = null
+
+    const fetchDashboard = () =>
+      fetch("/api/app/dashboard").then(r => r.json()).then((d: DashData) => {
+        setData(d)
+        setLoading(false)
+        // Auto-poll every 4s while analysis is pending/running
+        if (d.pending && !interval) {
+          interval = setInterval(() => {
+            fetch("/api/app/dashboard").then(r => r.json()).then((updated: DashData) => {
+              setData(updated)
+              if (!updated.pending && interval) {
+                clearInterval(interval)
+                interval = null
+              }
+            }).catch(() => null)
+          }, 4000)
+        }
+      }).catch(() => {
+        setData({ analysis: null, scoreHistory: [], analysesCount: 0, pending: null })
+        setLoading(false)
+      })
+
+    fetchDashboard()
+    return () => { if (interval) clearInterval(interval) }
   }, [])
 
   if (loading) return <DashboardSkeleton />

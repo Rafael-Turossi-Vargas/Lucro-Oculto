@@ -1084,7 +1084,9 @@ function IntegrationTab() {
   const [connectingBank, setConnectingBank] = useState<string | null>(null)
   const [activeConnectToken, setActiveConnectToken] = useState<string | null>(null)
   const [disconnecting, setDisconnecting] = useState<string | null>(null)
+  const [syncing, setSyncing] = useState<string | null>(null)
   const [bankError, setBankError] = useState<string | null>(null)
+  const [bankSyncInfo, setBankSyncInfo] = useState<string | null>(null)
   const [pluggyConfigured, setPluggyConfigured] = useState(true)
 
   useEffect(() => {
@@ -1094,11 +1096,19 @@ function IntegrationTab() {
       .catch(() => null)
   }, [])
 
+  const normalize = (s: string) =>
+    s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+
   const isConnected = (bankName: string) =>
-    connections.some(c => c.bankName.toLowerCase().includes(bankName.toLowerCase()) && c.status !== "disconnected")
+    connections.some(c => normalize(c.bankName).includes(normalize(bankName)) && c.status !== "disconnected")
 
   const getConnection = (bankName: string) =>
-    connections.find(c => c.bankName.toLowerCase().includes(bankName.toLowerCase()) && c.status !== "disconnected")
+    connections.find(c => normalize(c.bankName).includes(normalize(bankName)) && c.status !== "disconnected")
+
+  // Banks connected in DB that don't match any SUPPORTED_BANKS entry
+  const unrecognizedConnections = connections.filter(
+    c => c.status !== "disconnected" && !SUPPORTED_BANKS.some(b => normalize(c.bankName).includes(normalize(b.name)))
+  )
 
   const handleConnect = async (bankName: string) => {
     setBankError(null)
@@ -1146,6 +1156,8 @@ function IntegrationTab() {
     if (saveRes.ok) {
       const { connection } = await saveRes.json()
       setConnections(prev => [...prev.filter(c => c.pluggyItemId !== itemId), connection])
+      setBankSyncInfo("Banco conectado! Sincronizando transações em background — os dados aparecerão no Dashboard em alguns instantes.")
+      setTimeout(() => setBankSyncInfo(null), 8000)
     }
 
     setConnectingBank(null)
@@ -1159,13 +1171,34 @@ function IntegrationTab() {
   const handleDisconnect = async (bankName: string) => {
     const conn = getConnection(bankName)
     if (!conn) return
-    setDisconnecting(conn.pluggyItemId)
+    await disconnectConnection(conn)
+  }
 
+  const disconnectConnection = async (conn: BankConnection) => {
+    setDisconnecting(conn.pluggyItemId)
     const res = await fetch(`/api/app/bank/connections/${conn.pluggyItemId}`, { method: "DELETE" })
     if (res.ok) {
       setConnections(prev => prev.filter(c => c.pluggyItemId !== conn.pluggyItemId))
     }
     setDisconnecting(null)
+  }
+
+  const handleSync = async (conn: BankConnection) => {
+    setSyncing(conn.pluggyItemId)
+    setBankError(null)
+    try {
+      const res = await fetch(`/api/app/bank/sync/${conn.pluggyItemId}`, { method: "POST" })
+      const d = await res.json() as { imported?: number; skipped?: number; error?: string }
+      if (!res.ok) throw new Error(d.error ?? "Sync failed")
+      setBankSyncInfo(`Sync concluído: ${d.imported ?? 0} transações importadas${d.skipped ? `, ${d.skipped} já existentes` : ""}. Os dados aparecerão no Dashboard em instantes.`)
+      setTimeout(() => setBankSyncInfo(null), 8000)
+      // Refresh connection list to get updated lastSyncAt
+      fetch("/api/app/bank/connections").then(r => r.json()).then(data => setConnections(data.connections ?? [])).catch(() => null)
+    } catch (err) {
+      setBankError(err instanceof Error ? err.message : "Erro ao sincronizar")
+    } finally {
+      setSyncing(null)
+    }
   }
 
   const toggleEvent = (key: string) =>
@@ -1185,7 +1218,16 @@ function IntegrationTab() {
   return (
     <div className="space-y-6">
       {/* Open Finance */}
-      <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+      <div className="relative">
+      {/* "Em Breve" overlay */}
+      <div className="absolute inset-0 z-10 rounded-2xl flex flex-col items-center justify-center gap-3 backdrop-blur-sm" style={{ background: "rgba(15,17,23,0.6)" }}>
+        <div className="flex flex-col items-center gap-2 px-4 text-center">
+          <span className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full" style={{ background: "rgba(59,130,246,0.15)", color: "#3B82F6", border: "1px solid rgba(59,130,246,0.3)" }}>Em Breve</span>
+          <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Open Finance em desenvolvimento</p>
+          <p className="text-xs max-w-xs" style={{ color: "#4B4F6A" }}>As conexões bancárias automáticas estarão disponíveis nas próximas atualizações.</p>
+        </div>
+      </div>
+      <div className="rounded-2xl p-6 pointer-events-none select-none" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
         <div className="flex items-start gap-3 mb-5">
           <div className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0" style={{ background: "#212435" }}>
             <Plug className="w-4 h-4" style={{ color: "#3B82F6" }} />
@@ -1205,6 +1247,13 @@ function IntegrationTab() {
           </div>
         </div>
 
+        {bankSyncInfo && (
+          <div className="flex items-start gap-2 mb-4 px-3 py-2.5 rounded-xl text-xs" style={{ background: "rgba(0,208,132,0.08)", border: "1px solid rgba(0,208,132,0.25)", color: "#00D084" }}>
+            <CheckCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+            <span>{bankSyncInfo}</span>
+          </div>
+        )}
+
         {bankError && (
           <div className="flex items-start gap-2 mb-4 px-3 py-2.5 rounded-xl text-xs" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}>
             <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
@@ -1220,12 +1269,67 @@ function IntegrationTab() {
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Connected banks from DB that don't match SUPPORTED_BANKS */}
+          {unrecognizedConnections.map(conn => {
+            const isDisconnecting = disconnecting === conn.pluggyItemId
+            const isSyncing = syncing === conn.pluggyItemId
+            return (
+              <div
+                key={conn.pluggyItemId}
+                className="flex items-center justify-between px-4 py-3 rounded-xl transition-all"
+                style={{ background: "rgba(0,208,132,0.05)", border: "1px solid rgba(0,208,132,0.25)" }}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black"
+                    style={{ background: "#3B82F622", color: "#3B82F6" }}
+                  >
+                    {conn.bankName.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium" style={{ color: "#F4F4F5" }}>{conn.bankName}</span>
+                    {conn.lastSyncAt && (
+                      <p className="text-[10px]" style={{ color: "#4B4F6A" }}>
+                        Sync {new Date(conn.lastSyncAt).toLocaleDateString("pt-BR")}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-semibold flex items-center gap-1" style={{ color: "#00D084" }}>
+                    <CheckCircle className="w-3 h-3" />
+                    Conectado
+                  </span>
+                  <button
+                    onClick={() => handleSync(conn)}
+                    disabled={isSyncing || !!syncing}
+                    className="p-1 rounded-lg transition-all hover:opacity-80"
+                    style={{ color: "#3B82F6" }}
+                    title="Sincronizar agora"
+                  >
+                    {isSyncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                  </button>
+                  <button
+                    onClick={() => disconnectConnection(conn)}
+                    disabled={isDisconnecting}
+                    className="p-1 rounded-lg transition-all hover:opacity-80"
+                    style={{ color: "#EF4444" }}
+                    title="Desconectar"
+                  >
+                    {isDisconnecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Unlink className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+            )
+          })}
+
           {SUPPORTED_BANKS.map(bank => {
             const Logo = BANK_LOGOS[bank.name]
             const connected = isConnected(bank.name)
             const conn = getConnection(bank.name)
             const isConnecting = connectingBank === bank.name
             const isDisconnecting = disconnecting === conn?.pluggyItemId
+            const isSyncing = syncing === conn?.pluggyItemId
 
             return (
               <div
@@ -1263,6 +1367,17 @@ function IntegrationTab() {
                       <CheckCircle className="w-3 h-3" />
                       Conectado
                     </span>
+                    {conn && (
+                      <button
+                        onClick={() => handleSync(conn)}
+                        disabled={isSyncing || !!syncing}
+                        className="p-1 rounded-lg transition-all hover:opacity-80"
+                        style={{ color: "#3B82F6" }}
+                        title="Sincronizar agora"
+                      >
+                        {isSyncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                      </button>
+                    )}
                     <button
                       onClick={() => handleDisconnect(bank.name)}
                       disabled={isDisconnecting}
@@ -1297,6 +1412,7 @@ function IntegrationTab() {
           Integração via Pluggy.ai (Open Finance) — seus dados bancários nunca são armazenados em nossos servidores
         </p>
       </div>
+      </div>{/* end overlay wrapper */}
 
       {/* Pluggy Connect widget — rendered when user clicks Conectar */}
       {activeConnectToken && (

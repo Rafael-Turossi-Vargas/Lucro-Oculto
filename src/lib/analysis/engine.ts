@@ -275,47 +275,12 @@ Responda SOMENTE com JSON válido (sem markdown, sem texto extra):
   }
 }
 
-export async function runAnalysis(
-  rawTransactions: RawTransaction[],
+async function _runAnalysisPipeline(
+  enriched: EnrichedTransaction[],
   organizationId: string,
-  uploadId: string,
   analysisId: string
 ): Promise<void> {
   try {
-    await db.analysis.update({
-      where: { id: analysisId },
-      data: { status: "running" },
-    })
-
-    const enriched: EnrichedTransaction[] = rawTransactions.map((transaction, index) => ({
-      ...transaction,
-      id: `t_${index}`,
-      amount:
-        typeof transaction.amount === "string"
-          ? Number(String(transaction.amount).replace(",", "."))
-          : Number(transaction.amount),
-      categorySlug: categorizeTransaction(transaction.description),
-      vendor: extractVendor(transaction.description),
-    }))
-
-    const recurrence = detectRecurrence(enriched)
-    const recurrenceMap = new Map(recurrence.map((item) => [item.id, item]))
-
-    await db.transaction.createMany({
-      data: enriched.map((transaction) => ({
-        organizationId,
-        uploadId,
-        date: new Date(transaction.date),
-        description: transaction.description,
-        amount: transaction.amount,
-        categorySlug: transaction.categorySlug,
-        vendor: transaction.vendor,
-        isRecurring: recurrenceMap.get(transaction.id)?.isRecurring ?? false,
-        recurrenceType: recurrenceMap.get(transaction.id)?.recurrenceType,
-        rawData: toJsonValue(transaction),
-      })),
-    })
-
     const organization = await db.organization.findUnique({
       where: { id: organizationId },
       select: { name: true, niche: true },
@@ -543,14 +508,124 @@ export async function runAnalysis(
     }).catch(() => undefined)
   } catch (error) {
     console.error("Analysis engine error:", error)
-
     await db.analysis
-      .update({
-        where: { id: analysisId },
-        data: { status: "error" },
-      })
+      .update({ where: { id: analysisId }, data: { status: "error" } })
       .catch(() => undefined)
-
     throw error
   }
+}
+
+export async function runAnalysis(
+  rawTransactions: RawTransaction[],
+  organizationId: string,
+  uploadId: string,
+  analysisId: string
+): Promise<void> {
+  await db.analysis.update({ where: { id: analysisId }, data: { status: "running" } })
+
+  const enriched: EnrichedTransaction[] = rawTransactions.map((transaction, index) => ({
+    ...transaction,
+    id: `t_${index}`,
+    amount:
+      typeof transaction.amount === "string"
+        ? Number(String(transaction.amount).replace(",", "."))
+        : Number(transaction.amount),
+    categorySlug: categorizeTransaction(transaction.description),
+    vendor: extractVendor(transaction.description),
+  }))
+
+  const recurrence = detectRecurrence(enriched)
+  const recurrenceMap = new Map(recurrence.map((item) => [item.id, item]))
+
+  await db.transaction.createMany({
+    data: enriched.map((transaction) => ({
+      organizationId,
+      uploadId,
+      date: new Date(transaction.date),
+      description: transaction.description,
+      amount: transaction.amount,
+      categorySlug: transaction.categorySlug,
+      vendor: transaction.vendor,
+      isRecurring: recurrenceMap.get(transaction.id)?.isRecurring ?? false,
+      recurrenceType: recurrenceMap.get(transaction.id)?.recurrenceType,
+      rawData: toJsonValue(transaction),
+    })),
+  })
+
+  await _runAnalysisPipeline(enriched, organizationId, analysisId)
+}
+
+/**
+ * Runs analysis for a bank sync upload where transactions are already in the DB.
+ * Reads existing transactions, enriches them in memory, and runs the full pipeline
+ * without re-inserting into the database.
+ */
+export async function runAnalysisFromUpload(
+  uploadId: string,
+  organizationId: string,
+  analysisId: string
+): Promise<void> {
+  await db.analysis.update({ where: { id: analysisId }, data: { status: "running" } })
+
+  const dbTxs = await db.transaction.findMany({
+    where: { uploadId, organizationId },
+  })
+
+  if (dbTxs.length === 0) {
+    await db.analysis.update({
+      where: { id: analysisId },
+      data: { status: "done", totalExpenses: 0, totalIncome: 0, netResult: 0, score: 50, completedAt: new Date() },
+    })
+    return
+  }
+
+  const enriched: EnrichedTransaction[] = dbTxs.map((tx) => ({
+    id: tx.id,
+    date: tx.date.toISOString(),
+    description: tx.description,
+    amount: Number(tx.amount),
+    // Re-apply our categorizer for consistent internal slugs
+    categorySlug: categorizeTransaction(tx.description),
+    vendor: tx.vendor ?? extractVendor(tx.description),
+  }))
+
+  await _runAnalysisPipeline(enriched, organizationId, analysisId)
+}
+
+/**
+ * Runs a consolidated analysis across ALL bank transactions for the org.
+ * Used after each bank sync so the resulting analysis reflects the complete
+ * financial picture from all connected bank accounts, not just one upload.
+ */
+export async function runConsolidatedBankAnalysis(
+  _uploadId: string,
+  organizationId: string,
+  analysisId: string
+): Promise<void> {
+  await db.analysis.update({ where: { id: analysisId }, data: { status: "running" } })
+
+  // Read ALL transactions for this org (bank syncs + manual uploads) for a complete picture
+  const dbTxs = await db.transaction.findMany({
+    where: { organizationId },
+    orderBy: { date: "asc" },
+  })
+
+  if (dbTxs.length === 0) {
+    await db.analysis.update({
+      where: { id: analysisId },
+      data: { status: "done", totalExpenses: 0, totalIncome: 0, netResult: 0, score: 50, completedAt: new Date() },
+    })
+    return
+  }
+
+  const enriched: EnrichedTransaction[] = dbTxs.map((tx) => ({
+    id: tx.id,
+    date: tx.date.toISOString(),
+    description: tx.description,
+    amount: Number(tx.amount),
+    categorySlug: categorizeTransaction(tx.description),
+    vendor: tx.vendor ?? extractVendor(tx.description),
+  }))
+
+  await _runAnalysisPipeline(enriched, organizationId, analysisId)
 }
