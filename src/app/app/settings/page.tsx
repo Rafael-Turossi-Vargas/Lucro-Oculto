@@ -1302,7 +1302,7 @@ function IntegrationTab() {
       {activeConnectToken && (
         <PluggyConnect
           connectToken={activeConnectToken}
-          includeSandbox={process.env.NODE_ENV !== "production"}
+          includeSandbox={true}
           onSuccess={handlePluggySuccess}
           onError={(err) => {
             setBankError(err.message ?? "Erro ao conectar")
