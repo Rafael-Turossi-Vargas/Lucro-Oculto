@@ -112,7 +112,7 @@ function ScoreMeter({
   const color = getScoreHexColor(displayScore)
   const scoreLabel = label ?? getScoreLabel(displayScore)
   const rotation = 135
-  const trackColor = "#212435"
+  const trackColor = "var(--bg-subtle)"
 
   return (
     <div
@@ -216,7 +216,7 @@ function ScoreMeter({
 
         {showLabel && (
           <span
-            className={cn("font-medium mt-0.5", config.labelSize, "text-[#8B8FA8]")}
+            className={cn("font-medium mt-0.5", config.labelSize, "text-[var(--text-muted)]")}
           >
             {scoreLabel}
           </span>
@@ -261,7 +261,7 @@ function ScoreRing({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="#212435"
+          stroke="var(--bg-subtle)"
           strokeWidth={strokeWidth}
         />
         <circle

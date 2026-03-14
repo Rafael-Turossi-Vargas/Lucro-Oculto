@@ -1,0 +1,43 @@
+<svg width="196" height="48" viewBox="0 0 196 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lucro Oculto">
+  <defs>
+    <clipPath id="lensClipL">
+      <circle cx="20" cy="21" r="11"/>
+    </clipPath>
+    <linearGradient id="barGradL" x1="20" y1="32" x2="20" y2="10" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#006640"/>
+      <stop offset="100%" stop-color="#00D084"/>
+    </linearGradient>
+    <filter id="glowL" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Icon background (light) -->
+  <rect width="48" height="48" rx="12" fill="#E8EBF5"/>
+  <rect width="48" height="48" rx="12" fill="none" stroke="#00D084" stroke-opacity="0.35" stroke-width="1"/>
+
+  <!-- Lens bg -->
+  <circle cx="20" cy="21" r="11" fill="#D0D5E8"/>
+
+  <!-- Bar chart clipped to lens -->
+  <g clip-path="url(#lensClipL)">
+    <rect x="13" y="22" width="3.5" height="22" rx="1" fill="url(#barGradL)" opacity="0.45"/>
+    <rect x="18.25" y="17" width="3.5" height="27" rx="1" fill="url(#barGradL)" opacity="0.72"/>
+    <rect x="23.5" y="12" width="3.5" height="32" rx="1" fill="url(#barGradL)"/>
+  </g>
+
+  <!-- Lens ring -->
+  <circle cx="20" cy="21" r="11" fill="none" stroke="#00D084" stroke-width="1.8" filter="url(#glowL)"/>
+
+  <!-- Magnifying glass handle -->
+  <line x1="28.5" y1="29.5" x2="36.5" y2="37.5" stroke="#00D084" stroke-width="2.4" stroke-linecap="round"/>
+
+  <!-- Wordmark (dark text for light background) -->
+  <text x="58" y="31" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="20" font-weight="700" letter-spacing="-0.3">
+    <tspan fill="#0F1117">Lucro </tspan><tspan fill="#00D084">Oculto</tspan>
+  </text>
+</svg>

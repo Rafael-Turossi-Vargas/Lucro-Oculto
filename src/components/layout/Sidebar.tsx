@@ -8,11 +8,12 @@ import { signOut, useSession } from "next-auth/react"
 import {
   BarChart3, TrendingDown, Lightbulb, Bell, ClipboardList,
   History, FileText, Upload, Settings, LogOut, Zap, Menu, X, ShieldCheck,
-  Users, Building2, ChevronsUpDown,
+  Users, Building2, ChevronsUpDown, Sun, Moon,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { can, ROLES, type Permission } from "@/lib/roles"
+import { useTheme } from "@/lib/theme"
 
 type NavItem = {
   href: string
@@ -36,6 +37,7 @@ const navItems: NavItem[] = [
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()
   const { data: session } = useSession()
+  const { theme, toggleTheme } = useTheme()
   const [notifOpen, setNotifOpen] = useState(false)
   const [alertCount, setAlertCount] = useState(0)
   const [quickScore, setQuickScore] = useState<number | null>(null)
@@ -73,18 +75,18 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2.5 px-5 py-5 border-b border-[#2A2D3A]">
+      <div className="flex items-center gap-2.5 px-5 py-5 border-b" style={{ borderColor: "var(--border)" }}>
         <Image src="/logo-icon.svg" alt="Lucro Oculto" width={32} height={32} />
         <div className="flex-1 min-w-0">
-          <p className="text-[#F4F4F5] font-semibold text-sm leading-tight truncate">
+          <p className="font-semibold text-sm leading-tight truncate" style={{ color: "var(--text-primary)" }}>
             {isAdmin ? "Lucro Oculto" : (organizationName || "Minha Empresa")}
           </p>
-          <p className="text-[#4B4F6A] text-xs">{ROLES[role as keyof typeof ROLES]?.label ?? "Membro"}</p>
+          <p className="text-xs" style={{ color: "var(--text-faint)" }}>{ROLES[role as keyof typeof ROLES]?.label ?? "Membro"}</p>
         </div>
         <button
           onClick={() => setNotifOpen(!notifOpen)}
-          className="relative p-1.5 rounded-lg hover:bg-[#212435] transition-colors"
-          style={{ color: "#8B8FA8" }}
+          className="relative p-1.5 rounded-lg transition-colors"
+          style={{ color: "var(--text-muted)" }}
           aria-label="Notificações"
         >
           <Bell className="w-4 h-4" />
@@ -106,8 +108,17 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                 "group flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 relative",
                 isActive
                   ? "bg-[#00D084]/10 text-[#00D084] border border-[#00D084]/20"
-                  : "text-[#8B8FA8] hover:text-[#F4F4F5] hover:bg-[#212435] border border-transparent"
-              )}>
+                  : "border border-transparent"
+              )}
+              style={!isActive ? { color: "var(--text-muted)" } : undefined}
+              onMouseEnter={!isActive ? (e) => {
+                (e.currentTarget as HTMLElement).style.color = "var(--text-primary)"
+                ;(e.currentTarget as HTMLElement).style.background = "var(--bg-subtle)"
+              } : undefined}
+              onMouseLeave={!isActive ? (e) => {
+                (e.currentTarget as HTMLElement).style.color = "var(--text-muted)"
+                ;(e.currentTarget as HTMLElement).style.background = ""
+              } : undefined}>
               {isActive && (
                 <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-[#00D084] rounded-r-full" />
               )}
@@ -122,7 +133,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         {(isPremium || isAdmin) && (can(role, "team:view") || can(role, "companies:manage")) && (
           <>
             <div className="px-3 pt-3 pb-1">
-              <p className="text-[10px] font-semibold text-[#4B4F6A] uppercase tracking-widest">Premium</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>Premium</p>
             </div>
             {can(role, "team:view") && (
               <Link href="/app/team" onClick={onNavigate}
@@ -130,8 +141,9 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                   "group flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 relative border",
                   pathname.startsWith("/app/team")
                     ? "bg-[#A855F7]/10 text-[#A855F7] border-[#A855F7]/20"
-                    : "text-[#8B8FA8] hover:text-[#F4F4F5] hover:bg-[#212435] border-transparent"
-                )}>
+                    : "border-transparent"
+                )}
+                style={!pathname.startsWith("/app/team") ? { color: "var(--text-muted)" } : undefined}>
                 {pathname.startsWith("/app/team") && (
                   <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-[#A855F7] rounded-r-full" />
                 )}
@@ -145,8 +157,9 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                   "group flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 relative border",
                   pathname.startsWith("/app/companies")
                     ? "bg-[#A855F7]/10 text-[#A855F7] border-[#A855F7]/20"
-                    : "text-[#8B8FA8] hover:text-[#F4F4F5] hover:bg-[#212435] border-transparent"
-                )}>
+                    : "border-transparent"
+                )}
+                style={!pathname.startsWith("/app/companies") ? { color: "var(--text-muted)" } : undefined}>
                 {pathname.startsWith("/app/companies") && (
                   <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-[#A855F7] rounded-r-full" />
                 )}
@@ -171,12 +184,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         )}
       </nav>
 
-      {/* ── Item 11: Quick summary mini card ───────────────────────────────── */}
+      {/* Quick summary mini card */}
       {quickScore !== null && (
         <div className="px-3 pb-2">
           <Link href="/app/dashboard"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors hover:opacity-80"
-            style={{ background: "#212435", border: "1px solid #2A2D3A" }}>
+            style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)" }}>
             <div className="flex items-center justify-center w-8 h-8 rounded-lg shrink-0 font-black text-sm"
               style={{
                 background: quickScore >= 75 ? "rgba(0,208,132,0.12)" : quickScore >= 50 ? "rgba(245,158,11,0.12)" : "rgba(255,77,79,0.12)",
@@ -185,7 +198,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               {quickScore}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-semibold leading-tight" style={{ color: "#F4F4F5" }}>Score atual</p>
+              <p className="text-[11px] font-semibold leading-tight" style={{ color: "var(--text-primary)" }}>Score atual</p>
               {quickLeaks !== null && quickLeaks > 0 && (
                 <p className="text-[10px]" style={{ color: "#FF4D4F" }}>{quickLeaks} vazamento{quickLeaks > 1 ? "s" : ""} ativo{quickLeaks > 1 ? "s" : ""}</p>
               )}
@@ -202,7 +215,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-[#3B82F6]/10 border border-[#3B82F6]/20">
             <ShieldCheck className="w-3.5 h-3.5 text-[#3B82F6] shrink-0" />
             <span className="text-xs text-[#3B82F6] font-semibold flex-1">Admin</span>
-            <span className="text-[10px] text-[#4B4F6A]">Acesso total</span>
+            <span className="text-[10px]" style={{ color: "var(--text-faint)" }}>Acesso total</span>
           </div>
         ) : isPremium ? (
           <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-[#A855F7]/10 border border-[#A855F7]/20">
@@ -231,9 +244,9 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             )}
           </div>
         ) : (
-          <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-[#212435] border border-[#2A2D3A]">
+          <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg border" style={{ background: "var(--bg-subtle)", borderColor: "var(--border)" }}>
             <Zap className="w-3.5 h-3.5 text-[#F59E0B] shrink-0" />
-            <span className="text-xs text-[#8B8FA8] flex-1">Plano Grátis</span>
+            <span className="text-xs flex-1" style={{ color: "var(--text-muted)" }}>Plano Grátis</span>
             <Link href="/app/settings#upgrade" onClick={onNavigate}
               className="text-xs text-[#00D084] font-medium hover:underline shrink-0">
               Upgrade
@@ -249,25 +262,43 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 border",
               pathname === "/app/settings"
                 ? "bg-[#00D084]/10 text-[#00D084] border-[#00D084]/20"
-                : "text-[#8B8FA8] hover:text-[#F4F4F5] hover:bg-[#212435] border-transparent"
-            )}>
+                : "border-transparent"
+            )}
+            style={pathname !== "/app/settings" ? { color: "var(--text-muted)" } : undefined}>
             <Settings className="w-4 h-4 shrink-0" />
             <span className="text-sm font-medium">Configurações</span>
           </Link>
         </div>
       )}
 
-      <div className="px-3 pb-4 border-t border-[#2A2D3A] pt-3">
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[#212435] transition-colors cursor-pointer group">
+      {/* Theme toggle */}
+      <div className="px-3 pb-2">
+        <button
+          onClick={toggleTheme}
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg transition-all duration-150 border border-transparent"
+          style={{ color: "var(--text-muted)" }}
+          title={theme === "dark" ? "Mudar para modo claro" : "Mudar para modo escuro"}
+        >
+          {theme === "dark" ? <Sun className="w-4 h-4 shrink-0" /> : <Moon className="w-4 h-4 shrink-0" />}
+          <span className="text-sm font-medium">{theme === "dark" ? "Modo claro" : "Modo escuro"}</span>
+        </button>
+      </div>
+
+      <div className="px-3 pb-4 border-t pt-3" style={{ borderColor: "var(--border)" }}>
+        <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors cursor-pointer group"
+          style={{ }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--bg-subtle)" }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "" }}>
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#00D084]/20 border border-[#00D084]/30 shrink-0">
             <span className="text-xs font-semibold text-[#00D084]">{userInitials}</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-[#F4F4F5] truncate leading-tight">{userName}</p>
-            <p className="text-xs text-[#4B4F6A] truncate">{userEmail}</p>
+            <p className="text-sm font-medium truncate leading-tight" style={{ color: "var(--text-primary)" }}>{userName}</p>
+            <p className="text-xs truncate" style={{ color: "var(--text-faint)" }}>{userEmail}</p>
           </div>
           <button type="button" onClick={() => signOut({ callbackUrl: "/login" })}
-            className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-[#FF4D4F]/10 hover:text-[#FF4D4F] text-[#4B4F6A]"
+            className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-[#FF4D4F]/10 hover:text-[#FF4D4F]"
+            style={{ color: "var(--text-faint)" }}
             title="Sair">
             <LogOut className="w-3.5 h-3.5" />
           </button>
@@ -288,17 +319,17 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex flex-col w-[260px] h-full bg-[#1A1D27] border-r border-[#2A2D3A] shrink-0">
+      <aside className="hidden lg:flex flex-col w-[260px] h-full shrink-0 border-r" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
         <SidebarContent />
       </aside>
 
       {/* Mobile header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3 bg-[#1A1D27] border-b border-[#2A2D3A]">
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3 border-b" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
         <div className="flex items-center gap-2">
           <Image src="/logo-icon.svg" alt="Lucro Oculto" width={28} height={28} />
-          <p className="text-[#F4F4F5] font-semibold text-sm truncate">{displayName}</p>
+          <p className="font-semibold text-sm truncate" style={{ color: "var(--text-primary)" }}>{displayName}</p>
         </div>
-        <button onClick={() => setMobileOpen(true)} className="p-2 rounded-lg text-[#8B8FA8] hover:bg-[#212435]">
+        <button onClick={() => setMobileOpen(true)} className="p-2 rounded-lg" style={{ color: "var(--text-muted)" }}>
           <Menu className="w-5 h-5" />
         </button>
       </header>
@@ -315,16 +346,17 @@ export function Sidebar() {
       {/* Mobile drawer */}
       <aside
         className={cn(
-          "lg:hidden fixed left-0 top-0 bottom-0 z-50 w-[280px] bg-[#1A1D27] border-r border-[#2A2D3A] overflow-y-auto transition-transform duration-300 ease-out",
+          "lg:hidden fixed left-0 top-0 bottom-0 z-50 w-[280px] overflow-y-auto transition-transform duration-300 ease-out border-r",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
+        style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#2A2D3A]">
+        <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: "var(--border)" }}>
           <div className="flex items-center gap-2">
             <Image src="/logo-icon.svg" alt="Lucro Oculto" width={28} height={28} />
-            <p className="text-[#F4F4F5] font-semibold text-sm truncate">{displayName}</p>
+            <p className="font-semibold text-sm truncate" style={{ color: "var(--text-primary)" }}>{displayName}</p>
           </div>
-          <button onClick={() => setMobileOpen(false)} className="p-1.5 rounded-lg text-[#8B8FA8] hover:bg-[#212435]">
+          <button onClick={() => setMobileOpen(false)} className="p-1.5 rounded-lg" style={{ color: "var(--text-muted)" }}>
             <X className="w-4 h-4" />
           </button>
         </div>

@@ -46,23 +46,23 @@ export function NpsModal() {
   if (!show) return null
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-80 rounded-2xl shadow-2xl p-5" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-      <button onClick={handleDismiss} className="absolute top-3 right-3 p-1 rounded-lg hover:bg-[#212435]" style={{ color: "#4B4F6A" }}>
+    <div className="fixed bottom-6 right-6 z-50 w-80 rounded-2xl shadow-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+      <button onClick={handleDismiss} className="absolute top-3 right-3 p-1 rounded-lg hover:bg-[var(--bg-subtle)]" style={{ color: "var(--text-faint)" }}>
         <X className="w-3.5 h-3.5" />
       </button>
 
       {submitted ? (
         <div className="text-center py-2">
           <p className="text-2xl mb-2">🎉</p>
-          <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Obrigado pelo feedback!</p>
-          <p className="text-xs mt-1" style={{ color: "#8B8FA8" }}>Isso nos ajuda a melhorar o produto.</p>
+          <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Obrigado pelo feedback!</p>
+          <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>Isso nos ajuda a melhorar o produto.</p>
         </div>
       ) : (
         <>
-          <p className="text-sm font-semibold mb-1 pr-4" style={{ color: "#F4F4F5" }}>
+          <p className="text-sm font-semibold mb-1 pr-4" style={{ color: "var(--text-primary)" }}>
             De 0 a 10, quanto você recomendaria o Lucro Oculto?
           </p>
-          <p className="text-xs mb-4" style={{ color: "#4B4F6A" }}>0 = Jamais recomendaria · 10 = Com certeza</p>
+          <p className="text-xs mb-4" style={{ color: "var(--text-faint)" }}>0 = Jamais recomendaria · 10 = Com certeza</p>
           <div className="grid grid-cols-11 gap-1 mb-3">
             {Array.from({ length: 11 }, (_, i) => (
               <button
@@ -70,16 +70,16 @@ export function NpsModal() {
                 onClick={() => handleScore(i)}
                 className="py-1.5 rounded-lg text-xs font-bold transition-all hover:scale-110"
                 style={{
-                  background: selected === i ? "#00D084" : "#212435",
-                  color: selected === i ? "#0F1117" : "#8B8FA8",
-                  border: "1px solid #2A2D3A",
+                  background: selected === i ? "#00D084" : "var(--bg-subtle)",
+                  color: selected === i ? "var(--bg-page)" : "var(--text-muted)",
+                  border: "1px solid var(--border)",
                 }}
               >
                 {i}
               </button>
             ))}
           </div>
-          <button onClick={handleDismiss} className="text-xs w-full text-center hover:underline" style={{ color: "#4B4F6A" }}>
+          <button onClick={handleDismiss} className="text-xs w-full text-center hover:underline" style={{ color: "var(--text-faint)" }}>
             Agora não
           </button>
         </>

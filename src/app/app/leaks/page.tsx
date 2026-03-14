@@ -8,7 +8,7 @@ import { useAnalysisData } from "@/hooks/useAnalysisData"
 import { CardSkeleton } from "@/components/ui/skeletons"
 import { can } from "@/lib/roles"
 
-const IMPACT_COLOR: Record<string, string> = { high: "#FF4D4F", medium: "#F59E0B", low: "#8B8FA8" }
+const IMPACT_COLOR: Record<string, string> = { high: "#FF4D4F", medium: "#F59E0B", low: "var(--text-muted)" }
 const IMPACT_LABEL: Record<string, string> = { high: "Alto", medium: "Médio", low: "Baixo" }
 const TYPE_LABEL: Record<string, string> = {
   subscription: "Assinatura",
@@ -43,23 +43,23 @@ export default function LeaksPage() {
   if (!data?.analysis) {
     return (
       <div className="px-4 sm:px-6 py-6 sm:py-8">
-        <h1 className="text-2xl font-black mb-6" style={{ color: "#F4F4F5" }}>Vazamentos detectados</h1>
-        <div className="rounded-2xl p-12 text-center" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+        <h1 className="text-2xl font-black mb-6" style={{ color: "var(--text-primary)" }}>Vazamentos detectados</h1>
+        <div className="rounded-2xl p-12 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
             style={{ background: "rgba(255,77,79,0.08)", border: "1px solid rgba(255,77,79,0.15)" }}>
             <TrendingDown className="w-8 h-8" style={{ color: "#FF4D4F" }} />
           </div>
-          <p className="text-base font-bold mb-1" style={{ color: "#F4F4F5" }}>Nenhum vazamento detectado</p>
-          <p className="text-sm mb-2" style={{ color: "#8B8FA8" }}>
+          <p className="text-base font-bold mb-1" style={{ color: "var(--text-primary)" }}>Nenhum vazamento detectado</p>
+          <p className="text-sm mb-2" style={{ color: "var(--text-muted)" }}>
             {canUpload ? "Faça upload do extrato para descobrir onde seu lucro está escapando." : "Aguardando análise."}
           </p>
-          <p className="text-xs mb-6 px-4" style={{ color: "#4B4F6A" }}>
+          <p className="text-xs mb-6 px-4" style={{ color: "var(--text-faint)" }}>
             Empresas que usam o Lucro Oculto economizam em média{" "}
             <span style={{ color: "#00D084", fontWeight: 700 }}>R$4.800/mês</span>
           </p>
           {canUpload && (
             <Link href="/app/upload" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm"
-              style={{ background: "#00D084", color: "#0F1117" }}>
+              style={{ background: "#00D084", color: "var(--bg-page)" }}>
               <Upload className="w-4 h-4" /> Fazer primeiro upload
             </Link>
           )}
@@ -98,18 +98,18 @@ export default function LeaksPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-black" style={{ color: "#F4F4F5" }}>Vazamentos detectados</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#8B8FA8" }}>
+          <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Vazamentos detectados</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
             {leaks.length} vazamentos · impacto total de{" "}
             <span style={{ color: "#FF4D4F", fontWeight: 700 }}>{fmt(totalImpact)}/mês</span>
-            <span style={{ color: "#4B4F6A" }}> · {fmt(totalImpact * 12)}/ano</span>
+            <span style={{ color: "var(--text-faint)" }}> · {fmt(totalImpact * 12)}/ano</span>
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {leaks.length > 0 && (
             <a href="/api/app/export?type=leaks" download
               className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium"
-              style={{ background: "#212435", color: "#8B8FA8", border: "1px solid #2A2D3A" }}>
+              style={{ background: "var(--bg-subtle)", color: "var(--text-muted)", border: "1px solid var(--border)" }}>
               <Download className="w-4 h-4" /> Exportar CSV
             </a>
           )}
@@ -117,10 +117,10 @@ export default function LeaksPage() {
       </div>
 
       {leaks.length === 0 ? (
-        <div className="rounded-2xl p-10 text-center" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-          <TrendingDown className="w-10 h-10 mx-auto mb-3" style={{ color: "#2A2D3A" }} />
-          <p className="text-sm font-medium" style={{ color: "#8B8FA8" }}>Nenhum vazamento detectado</p>
-          <p className="text-xs mt-1" style={{ color: "#4B4F6A" }}>Sua situação financeira está saudável 🎉</p>
+        <div className="rounded-2xl p-10 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          <TrendingDown className="w-10 h-10 mx-auto mb-3" style={{ color: "var(--border)" }} />
+          <p className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>Nenhum vazamento detectado</p>
+          <p className="text-xs mt-1" style={{ color: "var(--text-faint)" }}>Sua situação financeira está saudável 🎉</p>
         </div>
       ) : (
         <>
@@ -135,14 +135,14 @@ export default function LeaksPage() {
                   onClick={() => setFilter(filter === impact ? "all" : impact)}
                   className="rounded-2xl p-5 text-left transition-all"
                   style={{
-                    background: "#1A1D27",
+                    background: "var(--bg-card)",
                     border: filter === impact
                       ? `1px solid ${IMPACT_COLOR[impact]}50`
-                      : "1px solid #2A2D3A",
+                      : "1px solid var(--border)",
                     borderLeft: `3px solid ${IMPACT_COLOR[impact]}`,
                   }}>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-semibold" style={{ color: "#8B8FA8" }}>
+                    <span className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>
                       Impacto {IMPACT_LABEL[impact]}
                     </span>
                     {filter === impact && (
@@ -153,11 +153,11 @@ export default function LeaksPage() {
                     )}
                   </div>
                   <p className="text-2xl font-black mb-0.5" style={{ color: IMPACT_COLOR[impact] }}>{count}</p>
-                  <p className="text-xs font-medium mb-3" style={{ color: "#4B4F6A" }}>{fmt(total)}/mês</p>
-                  <div className="h-1 rounded-full overflow-hidden" style={{ background: "#212435" }}>
+                  <p className="text-xs font-medium mb-3" style={{ color: "var(--text-faint)" }}>{fmt(total)}/mês</p>
+                  <div className="h-1 rounded-full overflow-hidden" style={{ background: "var(--bg-subtle)" }}>
                     <div className="h-full rounded-full" style={{ width: `${pct}%`, background: IMPACT_COLOR[impact] }} />
                   </div>
-                  <p className="text-[10px] mt-1.5" style={{ color: "#4B4F6A" }}>{pct.toFixed(0)}% do impacto total</p>
+                  <p className="text-[10px] mt-1.5" style={{ color: "var(--text-faint)" }}>{pct.toFixed(0)}% do impacto total</p>
                 </button>
               )
             })}
@@ -168,7 +168,7 @@ export default function LeaksPage() {
             <div className="flex items-center gap-3 p-4 rounded-xl"
               style={{ background: "rgba(255,77,79,0.06)", border: "1px solid rgba(255,77,79,0.2)" }}>
               <AlertCircle className="w-4 h-4 shrink-0" style={{ color: "#FF4D4F" }} />
-              <p className="text-sm flex-1" style={{ color: "#F4F4F5" }}>
+              <p className="text-sm flex-1" style={{ color: "var(--text-primary)" }}>
                 <span className="font-bold" style={{ color: "#FF4D4F" }}>{highCount} vazamento{highCount > 1 ? "s" : ""} crítico{highCount > 1 ? "s" : ""}</span>
                 {" "}com impacto de <span className="font-bold">{fmt(highTotal)}/mês</span> requerem atenção imediata.
               </p>
@@ -183,16 +183,16 @@ export default function LeaksPage() {
           {/* Filter + Sort bar */}
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center gap-1.5 rounded-xl p-1"
-              style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+              style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
               {(["all", "high", "medium", "low"] as const).map((f) => (
                 <button key={f} onClick={() => setFilter(f)}
                   className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                   style={{
-                    background: filter === f ? "#212435" : "transparent",
+                    background: filter === f ? "var(--bg-subtle)" : "transparent",
                     color: filter === f
-                      ? (f === "all" ? "#F4F4F5" : IMPACT_COLOR[f])
-                      : "#8B8FA8",
-                    border: filter === f ? `1px solid ${f === "all" ? "#2A2D3A" : IMPACT_COLOR[f] + "40"}` : "1px solid transparent",
+                      ? (f === "all" ? "var(--text-primary)" : IMPACT_COLOR[f])
+                      : "var(--text-muted)",
+                    border: filter === f ? `1px solid ${f === "all" ? "var(--border)" : IMPACT_COLOR[f] + "40"}` : "1px solid transparent",
                   }}>
                   {f === "all" ? `Todos (${leaks.length})` : `${IMPACT_LABEL[f]} (${leaks.filter(l => l.impact === f).length})`}
                 </button>
@@ -200,7 +200,7 @@ export default function LeaksPage() {
             </div>
             <select value={sortBy} onChange={(e) => setSortBy(e.target.value as "amount" | "impact")}
               className="text-xs px-3 py-2 rounded-xl ml-auto outline-none"
-              style={{ background: "#1A1D27", border: "1px solid #2A2D3A", color: "#8B8FA8" }}>
+              style={{ background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--text-muted)" }}>
               <option value="amount">Maior impacto $</option>
               <option value="impact">Severidade</option>
             </select>
@@ -211,8 +211,8 @@ export default function LeaksPage() {
             {filtered.map((leak, idx) => (
               <div key={leak.id} className="rounded-2xl p-5 transition-all"
                 style={{
-                  background: "#1A1D27",
-                  border: "1px solid #2A2D3A",
+                  background: "var(--bg-card)",
+                  border: "1px solid var(--border)",
                   borderLeft: `3px solid ${IMPACT_COLOR[leak.impact]}`,
                 }}>
                 <div className="flex items-start justify-between gap-4">
@@ -224,22 +224,22 @@ export default function LeaksPage() {
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                        <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>{leak.title}</p>
+                        <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{leak.title}</p>
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold"
                           style={{ background: `${IMPACT_COLOR[leak.impact]}14`, color: IMPACT_COLOR[leak.impact] }}>
                           {IMPACT_LABEL[leak.impact]} impacto
                         </span>
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-medium"
-                          style={{ background: "#212435", color: "#4B4F6A" }}>
+                          style={{ background: "var(--bg-subtle)", color: "var(--text-faint)" }}>
                           {TYPE_LABEL[leak.type] ?? leak.type}
                         </span>
                       </div>
-                      <p className="text-xs leading-relaxed" style={{ color: "#8B8FA8" }}>{leak.description}</p>
+                      <p className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>{leak.description}</p>
                     </div>
                   </div>
                   <div className="text-right shrink-0 min-w-[80px]">
                     <p className="text-lg font-black" style={{ color: "#FF4D4F" }}>−{fmt(leak.amount)}</p>
-                    <p className="text-[10px]" style={{ color: "#4B4F6A" }}>por mês</p>
+                    <p className="text-[10px]" style={{ color: "var(--text-faint)" }}>por mês</p>
                     <p className="text-[10px] font-semibold mt-0.5" style={{ color: "#FF4D4F", opacity: 0.6 }}>
                       −{fmt(leak.amount * 12)}/ano
                     </p>
@@ -253,10 +253,10 @@ export default function LeaksPage() {
           <div className="rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-3"
             style={{ background: "rgba(255,77,79,0.04)", border: "1px solid rgba(255,77,79,0.12)" }}>
             <div>
-              <p className="text-xs font-semibold mb-0.5" style={{ color: "#8B8FA8" }}>
+              <p className="text-xs font-semibold mb-0.5" style={{ color: "var(--text-muted)" }}>
                 {filter === "all" ? "Impacto total dos vazamentos" : `Impacto — ${IMPACT_LABEL[filter]}`}
               </p>
-              <p className="text-sm" style={{ color: "#F4F4F5" }}>
+              <p className="text-sm" style={{ color: "var(--text-primary)" }}>
                 Resolver {filter === "all" ? "todos" : "estes"} os vazamentos pode economizar{" "}
                 <span className="font-black" style={{ color: "#00D084" }}>
                   {fmt(filtered.reduce((s, l) => s + l.amount, 0))} por mês
@@ -269,7 +269,7 @@ export default function LeaksPage() {
             </div>
             <Link href={`/app/analysis/${data.analysis.id}#actions`}
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold shrink-0"
-              style={{ background: "#00D084", color: "#0F1117" }}>
+              style={{ background: "#00D084", color: "var(--bg-page)" }}>
               Ver plano de ação <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>

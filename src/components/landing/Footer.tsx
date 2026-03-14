@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
+import { useTheme } from "@/lib/theme"
 
 const links = {
   Produto: [
@@ -23,16 +24,17 @@ const links = {
 }
 
 export function Footer() {
+  const { theme } = useTheme()
   return (
-    <footer style={{ background: "#0F1117", borderTop: "1px solid #2A2D3A" }}>
+    <footer style={{ background: "var(--bg-page)", borderTop: "1px solid var(--border)" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center mb-3 w-fit hover:opacity-85 transition-opacity">
-              <Image src="/logo.svg" alt="Lucro Oculto" width={148} height={38} />
+              <Image src={theme === "light" ? "/logo-light.svg" : "/logo.svg"} alt="Lucro Oculto" width={148} height={38} />
             </Link>
-            <p className="text-sm leading-relaxed" style={{ color: "#8B8FA8" }}>
+            <p className="text-sm leading-relaxed" style={{ color: "var(--text-muted)" }}>
               Veja onde seu lucro está vazando. Diagnóstico financeiro inteligente para PMEs.
             </p>
           </div>
@@ -40,7 +42,7 @@ export function Footer() {
           {/* Link groups */}
           {Object.entries(links).map(([group, items]) => (
             <div key={group}>
-              <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: "#4B4F6A" }}>
+              <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: "var(--text-faint)" }}>
                 {group}
               </p>
               <ul className="space-y-2.5">
@@ -49,9 +51,9 @@ export function Footer() {
                     <Link
                       href={item.href}
                       className="text-sm transition-colors"
-                      style={{ color: "#8B8FA8" }}
-                      onMouseOver={(e) => (e.currentTarget.style.color = "#F4F4F5")}
-                      onMouseOut={(e) => (e.currentTarget.style.color = "#8B8FA8")}
+                      style={{ color: "var(--text-muted)" }}
+                      onMouseOver={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
+                      onMouseOut={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
                     >
                       {item.label}
                     </Link>
@@ -65,12 +67,12 @@ export function Footer() {
         {/* Bottom */}
         <div
           className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6"
-          style={{ borderTop: "1px solid #2A2D3A" }}
+          style={{ borderTop: "1px solid var(--border)" }}
         >
-          <p className="text-xs" style={{ color: "#4B4F6A" }}>
+          <p className="text-xs" style={{ color: "var(--text-faint)" }}>
             © {new Date().getFullYear()} Lucro Oculto. Todos os direitos reservados.
           </p>
-          <p className="text-xs" style={{ color: "#4B4F6A" }}>
+          <p className="text-xs" style={{ color: "var(--text-faint)" }}>
             Mais lucro sem vender mais.
           </p>
         </div>

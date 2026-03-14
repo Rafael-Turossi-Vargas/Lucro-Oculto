@@ -23,7 +23,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <SessionProvider session={session}>
       <ToastProvider>
-        <div className="flex h-screen overflow-hidden" style={{ background: "#0F1117" }}>
+        <div className="flex h-screen overflow-hidden" style={{ background: "var(--bg-page)" }}>
           <Sidebar />
           <main className="flex-1 overflow-y-auto pt-[52px] lg:pt-0">
             <TrialBanner />

@@ -214,14 +214,14 @@ function InsightCard({
             </div>
 
             {/* Title */}
-            <h4 className="text-sm font-semibold text-[#F4F4F5] leading-snug mb-1">
+            <h4 className="text-sm font-semibold text-[var(--text-primary)] leading-snug mb-1">
               {title}
             </h4>
 
             {/* Description */}
             <p
               className={cn(
-                "text-xs text-[#8B8FA8] leading-relaxed",
+                "text-xs text-[var(--text-muted)] leading-relaxed",
                 !expanded && "truncate-2"
               )}
             >
@@ -230,7 +230,7 @@ function InsightCard({
 
             {/* Expanded detail */}
             {expanded && detail && (
-              <div className="mt-3 pt-3 border-t border-[#2A2D3A]">
+              <div className="mt-3 pt-3 border-t border-[var(--border)]">
                 {detail}
               </div>
             )}
@@ -241,7 +241,7 @@ function InsightCard({
               <div className="flex items-center gap-3">
                 {amount !== undefined && amount > 0 && (
                   <div className="flex flex-col">
-                    <span className="text-[10px] text-[#4B4F6A] uppercase tracking-wide leading-none mb-0.5">
+                    <span className="text-[10px] text-[var(--text-faint)] uppercase tracking-wide leading-none mb-0.5">
                       Impacto estimado
                     </span>
                     <span
@@ -259,10 +259,10 @@ function InsightCard({
                 )}
                 {difficulty && (
                   <div className="flex flex-col">
-                    <span className="text-[10px] text-[#4B4F6A] uppercase tracking-wide leading-none mb-0.5">
+                    <span className="text-[10px] text-[var(--text-faint)] uppercase tracking-wide leading-none mb-0.5">
                       Dificuldade
                     </span>
-                    <span className="text-xs text-[#8B8FA8]">
+                    <span className="text-xs text-[var(--text-muted)]">
                       {getDifficultyLabel(difficulty)}
                     </span>
                   </div>
@@ -361,8 +361,8 @@ function InsightCardList({
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-10 text-center">
-        <Bell className="h-8 w-8 text-[#4B4F6A] mb-3" aria-hidden="true" />
-        <p className="text-sm text-[#8B8FA8]">{emptyMessage}</p>
+        <Bell className="h-8 w-8 text-[var(--text-faint)] mb-3" aria-hidden="true" />
+        <p className="text-sm text-[var(--text-muted)]">{emptyMessage}</p>
       </div>
     )
   }
@@ -376,10 +376,10 @@ function InsightCardList({
         <button
           onClick={() => setShowAll(!showAll)}
           className={cn(
-            "w-full py-2.5 text-xs font-medium text-[#8B8FA8]",
-            "hover:text-[#F4F4F5] transition-colors duration-150",
-            "border border-dashed border-[#2A2D3A] rounded-lg",
-            "hover:border-[#3D4158]",
+            "w-full py-2.5 text-xs font-medium text-[var(--text-muted)]",
+            "hover:text-[var(--text-primary)] transition-colors duration-150",
+            "border border-dashed border-[var(--border)] rounded-lg",
+            "hover:border-[var(--border-hover)]",
           )}
         >
           {showAll

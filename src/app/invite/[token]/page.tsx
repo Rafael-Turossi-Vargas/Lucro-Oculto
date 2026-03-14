@@ -53,15 +53,15 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
   }
 
   return (
-    <div className="min-h-screen bg-[#0F1117] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[var(--bg-page)] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
           <Image src="/logo-icon.svg" alt="Lucro Oculto" width={36} height={36} />
-          <span className="text-[#F4F4F5] font-bold text-xl">Lucro Oculto</span>
+          <span className="text-[var(--text-primary)] font-bold text-xl">Lucro Oculto</span>
         </div>
 
-        <div className="bg-[#1A1D27] border border-[#2A2D3A] rounded-2xl p-8 text-center">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-8 text-center">
 
           {/* Loading */}
           {loading ? (
@@ -75,8 +75,8 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
               <div className="w-16 h-16 rounded-2xl bg-[#FF4D4F]/10 flex items-center justify-center mx-auto mb-4">
                 <XCircle className="w-8 h-8 text-[#FF4D4F]" />
               </div>
-              <h1 className="text-xl font-bold text-[#F4F4F5] mb-2">Convite inválido</h1>
-              <p className="text-[#8B8FA8] mb-6">{loadError}</p>
+              <h1 className="text-xl font-bold text-[var(--text-primary)] mb-2">Convite inválido</h1>
+              <p className="text-[var(--text-muted)] mb-6">{loadError}</p>
               <a href="/login" className="text-sm text-[#A855F7] hover:underline">
                 Ir para o login
               </a>
@@ -88,8 +88,8 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
               <div className="w-16 h-16 rounded-2xl bg-[#00D084]/10 flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-8 h-8 text-[#00D084]" />
               </div>
-              <h1 className="text-xl font-bold text-[#F4F4F5] mb-2">Convite aceito!</h1>
-              <p className="text-[#8B8FA8] mb-5">
+              <h1 className="text-xl font-bold text-[var(--text-primary)] mb-2">Convite aceito!</h1>
+              <p className="text-[var(--text-muted)] mb-5">
                 Você agora faz parte da equipe de{" "}
                 <strong className="text-[#A855F7]">{info?.organizationName}</strong>.
               </p>
@@ -98,9 +98,9 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
                   <Mail className="w-4 h-4" />
                   Credenciais enviadas por email
                 </div>
-                <p className="text-xs text-[#8B8FA8]">
+                <p className="text-xs text-[var(--text-muted)]">
                   Verifique a caixa de entrada de{" "}
-                  <strong className="text-[#F4F4F5]">{result.email}</strong>.
+                  <strong className="text-[var(--text-primary)]">{result.email}</strong>.
                   Você receberá seu email e senha temporária para acessar o sistema.
                 </p>
               </div>
@@ -119,8 +119,8 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
               <div className="w-16 h-16 rounded-2xl bg-[#00D084]/10 flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-8 h-8 text-[#00D084]" />
               </div>
-              <h1 className="text-xl font-bold text-[#F4F4F5] mb-2">Você entrou para a equipe!</h1>
-              <p className="text-[#8B8FA8] mb-6">
+              <h1 className="text-xl font-bold text-[var(--text-primary)] mb-2">Você entrou para a equipe!</h1>
+              <p className="text-[var(--text-muted)] mb-6">
                 Você agora faz parte de{" "}
                 <strong className="text-[#A855F7]">{info?.organizationName}</strong>.
                 Acesse o sistema para começar.
@@ -140,12 +140,12 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
               <div className="w-16 h-16 rounded-2xl bg-[#A855F7]/15 flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-[#A855F7]" />
               </div>
-              <h1 className="text-xl font-bold text-[#F4F4F5] mb-2">Convite para equipe</h1>
+              <h1 className="text-xl font-bold text-[var(--text-primary)] mb-2">Convite para equipe</h1>
 
               {info && (
-                <p className="text-[#8B8FA8] mb-1">
+                <p className="text-[var(--text-muted)] mb-1">
                   {info.invitedByName
-                    ? <><strong className="text-[#F4F4F5]">{info.invitedByName}</strong> te convidou</>
+                    ? <><strong className="text-[var(--text-primary)]">{info.invitedByName}</strong> te convidou</>
                     : "Você foi convidado"
                   }
                   {" "}para colaborar em{" "}
@@ -153,7 +153,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
                 </p>
               )}
               {info && (
-                <p className="text-xs text-[#4B4F6A] mb-6">
+                <p className="text-xs text-[var(--text-faint)] mb-6">
                   Convite enviado para:{" "}
                   <strong className="text-[#6B6F8A]">{info.email}</strong>
                 </p>
@@ -174,7 +174,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
                 }
               </button>
 
-              <p className="mt-3 text-xs text-[#4B4F6A]">
+              <p className="mt-3 text-xs text-[var(--text-faint)]">
                 Ao aceitar, uma conta será criada com suas credenciais de acesso enviadas por email.
               </p>
             </>

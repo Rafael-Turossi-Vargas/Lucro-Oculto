@@ -64,8 +64,8 @@ function ResetPasswordForm() {
         >
           <CheckCircle className="w-7 h-7" style={{ color: "#00D084" }} />
         </div>
-        <h2 className="text-xl font-bold mb-2" style={{ color: "#F4F4F5" }}>Senha redefinida!</h2>
-        <p className="text-sm mb-6" style={{ color: "#8B8FA8" }}>
+        <h2 className="text-xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>Senha redefinida!</h2>
+        <p className="text-sm mb-6" style={{ color: "var(--text-muted)" }}>
           Sua senha foi atualizada com sucesso. Redirecionando para o login...
         </p>
         <Link href="/login" className="inline-flex items-center gap-2 text-sm font-medium" style={{ color: "#00D084" }}>
@@ -82,8 +82,8 @@ function ResetPasswordForm() {
         <KeyRound className="w-7 h-7" style={{ color: "#00D084" }} />
       </div>
 
-      <h1 className="text-2xl font-bold mb-1 text-center" style={{ color: "#F4F4F5" }}>Nova senha</h1>
-      <p className="text-sm mb-6 text-center" style={{ color: "#8B8FA8" }}>
+      <h1 className="text-2xl font-bold mb-1 text-center" style={{ color: "var(--text-primary)" }}>Nova senha</h1>
+      <p className="text-sm mb-6 text-center" style={{ color: "var(--text-muted)" }}>
         Crie uma senha forte com no mínimo 8 caracteres.
       </p>
 
@@ -99,7 +99,7 @@ function ResetPasswordForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1.5" style={{ color: "#8B8FA8" }}>Nova senha</label>
+          <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--text-muted)" }}>Nova senha</label>
           <input
             type="password"
             value={password}
@@ -108,13 +108,13 @@ function ResetPasswordForm() {
             disabled={!token}
             placeholder="••••••••"
             className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all"
-            style={{ background: "#212435", border: "1px solid #2A2D3A", color: "#F4F4F5" }}
+            style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
             onFocus={(e) => (e.target.style.borderColor = "#00D084")}
-            onBlur={(e) => (e.target.style.borderColor = "#2A2D3A")}
+            onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1.5" style={{ color: "#8B8FA8" }}>Confirmar senha</label>
+          <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--text-muted)" }}>Confirmar senha</label>
           <input
             type="password"
             value={confirmPassword}
@@ -123,23 +123,23 @@ function ResetPasswordForm() {
             disabled={!token}
             placeholder="••••••••"
             className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all"
-            style={{ background: "#212435", border: "1px solid #2A2D3A", color: "#F4F4F5" }}
+            style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
             onFocus={(e) => (e.target.style.borderColor = "#00D084")}
-            onBlur={(e) => (e.target.style.borderColor = "#2A2D3A")}
+            onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
           />
         </div>
         <button
           type="submit"
           disabled={loading || !token}
-          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm disabled:opacity-60"
-          style={{ background: "#00D084", color: "#0F1117" }}
+          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm disabled:brightness-90 disabled:cursor-not-allowed"
+          style={{ background: "#00D084", color: "var(--bg-page)" }}
         >
           {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Salvando...</> : "Redefinir senha"}
         </button>
       </form>
 
       <div className="text-center mt-6">
-        <Link href="/login" className="inline-flex items-center gap-1.5 text-sm" style={{ color: "#8B8FA8" }}>
+        <Link href="/login" className="inline-flex items-center gap-1.5 text-sm" style={{ color: "var(--text-muted)" }}>
           <ArrowLeft className="w-4 h-4" /> Voltar ao login
         </Link>
       </div>
@@ -149,7 +149,7 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="rounded-2xl p-8" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+    <div className="rounded-2xl p-8" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
       <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin" style={{ color: "#00D084" }} /></div>}>
         <ResetPasswordForm />
       </Suspense>

@@ -37,18 +37,18 @@ export function FileUploader() {
     return (
       <div
         className="rounded-2xl p-8 text-center"
-        style={{ background: "#1A1D27", border: "1px solid rgba(245,158,11,0.3)" }}
+        style={{ background: "var(--bg-card)", border: "1px solid rgba(245,158,11,0.3)" }}
       >
         <div className="flex items-center justify-center w-16 h-16 rounded-full mx-auto mb-4" style={{ background: "rgba(245,158,11,0.1)" }}>
           <Lock className="w-8 h-8" style={{ color: "#F59E0B" }} />
         </div>
-        <h3 className="text-xl font-bold mb-1" style={{ color: "#F4F4F5" }}>
+        <h3 className="text-xl font-bold mb-1" style={{ color: "var(--text-primary)" }}>
           Limite do plano Grátis atingido
         </h3>
-        <p className="text-sm mb-2" style={{ color: "#8B8FA8" }}>
-          O plano Grátis permite <strong style={{ color: "#F4F4F5" }}>1 análise por mês</strong>.
+        <p className="text-sm mb-2" style={{ color: "var(--text-muted)" }}>
+          O plano Grátis permite <strong style={{ color: "var(--text-primary)" }}>1 análise por mês</strong>.
         </p>
-        <p className="text-sm mb-6" style={{ color: "#8B8FA8" }}>
+        <p className="text-sm mb-6" style={{ color: "var(--text-muted)" }}>
           Faça upgrade para o plano Pro e tenha análises ilimitadas, até 10.000 transações e relatórios PDF completos.
         </p>
 
@@ -56,7 +56,7 @@ export function FileUploader() {
           <Link
             href="/app/settings#upgrade"
             className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm"
-            style={{ background: "#F59E0B", color: "#0F1117" }}
+            style={{ background: "#F59E0B", color: "var(--bg-page)" }}
           >
             <Crown className="w-4 h-4" />
             Fazer upgrade para Pro — R$97/mês
@@ -64,7 +64,7 @@ export function FileUploader() {
           <button
             onClick={reset}
             className="py-2.5 rounded-xl text-sm font-medium"
-            style={{ color: "#8B8FA8" }}
+            style={{ color: "var(--text-muted)" }}
           >
             Voltar
           </button>
@@ -77,15 +77,15 @@ export function FileUploader() {
     return (
       <div
         className="rounded-2xl p-8 text-center"
-        style={{ background: "#1A1D27", border: "1px solid rgba(0,208,132,0.3)" }}
+        style={{ background: "var(--bg-card)", border: "1px solid rgba(0,208,132,0.3)" }}
       >
         <div className="flex items-center justify-center w-16 h-16 rounded-full mx-auto mb-4" style={{ background: "rgba(0,208,132,0.1)" }}>
           <CheckCircle className="w-8 h-8" style={{ color: "#00D084" }} />
         </div>
-        <h3 className="text-xl font-bold mb-1" style={{ color: "#F4F4F5" }}>
+        <h3 className="text-xl font-bold mb-1" style={{ color: "var(--text-primary)" }}>
           Análise concluída!
         </h3>
-        <p className="text-sm mb-6" style={{ color: "#8B8FA8" }}>
+        <p className="text-sm mb-6" style={{ color: "var(--text-muted)" }}>
           Seus dados foram processados com sucesso.
         </p>
 
@@ -93,14 +93,14 @@ export function FileUploader() {
           <div className="flex items-center justify-center gap-8 mb-5">
             <div className="text-center">
               <p className="text-3xl font-black" style={{ color: "#00D084" }}>{result.score}</p>
-              <p className="text-xs" style={{ color: "#8B8FA8" }}>Score Financeiro</p>
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>Score Financeiro</p>
             </div>
             {result.savingsMin !== undefined && (
               <div className="text-center">
                 <p className="text-3xl font-black" style={{ color: "#F59E0B" }}>
                   R${((result.savingsMin + (result.savingsMax ?? result.savingsMin)) / 2).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}
                 </p>
-                <p className="text-xs" style={{ color: "#8B8FA8" }}>Economia estimada/mês</p>
+                <p className="text-xs" style={{ color: "var(--text-muted)" }}>Economia estimada/mês</p>
               </div>
             )}
           </div>
@@ -117,7 +117,7 @@ export function FileUploader() {
             {result.topLeaks.map((leak, i) => (
               <div key={i} className="flex items-center justify-between px-3 py-2.5"
                 style={{ borderTop: i > 0 ? "1px solid rgba(255,77,79,0.1)" : undefined }}>
-                <p className="text-xs font-medium truncate flex-1 mr-3" style={{ color: "#F4F4F5" }}>{leak.title}</p>
+                <p className="text-xs font-medium truncate flex-1 mr-3" style={{ color: "var(--text-primary)" }}>{leak.title}</p>
                 {leak.amount && (
                   <p className="text-xs font-bold shrink-0" style={{ color: "#FF4D4F" }}>
                     −R${Number(leak.amount).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}/mês
@@ -132,14 +132,14 @@ export function FileUploader() {
           <button
             onClick={() => router.push(`/app/analysis/${result.analysisId}`)}
             className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm"
-            style={{ background: "#00D084", color: "#0F1117" }}
+            style={{ background: "#00D084", color: "var(--bg-page)" }}
           >
             Ver Dashboard <ArrowRight className="w-4 h-4" />
           </button>
           <button
             onClick={reset}
             className="px-6 py-3 rounded-xl font-medium text-sm"
-            style={{ background: "#212435", color: "#8B8FA8", border: "1px solid #2A2D3A" }}
+            style={{ background: "var(--bg-subtle)", color: "var(--text-muted)", border: "1px solid var(--border)" }}
           >
             Novo upload
           </button>
@@ -158,8 +158,8 @@ export function FileUploader() {
           onClick={() => !file && inputRef.current?.click()}
           className="rounded-2xl p-10 text-center transition-all duration-150"
           style={{
-            background: "#1A1D27",
-            border: file ? "1px solid #00D084" : "2px dashed #2A2D3A",
+            background: "var(--bg-card)",
+            border: file ? "1px solid #00D084" : "2px dashed var(--border)",
             cursor: file ? "default" : "pointer",
           }}
         >
@@ -173,16 +173,16 @@ export function FileUploader() {
 
           {!file ? (
             <>
-              <div className="flex items-center justify-center w-14 h-14 rounded-2xl mx-auto mb-4" style={{ background: "#212435" }}>
+              <div className="flex items-center justify-center w-14 h-14 rounded-2xl mx-auto mb-4" style={{ background: "var(--bg-subtle)" }}>
                 <Upload className="w-6 h-6" style={{ color: "#00D084" }} />
               </div>
-              <p className="text-base font-semibold mb-1" style={{ color: "#F4F4F5" }}>
+              <p className="text-base font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
                 Arraste seu arquivo aqui
               </p>
-              <p className="text-sm mb-4" style={{ color: "#8B8FA8" }}>
+              <p className="text-sm mb-4" style={{ color: "var(--text-muted)" }}>
                 ou clique para selecionar
               </p>
-              <p className="text-xs" style={{ color: "#4B4F6A" }}>
+              <p className="text-xs" style={{ color: "var(--text-faint)" }}>
                 CSV, XLSX ou XLS · até 10MB
               </p>
             </>
@@ -192,13 +192,13 @@ export function FileUploader() {
                 <FileText className="w-6 h-6" style={{ color: "#00D084" }} />
               </div>
               <div className="flex-1 text-left">
-                <p className="text-sm font-medium truncate" style={{ color: "#F4F4F5" }}>{file.name}</p>
-                <p className="text-xs" style={{ color: "#8B8FA8" }}>{formatBytes(file.size)}</p>
+                <p className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>{file.name}</p>
+                <p className="text-xs" style={{ color: "var(--text-muted)" }}>{formatBytes(file.size)}</p>
               </div>
               <button
                 onClick={(e) => { e.stopPropagation(); removeFile() }}
-                className="p-1.5 rounded-lg hover:bg-[#2A2D3A] transition-colors"
-                style={{ color: "#4B4F6A" }}
+                className="p-1.5 rounded-lg hover:bg-[var(--border)] transition-colors"
+                style={{ color: "var(--text-faint)" }}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -209,16 +209,16 @@ export function FileUploader() {
 
       {/* Uploading / Processing */}
       {(status === "uploading" || status === "processing") && (
-        <div className="rounded-2xl p-8" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+        <div className="rounded-2xl p-8" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center gap-4 mb-5">
             <div className="flex items-center justify-center w-12 h-12 rounded-xl shrink-0" style={{ background: "rgba(0,208,132,0.1)" }}>
               <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#00D084" }} />
             </div>
             <div>
-              <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>
+              <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
                 {status === "uploading" ? "Enviando arquivo..." : "Analisando dados..."}
               </p>
-              <p className="text-xs" style={{ color: "#8B8FA8" }}>
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                 {status === "uploading" ? "Validando formato e lendo transações" : "Engine financeira processando seus dados"}
               </p>
             </div>
@@ -226,13 +226,13 @@ export function FileUploader() {
 
           {status === "uploading" && (
             <>
-              <div className="h-1.5 rounded-full mb-2 overflow-hidden" style={{ background: "#212435" }}>
+              <div className="h-1.5 rounded-full mb-2 overflow-hidden" style={{ background: "var(--bg-subtle)" }}>
                 <div
                   className="h-full rounded-full transition-all duration-300"
                   style={{ width: `${Math.min(progress, 100)}%`, background: "#00D084" }}
                 />
               </div>
-              <p className="text-xs text-right" style={{ color: "#4B4F6A" }}>{Math.min(Math.round(progress), 100)}%</p>
+              <p className="text-xs text-right" style={{ color: "var(--text-faint)" }}>{Math.min(Math.round(progress), 100)}%</p>
             </>
           )}
 
@@ -240,8 +240,8 @@ export function FileUploader() {
             <div className="space-y-2">
               {["Lendo transações", "Categorizando despesas", "Detectando padrões", "Gerando insights"].map((step, i) => (
                 <div key={step} className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: i < 2 ? "#00D084" : "#2A2D3A" }} />
-                  <span className="text-xs" style={{ color: i < 2 ? "#8B8FA8" : "#4B4F6A" }}>{step}</span>
+                  <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: i < 2 ? "#00D084" : "var(--border)" }} />
+                  <span className="text-xs" style={{ color: i < 2 ? "var(--text-muted)" : "var(--text-faint)" }}>{step}</span>
                 </div>
               ))}
             </div>
@@ -258,7 +258,7 @@ export function FileUploader() {
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#FF4D4F" }} />
           <div>
             <p className="text-sm font-medium" style={{ color: "#FF4D4F" }}>Erro no upload</p>
-            <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>{error}</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{error}</p>
           </div>
         </div>
       )}
@@ -268,7 +268,7 @@ export function FileUploader() {
         <button
           onClick={upload}
           className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm transition-all duration-150"
-          style={{ background: "#00D084", color: "#0F1117" }}
+          style={{ background: "#00D084", color: "var(--bg-page)" }}
         >
           <Upload className="w-4 h-4" />
           Analisar arquivo
@@ -277,8 +277,8 @@ export function FileUploader() {
 
       {/* Help text */}
       {(status === "idle" || status === "selected") && (
-        <div className="rounded-xl p-4" style={{ background: "#212435", border: "1px solid #2A2D3A" }}>
-          <p className="text-xs font-medium mb-2" style={{ color: "#F4F4F5" }}>Como preparar seu arquivo:</p>
+        <div className="rounded-xl p-4" style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)" }}>
+          <p className="text-xs font-medium mb-2" style={{ color: "var(--text-primary)" }}>Como preparar seu arquivo:</p>
           <ul className="space-y-1">
             {[
               "Exporte o extrato bancário do seu banco no formato CSV ou XLSX",
@@ -287,7 +287,7 @@ export function FileUploader() {
             ].map((tip) => (
               <li key={tip} className="flex items-start gap-1.5">
                 <span className="shrink-0 mt-0.5" style={{ color: "#00D084" }}>·</span>
-                <span className="text-xs" style={{ color: "#8B8FA8" }}>{tip}</span>
+                <span className="text-xs" style={{ color: "var(--text-muted)" }}>{tip}</span>
               </li>
             ))}
           </ul>

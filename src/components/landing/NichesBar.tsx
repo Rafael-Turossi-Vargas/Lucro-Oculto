@@ -35,23 +35,23 @@ export function NichesBar() {
 
       <div
         style={{
-          background: "#0F1117",
-          borderTop: "1px solid #1E2130",
-          borderBottom: "1px solid #1E2130",
+          background: "var(--bg-page)",
+          borderTop: "1px solid var(--border)",
+          borderBottom: "1px solid var(--border)",
           paddingTop: "18px",
           paddingBottom: "18px",
         }}
       >
         {/* Label */}
         <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="h-px w-12" style={{ background: "linear-gradient(90deg, transparent, #2A2D3A)" }} />
+          <div className="h-px w-12" style={{ background: "linear-gradient(90deg, transparent, var(--border))" }} />
           <span
             className="text-xs font-semibold uppercase tracking-widest"
-            style={{ color: "#4B4F6A" }}
+            style={{ color: "var(--text-faint)" }}
           >
             Usado por PMEs em
           </span>
-          <div className="h-px w-12" style={{ background: "linear-gradient(90deg, #2A2D3A, transparent)" }} />
+          <div className="h-px w-12" style={{ background: "linear-gradient(90deg, var(--border), transparent)" }} />
         </div>
 
         {/* Marquee with fade masks */}
@@ -59,12 +59,12 @@ export function NichesBar() {
           {/* Left fade */}
           <div
             className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
-            style={{ background: "linear-gradient(90deg, #0F1117 0%, transparent 100%)" }}
+            style={{ background: "linear-gradient(90deg, var(--bg-page) 0%, transparent 100%)" }}
           />
           {/* Right fade */}
           <div
             className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
-            style={{ background: "linear-gradient(270deg, #0F1117 0%, transparent 100%)" }}
+            style={{ background: "linear-gradient(270deg, var(--bg-page) 0%, transparent 100%)" }}
           />
 
           <div className="marquee-fwd">
@@ -75,7 +75,7 @@ export function NichesBar() {
                 style={{
                   background: `${n.color}0D`,
                   border: `1px solid ${n.color}28`,
-                  color: "#D4D4D8",
+                  color: "var(--text-primary)",
                 }}
               >
                 <span

@@ -40,12 +40,12 @@ export function TrialBanner() {
         </div>
 
         <div className="min-w-0">
-          <p className="text-sm font-semibold truncate" style={{ color: "#F4F4F5" }}>
+          <p className="text-sm font-semibold truncate" style={{ color: "var(--text-primary)" }}>
             {isUrgent
               ? `⚠️ Seu trial Pro acaba em ${daysLeft} dia${daysLeft === 1 ? "" : "s"}!`
               : `🎉 Você está no Trial Pro — ${daysLeft} dias restantes`}
           </p>
-          <p className="text-xs" style={{ color: "#8B8FA8" }}>
+          <p className="text-xs" style={{ color: "var(--text-muted)" }}>
             {isUrgent
               ? "Assine agora para não perder acesso às análises ilimitadas."
               : "Aproveite todas as funcionalidades Pro durante o período gratuito."}
@@ -59,7 +59,7 @@ export function TrialBanner() {
           className="text-xs font-bold px-3 py-1.5 rounded-lg transition-all"
           style={{
             background: isUrgent ? "#F59E0B" : "#00D084",
-            color: "#0F1117",
+            color: "var(--bg-page)",
           }}
         >
           Assinar Pro
@@ -67,7 +67,7 @@ export function TrialBanner() {
         <button
           onClick={() => setDismissed(true)}
           className="p-1 rounded-lg transition-colors hover:bg-white/5"
-          style={{ color: "#4B4F6A" }}
+          style={{ color: "var(--text-faint)" }}
           aria-label="Fechar"
         >
           <X className="w-4 h-4" />

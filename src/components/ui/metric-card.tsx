@@ -36,8 +36,8 @@ const VARIANT_CONFIG: Record<
     iconColor: "text-[#FF4D4F]",
   },
   neutral: {
-    iconBg: "bg-[#212435]",
-    iconColor: "text-[#8B8FA8]",
+    iconBg: "bg-[var(--bg-subtle)]",
+    iconColor: "text-[var(--text-muted)]",
   },
   warning: {
     iconBg: "bg-[rgba(245,158,11,0.12)]",
@@ -63,7 +63,7 @@ function TrendDisplay({
   const isGood = invert ? trend < 0 : trend > 0
 
   const colorClass = isNeutral
-    ? "text-[#8B8FA8]"
+    ? "text-[var(--text-muted)]"
     : isGood
       ? "text-[#00D084]"
       : "text-[#FF4D4F]"
@@ -77,7 +77,7 @@ function TrendDisplay({
         {isUp ? "+" : ""}
         {trend.toFixed(1)}%
       </span>
-      {label && <span className="text-[#4B4F6A] font-normal">{label}</span>}
+      {label && <span className="text-[var(--text-faint)] font-normal">{label}</span>}
     </span>
   )
 }
@@ -86,16 +86,16 @@ function MetricCardSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-[#2A2D3A] bg-[#1A1D27] p-5 space-y-3",
+        "rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5 space-y-3",
         className
       )}
     >
       <div className="flex items-center justify-between">
-        <div className="h-3 w-24 rounded bg-[#212435] skeleton-shimmer" />
-        <div className="h-7 w-7 rounded-full bg-[#212435] skeleton-shimmer" />
+        <div className="h-3 w-24 rounded bg-[var(--bg-subtle)] skeleton-shimmer" />
+        <div className="h-7 w-7 rounded-full bg-[var(--bg-subtle)] skeleton-shimmer" />
       </div>
-      <div className="h-8 w-32 rounded bg-[#212435] skeleton-shimmer" />
-      <div className="h-3 w-20 rounded bg-[#212435] skeleton-shimmer" />
+      <div className="h-8 w-32 rounded bg-[var(--bg-subtle)] skeleton-shimmer" />
+      <div className="h-3 w-20 rounded bg-[var(--bg-subtle)] skeleton-shimmer" />
     </div>
   )
 }
@@ -138,11 +138,11 @@ function MetricCard({
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-[#8B8FA8] uppercase tracking-wide leading-none mb-2">
+            <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide leading-none mb-2">
               {label}
             </p>
 
-            <p className="text-2xl font-bold text-[#F4F4F5] tabular-nums leading-tight">
+            <p className="text-2xl font-bold text-[var(--text-primary)] tabular-nums leading-tight">
               {value}
             </p>
 
@@ -155,7 +155,7 @@ function MetricCard({
                 />
               )}
               {subtitle && (
-                <span className="text-xs text-[#4B4F6A]">{subtitle}</span>
+                <span className="text-xs text-[var(--text-faint)]">{subtitle}</span>
               )}
             </div>
           </div>
@@ -202,7 +202,7 @@ function CompactMetric({
   label,
   value,
   icon,
-  iconColor = "#8B8FA8",
+  iconColor = "var(--text-muted)",
   className,
 }: CompactMetricProps) {
   return (
@@ -217,10 +217,10 @@ function CompactMetric({
         </span>
       )}
       <div className="min-w-0">
-        <p className="text-[11px] text-[#4B4F6A] uppercase tracking-wide leading-none mb-0.5">
+        <p className="text-[11px] text-[var(--text-faint)] uppercase tracking-wide leading-none mb-0.5">
           {label}
         </p>
-        <p className="text-sm font-semibold text-[#F4F4F5] tabular-nums truncate">
+        <p className="text-sm font-semibold text-[var(--text-primary)] tabular-nums truncate">
           {value}
         </p>
       </div>

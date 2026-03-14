@@ -46,8 +46,8 @@ export function SecuritySection() {
     <section
       className="py-14 relative overflow-hidden"
       style={{
-        background: "linear-gradient(180deg, #0F1117 0%, #111420 100%)",
-        borderTop: "1px solid #2A2D3A",
+        background: "linear-gradient(180deg, var(--bg-card) 0%, var(--bg-page) 100%)",
+        borderTop: "1px solid var(--border)",
       }}
     >
       {/* Subtle gradient background */}
@@ -75,7 +75,7 @@ export function SecuritySection() {
           <h2
             className="text-2xl sm:text-3xl font-extrabold mb-3"
             style={{
-              color: "#F4F4F5",
+              color: "var(--text-primary)",
               letterSpacing: "-0.02em",
             }}
           >
@@ -91,7 +91,7 @@ export function SecuritySection() {
               máxima segurança
             </span>
           </h2>
-          <p className="text-base max-w-xl mx-auto" style={{ color: "#8B8FA8" }}>
+          <p className="text-base max-w-xl mx-auto" style={{ color: "var(--text-muted)" }}>
             Entendemos que subir extratos bancários exige confiança. Por isso seguimos os mesmos padrões dos melhores fintechs do mercado.
           </p>
         </div>
@@ -130,11 +130,11 @@ export function SecuritySection() {
                 <div>
                   <p
                     className="font-bold text-sm"
-                    style={{ color: "#F4F4F5" }}
+                    style={{ color: "var(--text-primary)" }}
                   >
                     {b.title}
                   </p>
-                  <p className="text-xs" style={{ color: "#4B4F6A" }}>
+                  <p className="text-xs" style={{ color: "var(--text-faint)" }}>
                     {b.subtitle}
                   </p>
                 </div>
@@ -155,9 +155,9 @@ export function SecuritySection() {
             className="w-5 h-5 shrink-0 mt-0.5"
             style={{ color: "#3B82F6" }}
           />
-          <p className="text-sm leading-relaxed" style={{ color: "#8B8FA8" }}>
+          <p className="text-sm leading-relaxed" style={{ color: "var(--text-muted)" }}>
             Você pode solicitar a{" "}
-            <strong style={{ color: "#F4F4F5" }}>exclusão completa dos seus dados</strong> a qualquer
+            <strong style={{ color: "var(--text-primary)" }}>exclusão completa dos seus dados</strong> a qualquer
             momento pelo painel de configurações — em conformidade com a LGPD (Lei 13.709/2018).
           </p>
         </div>

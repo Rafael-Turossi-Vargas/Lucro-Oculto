@@ -34,10 +34,10 @@ function PlanBadge({ plan }: { plan: string }) {
   const map: Record<string, { label: string; color: string }> = {
     premium: { label: "Premium", color: "#A855F7" },
     pro: { label: "Pro", color: "#F59E0B" },
-    free: { label: "Grátis", color: "#4B4F6A" },
+    free: { label: "Grátis", color: "var(--text-faint)" },
     admin: { label: "Admin", color: "#3B82F6" },
   }
-  const { label, color } = map[plan] ?? { label: plan, color: "#4B4F6A" }
+  const { label, color } = map[plan] ?? { label: plan, color: "var(--text-faint)" }
   return (
     <span className="text-xs px-2 py-0.5 rounded-full font-medium border"
       style={{ color, background: `${color}18`, borderColor: `${color}30` }}>
@@ -73,7 +73,7 @@ function CooldownBanner({ cooldownUntil, cooldownHours }: { cooldownUntil: strin
           Você excluiu uma empresa quando estava no limite de 3. Por segurança,
           aguarde <strong>{timeLeft}</strong> antes de cadastrar uma nova.
         </p>
-        <p className="text-xs text-[#4B4F6A] mt-1">Política de cooldown: {cooldownHours}h após exclusão no limite máximo</p>
+        <p className="text-xs text-[var(--text-faint)] mt-1">Política de cooldown: {cooldownHours}h após exclusão no limite máximo</p>
       </div>
     </div>
   )
@@ -105,14 +105,14 @@ function DeleteConfirmModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-      <div className="bg-[#1A1D27] border border-[#FF4D4F]/30 rounded-2xl w-full max-w-md p-6">
+      <div className="bg-[var(--bg-card)] border border-[#FF4D4F]/30 rounded-2xl w-full max-w-md p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-[#FF4D4F]/10 flex items-center justify-center shrink-0">
             <Trash2 className="w-5 h-5 text-[#FF4D4F]" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-[#F4F4F5]">Excluir empresa</h2>
-            <p className="text-xs text-[#8B8FA8]">Esta ação não pode ser desfeita</p>
+            <h2 className="text-base font-bold text-[var(--text-primary)]">Excluir empresa</h2>
+            <p className="text-xs text-[var(--text-muted)]">Esta ação não pode ser desfeita</p>
           </div>
         </div>
 
@@ -125,8 +125,8 @@ function DeleteConfirmModal({
           </div>
         )}
 
-        <div className="bg-[#212435] border border-[#2A2D3A] rounded-xl p-4 mb-5 space-y-2 text-sm text-[#8B8FA8]">
-          <p>⚠️ Todos os dados de <strong className="text-[#F4F4F5]">{orgName}</strong> serão arquivados.</p>
+        <div className="bg-[var(--bg-subtle)] border border-[var(--border)] rounded-xl p-4 mb-5 space-y-2 text-sm text-[var(--text-muted)]">
+          <p>⚠️ Todos os dados de <strong className="text-[var(--text-primary)]">{orgName}</strong> serão arquivados.</p>
           {atLimit && (
             <p>⏱️ Como você está no limite de 3 empresas, precisará aguardar <strong className="text-[#FF4D4F]">{cooldownHours} horas</strong> para criar uma nova.</p>
           )}
@@ -135,22 +135,22 @@ function DeleteConfirmModal({
         </div>
 
         <div className="mb-5">
-          <label className="block text-xs text-[#8B8FA8] mb-2">
-            Digite <strong className="text-[#F4F4F5]">EXCLUIR</strong> para confirmar
+          <label className="block text-xs text-[var(--text-muted)] mb-2">
+            Digite <strong className="text-[var(--text-primary)]">EXCLUIR</strong> para confirmar
           </label>
           <input
             value={confirm}
             onChange={e => setConfirm(e.target.value)}
             placeholder="EXCLUIR"
             disabled={isActive}
-            className="w-full bg-[#0F1117] border border-[#2A2D3A] rounded-lg px-4 py-2.5 text-sm text-[#F4F4F5] placeholder-[#4B4F6A] focus:outline-none focus:border-[#FF4D4F] transition-colors disabled:opacity-50"
+            className="w-full bg-[var(--bg-page)] border border-[var(--border)] rounded-lg px-4 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[#FF4D4F] transition-colors disabled:opacity-50"
           />
         </div>
 
         <div className="flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-lg border border-[#2A2D3A] text-[#8B8FA8] hover:text-[#F4F4F5] hover:bg-[#212435] transition-colors text-sm font-medium"
+            className="flex-1 py-2.5 rounded-lg border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-colors text-sm font-medium"
           >
             Cancelar
           </button>
@@ -192,40 +192,40 @@ function NewOrgModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-      <div className="bg-[#1A1D27] border border-[#2A2D3A] rounded-2xl w-full max-w-md p-6">
+      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl w-full max-w-md p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold text-[#F4F4F5]">Nova empresa</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-[#4B4F6A] hover:text-[#F4F4F5] hover:bg-[#212435] transition-colors">
+          <h2 className="text-lg font-bold text-[var(--text-primary)]">Nova empresa</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg text-[var(--text-faint)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[#8B8FA8] mb-1.5">Nome da empresa *</label>
+            <label className="block text-sm font-medium text-[var(--text-muted)] mb-1.5">Nome da empresa *</label>
             <input
               value={name}
               onChange={e => setName(e.target.value)}
               required minLength={2}
               placeholder="Minha Empresa Ltda"
-              className="w-full bg-[#212435] border border-[#2A2D3A] rounded-lg px-4 py-2.5 text-sm text-[#F4F4F5] placeholder-[#4B4F6A] focus:outline-none focus:border-[#A855F7] transition-colors"
+              className="w-full bg-[var(--bg-subtle)] border border-[var(--border)] rounded-lg px-4 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[#A855F7] transition-colors"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[#8B8FA8] mb-1.5">CNPJ</label>
+            <label className="block text-sm font-medium text-[var(--text-muted)] mb-1.5">CNPJ</label>
             <input
               value={cnpj}
               onChange={e => setCnpj(e.target.value)}
               placeholder="00.000.000/0000-00"
-              className="w-full bg-[#212435] border border-[#2A2D3A] rounded-lg px-4 py-2.5 text-sm text-[#F4F4F5] placeholder-[#4B4F6A] focus:outline-none focus:border-[#A855F7] transition-colors"
+              className="w-full bg-[var(--bg-subtle)] border border-[var(--border)] rounded-lg px-4 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[#A855F7] transition-colors"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[#8B8FA8] mb-1.5">Segmento</label>
+            <label className="block text-sm font-medium text-[var(--text-muted)] mb-1.5">Segmento</label>
             <input
               value={niche}
               onChange={e => setNiche(e.target.value)}
               placeholder="Varejo, Serviços, Tecnologia..."
-              className="w-full bg-[#212435] border border-[#2A2D3A] rounded-lg px-4 py-2.5 text-sm text-[#F4F4F5] placeholder-[#4B4F6A] focus:outline-none focus:border-[#A855F7] transition-colors"
+              className="w-full bg-[var(--bg-subtle)] border border-[var(--border)] rounded-lg px-4 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[#A855F7] transition-colors"
             />
           </div>
           {error && (
@@ -235,7 +235,7 @@ function NewOrgModal({ onClose, onCreated }: { onClose: () => void; onCreated: (
           )}
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose}
-              className="flex-1 py-2.5 rounded-lg border border-[#2A2D3A] text-[#8B8FA8] hover:text-[#F4F4F5] hover:bg-[#212435] transition-colors text-sm font-medium">
+              className="flex-1 py-2.5 rounded-lg border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-colors text-sm font-medium">
               Cancelar
             </button>
             <button type="submit" disabled={loading}
@@ -306,8 +306,8 @@ function CompaniesContent() {
           <div className="w-16 h-16 rounded-2xl bg-[#A855F7]/15 flex items-center justify-center mx-auto mb-4">
             <Building2 className="w-8 h-8 text-[#A855F7]" />
           </div>
-          <h2 className="text-xl font-bold text-[#F4F4F5] mb-2">Recurso Premium</h2>
-          <p className="text-[#8B8FA8] mb-6">Gerencie até 3 empresas com o plano Premium.</p>
+          <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">Recurso Premium</h2>
+          <p className="text-[var(--text-muted)] mb-6">Gerencie até 3 empresas com o plano Premium.</p>
           <a href="/app/settings#upgrade"
             className="inline-block bg-[#A855F7] text-white font-semibold px-6 py-3 rounded-lg hover:bg-[#9333EA] transition-colors">
             Fazer upgrade para Premium
@@ -319,7 +319,7 @@ function CompaniesContent() {
 
   if (loading) return (
     <div className="p-6 space-y-4 animate-pulse">
-      {[1, 2].map(i => <div key={i} className="h-24 rounded-xl bg-[#212435]" />)}
+      {[1, 2].map(i => <div key={i} className="h-24 rounded-xl bg-[var(--bg-subtle)]" />)}
     </div>
   )
 
@@ -342,8 +342,8 @@ function CompaniesContent() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#F4F4F5]">Empresas</h1>
-          <p className="text-[#8B8FA8] mt-1">
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Empresas</h1>
+          <p className="text-[var(--text-muted)] mt-1">
             {ownedActive.length}/{maxOrgs} empresas cadastradas · Plano Premium
           </p>
         </div>
@@ -374,22 +374,22 @@ function CompaniesContent() {
 
           return (
             <div key={m.id}
-              className={`bg-[#1A1D27] border rounded-2xl p-5 transition-all ${
+              className={`bg-[var(--bg-card)] border rounded-2xl p-5 transition-all ${
                 isCurrent
                   ? "border-[#A855F7]/40 shadow-[0_0_0_1px_rgba(168,85,247,0.12)]"
-                  : "border-[#2A2D3A]"
+                  : "border-[var(--border)]"
               }`}
             >
               <div className="flex items-start gap-4">
                 <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
-                  isCurrent ? "bg-[#A855F7]/15 border border-[#A855F7]/30" : "bg-[#212435] border border-[#2A2D3A]"
+                  isCurrent ? "bg-[#A855F7]/15 border border-[#A855F7]/30" : "bg-[var(--bg-subtle)] border border-[var(--border)]"
                 }`}>
-                  <Building2 className={`w-5 h-5 ${isCurrent ? "text-[#A855F7]" : "text-[#4B4F6A]"}`} />
+                  <Building2 className={`w-5 h-5 ${isCurrent ? "text-[#A855F7]" : "text-[var(--text-faint)]"}`} />
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-base font-semibold text-[#F4F4F5]">{org.name}</h3>
+                    <h3 className="text-base font-semibold text-[var(--text-primary)]">{org.name}</h3>
                     <PlanBadge plan={org.plan} />
                     {isCurrent && (
                       <span className="text-xs px-2 py-0.5 rounded-full bg-[#A855F7]/15 text-[#A855F7] border border-[#A855F7]/25 font-semibold flex items-center gap-1">
@@ -397,9 +397,9 @@ function CompaniesContent() {
                       </span>
                     )}
                   </div>
-                  {org.cnpj && <p className="text-xs text-[#8B8FA8] mt-0.5">CNPJ: {org.cnpj}</p>}
-                  {org.niche && <p className="text-xs text-[#4B4F6A] mt-0.5">{org.niche}</p>}
-                  <p className="text-[10px] text-[#4B4F6A] mt-1">
+                  {org.cnpj && <p className="text-xs text-[var(--text-muted)] mt-0.5">CNPJ: {org.cnpj}</p>}
+                  {org.niche && <p className="text-xs text-[var(--text-faint)] mt-0.5">{org.niche}</p>}
+                  <p className="text-[10px] text-[var(--text-faint)] mt-1">
                     Criada em {new Date(org.createdAt).toLocaleDateString("pt-BR")}
                   </p>
                 </div>
@@ -419,7 +419,7 @@ function CompaniesContent() {
                     <button
                       onClick={() => { setDeleteError(""); setDeleteTarget(org) }}
                       title="Excluir empresa"
-                      className="p-2 rounded-lg text-[#4B4F6A] hover:text-[#FF4D4F] hover:bg-[#FF4D4F]/10 transition-colors"
+                      className="p-2 rounded-lg text-[var(--text-faint)] hover:text-[#FF4D4F] hover:bg-[#FF4D4F]/10 transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -429,7 +429,7 @@ function CompaniesContent() {
 
               {/* Alerta de cooldown futuro ao excluir no limite */}
               {isOwner && atLimit && !cooldownActive && (
-                <div className="mt-3 flex items-center gap-2 text-xs text-[#F59E0B]/80 border-t border-[#2A2D3A] pt-3">
+                <div className="mt-3 flex items-center gap-2 text-xs text-[#F59E0B]/80 border-t border-[var(--border)] pt-3">
                   <Clock className="w-3.5 h-3.5 shrink-0 text-[#F59E0B]" />
                   Excluir uma empresa agora gerará cooldown de {data?.cooldownHours}h para criar outra.
                 </div>
@@ -470,10 +470,10 @@ function CompaniesContent() {
 
       {/* Toast de erro na exclusão */}
       {deleteError && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 bg-[#1A1D27] border border-[#FF4D4F]/40 rounded-xl shadow-xl max-w-sm">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 bg-[var(--bg-card)] border border-[#FF4D4F]/40 rounded-xl shadow-xl max-w-sm">
           <AlertCircle className="w-4 h-4 text-[#FF4D4F] shrink-0" />
           <span className="text-sm text-[#FF4D4F] flex-1">{deleteError}</span>
-          <button onClick={() => setDeleteError("")} className="text-[#4B4F6A] hover:text-[#F4F4F5]">
+          <button onClick={() => setDeleteError("")} className="text-[var(--text-faint)] hover:text-[var(--text-primary)]">
             <X className="w-4 h-4" />
           </button>
         </div>

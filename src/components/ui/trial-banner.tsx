@@ -49,7 +49,7 @@ export function TrialBanner() {
             borderBottom: "1px solid rgba(245,158,11,0.20)",
           }}
         >
-          <span style={{ color: "#F4F4F5" }}>
+          <span style={{ color: "var(--text-primary)" }}>
             ⚡ Seu trial Pro expira em{" "}
             <span className="font-bold" style={{ color: "#F59E0B" }}>
               {daysLeft} dia{daysLeft !== 1 ? "s" : ""}
@@ -66,7 +66,7 @@ export function TrialBanner() {
           <button
             onClick={handleDismiss}
             className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg hover:bg-white/5 transition-colors"
-            style={{ color: "#4B4F6A" }}
+            style={{ color: "var(--text-faint)" }}
             aria-label="Fechar"
           >
             <X className="w-3.5 h-3.5" />

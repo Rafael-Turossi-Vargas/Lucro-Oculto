@@ -26,15 +26,15 @@ function StatCard({ icon: Icon, label, value, sub, color }: {
   icon: typeof Users; label: string; value: number | string; sub?: string; color: string
 }) {
   return (
-    <div className="rounded-2xl p-5" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+    <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center justify-center w-10 h-10 rounded-xl" style={{ background: `${color}14` }}>
           <Icon className="w-5 h-5" style={{ color }} />
         </div>
       </div>
-      <p className="text-2xl font-black mb-1" style={{ color: "#F4F4F5" }}>{value.toLocaleString("pt-BR")}</p>
-      <p className="text-sm font-medium" style={{ color: "#8B8FA8" }}>{label}</p>
-      {sub && <p className="text-xs mt-0.5" style={{ color: "#4B4F6A" }}>{sub}</p>}
+      <p className="text-2xl font-black mb-1" style={{ color: "var(--text-primary)" }}>{value.toLocaleString("pt-BR")}</p>
+      <p className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>{label}</p>
+      {sub && <p className="text-xs mt-0.5" style={{ color: "var(--text-faint)" }}>{sub}</p>}
     </div>
   )
 }
@@ -46,7 +46,7 @@ function StatusBadge({ status }: { status: string }) {
     processing: { label: "Processando", color: "#3B82F6", icon: Loader2 },
     error: { label: "Erro", color: "#FF4D4F", icon: AlertCircle },
   }
-  const s = map[status] ?? { label: status, color: "#8B8FA8", icon: Clock }
+  const s = map[status] ?? { label: status, color: "var(--text-muted)", icon: Clock }
   const Icon = s.icon
   return (
     <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-semibold"
@@ -61,9 +61,9 @@ function PlanBadge({ plan }: { plan: string }) {
   const map: Record<string, { label: string; color: string }> = {
     admin: { label: "Admin", color: "#3B82F6" },
     pro: { label: "Pro", color: "#F59E0B" },
-    free: { label: "Free", color: "#8B8FA8" },
+    free: { label: "Free", color: "var(--text-muted)" },
   }
-  const p = map[plan] ?? { label: plan, color: "#8B8FA8" }
+  const p = map[plan] ?? { label: plan, color: "var(--text-muted)" }
   return (
     <span className="text-[10px] px-2 py-0.5 rounded-full font-bold"
       style={{ background: `${p.color}18`, color: p.color }}>
@@ -115,8 +115,8 @@ export default function AdminPage() {
           <Shield className="w-5 h-5" style={{ color: "#3B82F6" }} />
         </div>
         <div>
-          <h1 className="text-2xl font-black" style={{ color: "#F4F4F5" }}>Painel Admin</h1>
-          <p className="text-sm" style={{ color: "#8B8FA8" }}>Visão geral do sistema em tempo real</p>
+          <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Painel Admin</h1>
+          <p className="text-sm" style={{ color: "var(--text-muted)" }}>Visão geral do sistema em tempo real</p>
         </div>
         <span className="ml-auto text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-widest"
           style={{ background: "rgba(59,130,246,0.12)", color: "#3B82F6", border: "1px solid rgba(59,130,246,0.25)" }}>
@@ -133,27 +133,27 @@ export default function AdminPage() {
       </div>
 
       {/* Plan distribution */}
-      <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-        <p className="text-sm font-semibold mb-5" style={{ color: "#F4F4F5" }}>Distribuição de planos</p>
+      <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+        <p className="text-sm font-semibold mb-5" style={{ color: "var(--text-primary)" }}>Distribuição de planos</p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
           {[
-            { label: "Grátis", count: planDistribution.free, color: "#8B8FA8", icon: Zap },
+            { label: "Grátis", count: planDistribution.free, color: "var(--text-muted)", icon: Zap },
             { label: "Pro", count: planDistribution.pro, color: "#F59E0B", icon: Crown },
             { label: "Admin", count: planDistribution.admin, color: "#3B82F6", icon: Shield },
           ].map(({ label, count, color, icon: Icon }) => (
-            <div key={label} className="flex items-center gap-3 p-4 rounded-xl" style={{ background: "#212435" }}>
+            <div key={label} className="flex items-center gap-3 p-4 rounded-xl" style={{ background: "var(--bg-subtle)" }}>
               <Icon className="w-4 h-4 shrink-0" style={{ color }} />
               <div>
-                <p className="text-sm font-bold" style={{ color: "#F4F4F5" }}>{count}</p>
-                <p className="text-xs" style={{ color: "#8B8FA8" }}>{label}</p>
+                <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{count}</p>
+                <p className="text-xs" style={{ color: "var(--text-muted)" }}>{label}</p>
               </div>
               <span className="ml-auto text-xs font-semibold" style={{ color }}>{pct(count)}%</span>
             </div>
           ))}
         </div>
         {/* Bar */}
-        <div className="h-2 rounded-full overflow-hidden flex" style={{ background: "#212435" }}>
-          <div style={{ width: `${pct(planDistribution.free)}%`, background: "#2A2D3A" }} />
+        <div className="h-2 rounded-full overflow-hidden flex" style={{ background: "var(--bg-subtle)" }}>
+          <div style={{ width: `${pct(planDistribution.free)}%`, background: "var(--border)" }} />
           <div style={{ width: `${pct(planDistribution.pro)}%`, background: "#F59E0B" }} />
           <div style={{ width: `${pct(planDistribution.admin)}%`, background: "#3B82F6" }} />
         </div>
@@ -162,23 +162,23 @@ export default function AdminPage() {
       {/* Recent analyses + users */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Recent analyses */}
-        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #2A2D3A" }}>
-          <div className="flex items-center gap-2 px-5 py-4" style={{ background: "#1A1D27", borderBottom: "1px solid #2A2D3A" }}>
+        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+          <div className="flex items-center gap-2 px-5 py-4" style={{ background: "var(--bg-card)", borderBottom: "1px solid var(--border)" }}>
             <TrendingUp className="w-4 h-4" style={{ color: "#F59E0B" }} />
-            <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Análises recentes</p>
+            <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Análises recentes</p>
           </div>
-          <div style={{ background: "#1A1D27" }}>
+          <div style={{ background: "var(--bg-card)" }}>
             {recentAnalyses.length === 0 ? (
-              <p className="text-xs text-center py-8" style={{ color: "#4B4F6A" }}>Nenhuma análise ainda</p>
+              <p className="text-xs text-center py-8" style={{ color: "var(--text-faint)" }}>Nenhuma análise ainda</p>
             ) : recentAnalyses.map((a, i) => (
               <div key={a.id} className="flex items-center gap-3 px-5 py-3.5"
-                style={{ borderBottom: i < recentAnalyses.length - 1 ? "1px solid #212435" : "none" }}>
-                <FileText className="w-4 h-4 shrink-0" style={{ color: "#4B4F6A" }} />
+                style={{ borderBottom: i < recentAnalyses.length - 1 ? "1px solid var(--bg-subtle)" : "none" }}>
+                <FileText className="w-4 h-4 shrink-0" style={{ color: "var(--text-faint)" }} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium truncate" style={{ color: "#F4F4F5" }}>
+                  <p className="text-xs font-medium truncate" style={{ color: "var(--text-primary)" }}>
                     {a.upload?.fileName ?? "Arquivo"}
                   </p>
-                  <p className="text-[10px] truncate" style={{ color: "#4B4F6A" }}>{a.organization.name}</p>
+                  <p className="text-[10px] truncate" style={{ color: "var(--text-faint)" }}>{a.organization.name}</p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   {a.score !== null && (
@@ -194,26 +194,26 @@ export default function AdminPage() {
         </div>
 
         {/* Recent users */}
-        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #2A2D3A" }}>
-          <div className="flex items-center gap-2 px-5 py-4" style={{ background: "#1A1D27", borderBottom: "1px solid #2A2D3A" }}>
+        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+          <div className="flex items-center gap-2 px-5 py-4" style={{ background: "var(--bg-card)", borderBottom: "1px solid var(--border)" }}>
             <Users className="w-4 h-4" style={{ color: "#00D084" }} />
-            <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Usuários recentes</p>
+            <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Usuários recentes</p>
           </div>
-          <div style={{ background: "#1A1D27" }}>
+          <div style={{ background: "var(--bg-card)" }}>
             {recentUsers.length === 0 ? (
-              <p className="text-xs text-center py-8" style={{ color: "#4B4F6A" }}>Nenhum usuário ainda</p>
+              <p className="text-xs text-center py-8" style={{ color: "var(--text-faint)" }}>Nenhum usuário ainda</p>
             ) : recentUsers.map((u, i) => {
               const org = u.memberships[0]?.organization
               return (
                 <div key={u.id} className="flex items-center gap-3 px-5 py-3.5"
-                  style={{ borderBottom: i < recentUsers.length - 1 ? "1px solid #212435" : "none" }}>
+                  style={{ borderBottom: i < recentUsers.length - 1 ? "1px solid var(--bg-subtle)" : "none" }}>
                   <div className="flex items-center justify-center w-7 h-7 rounded-lg shrink-0 text-xs font-bold"
                     style={{ background: "rgba(0,208,132,0.1)", color: "#00D084" }}>
                     {(u.name ?? u.email)[0]?.toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate" style={{ color: "#F4F4F5" }}>{u.name ?? u.email}</p>
-                    <p className="text-[10px] truncate" style={{ color: "#4B4F6A" }}>{u.email}</p>
+                    <p className="text-xs font-medium truncate" style={{ color: "var(--text-primary)" }}>{u.name ?? u.email}</p>
+                    <p className="text-[10px] truncate" style={{ color: "var(--text-faint)" }}>{u.email}</p>
                   </div>
                   {org && <PlanBadge plan={org.plan} />}
                 </div>

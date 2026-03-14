@@ -72,11 +72,11 @@ function LoginForm() {
         <div>
           <h1
             className="text-2xl font-extrabold leading-tight"
-            style={{ color: "#F4F4F5", letterSpacing: "-0.02em" }}
+            style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}
           >
             Bem-vindo de volta
           </h1>
-          <p className="text-sm mt-1" style={{ color: "#8B8FA8" }}>
+          <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
             Entre na sua conta para continuar
           </p>
         </div>
@@ -91,7 +91,7 @@ function LoginForm() {
           <span className="mt-0.5 text-base">💎</span>
           <div>
             <p className="font-bold text-sm">Trial Premium ativado!</p>
-            <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>Plano Premium ativo por 7 dias.</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Plano Premium ativo por 7 dias.</p>
           </div>
         </div>
       )}
@@ -103,7 +103,7 @@ function LoginForm() {
           <span className="mt-0.5 text-base">⭐</span>
           <div>
             <p className="font-bold text-sm">Trial Pro ativado!</p>
-            <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>Plano Pro ativo por 7 dias.</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Plano Pro ativo por 7 dias.</p>
           </div>
         </div>
       )}
@@ -115,7 +115,7 @@ function LoginForm() {
           <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold">Conta criada com sucesso!</p>
-            <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>Verifique seu email para ativar o acesso antes de fazer login.</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Verifique seu email para ativar o acesso antes de fazer login.</p>
           </div>
         </div>
       )}
@@ -136,7 +136,7 @@ function LoginForm() {
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold">Link de verificação expirado</p>
-            <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>Tente fazer login para receber um novo link de verificação.</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Tente fazer login para receber um novo link de verificação.</p>
           </div>
         </div>
       )}
@@ -157,7 +157,7 @@ function LoginForm() {
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold">Email ainda não verificado</p>
-            <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>Acesse sua caixa de entrada e clique no link que enviamos. Verifique também o spam.</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Acesse sua caixa de entrada e clique no link que enviamos. Verifique também o spam.</p>
           </div>
         </div>
       )}
@@ -175,7 +175,7 @@ function LoginForm() {
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Email */}
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "#4B4F6A" }}>
+          <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "var(--text-muted)" }}>
             Email
           </label>
           <input
@@ -186,19 +186,19 @@ function LoginForm() {
             placeholder="seu@email.com"
             className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all duration-150"
             style={{
-              background: "rgba(33,36,53,0.8)",
-              border: "1px solid #2A2D3A",
-              color: "#F4F4F5",
+              background: "var(--bg-subtle)",
+              border: "1px solid var(--border-hover)",
+              color: "var(--text-primary)",
             }}
             onFocus={(e) => {
               e.target.style.borderColor = "rgba(0,208,132,0.45)"
               e.target.style.boxShadow = "0 0 0 3px rgba(0,208,132,0.07), inset 0 0 0 1px rgba(0,208,132,0.08)"
-              e.target.style.background = "rgba(33,36,53,1)"
+              e.target.style.background = "var(--bg-subtle)"
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = "#2A2D3A"
+              e.target.style.borderColor = "var(--border-hover)"
               e.target.style.boxShadow = "none"
-              e.target.style.background = "rgba(33,36,53,0.8)"
+              e.target.style.background = "var(--bg-subtle)"
             }}
           />
         </div>
@@ -206,7 +206,7 @@ function LoginForm() {
         {/* Password */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#4B4F6A" }}>
+            <label className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
               Senha
             </label>
             <Link
@@ -226,26 +226,26 @@ function LoginForm() {
               placeholder="••••••••"
               className="w-full px-4 py-3 pr-11 rounded-xl text-sm outline-none transition-all duration-150"
               style={{
-                background: "rgba(33,36,53,0.8)",
-                border: "1px solid #2A2D3A",
-                color: "#F4F4F5",
+                background: "var(--bg-subtle)",
+                border: "1px solid var(--border)",
+                color: "var(--text-primary)",
               }}
               onFocus={(e) => {
                 e.target.style.borderColor = "rgba(0,208,132,0.45)"
                 e.target.style.boxShadow = "0 0 0 3px rgba(0,208,132,0.07), inset 0 0 0 1px rgba(0,208,132,0.08)"
-                e.target.style.background = "rgba(33,36,53,1)"
+                e.target.style.background = "var(--bg-subtle)"
               }}
               onBlur={(e) => {
-                e.target.style.borderColor = "#2A2D3A"
+                e.target.style.borderColor = "var(--border)"
                 e.target.style.boxShadow = "none"
-                e.target.style.background = "rgba(33,36,53,0.8)"
+                e.target.style.background = "var(--bg-subtle)"
               }}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 p-1 transition-opacity hover:opacity-70"
-              style={{ color: "#4B4F6A" }}
+              style={{ color: "var(--text-faint)" }}
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
@@ -256,7 +256,7 @@ function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="relative w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed overflow-hidden group"
+          className="relative w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm transition-all duration-200 disabled:brightness-90 disabled:cursor-not-allowed overflow-hidden group"
           style={{
             background: "linear-gradient(135deg, #00D084 0%, #00B872 100%)",
             color: "#0A0C14",
@@ -280,9 +280,9 @@ function LoginForm() {
 
       {/* Divider */}
       <div className="flex items-center gap-3 my-5">
-        <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, transparent, #2A2D3A)" }} />
-        <span className="text-xs font-medium" style={{ color: "#2A2D3A" }}>OU</span>
-        <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, #2A2D3A, transparent)" }} />
+        <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, transparent, var(--border))" }} />
+        <span className="text-xs font-medium" style={{ color: "var(--text-faint)" }}>OU</span>
+        <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, var(--border), transparent)" }} />
       </div>
 
       {/* Register link */}
@@ -290,13 +290,13 @@ function LoginForm() {
         href="/register"
         className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl transition-all duration-150 group hover:border-[rgba(0,208,132,0.2)]"
         style={{
-          background: "rgba(255,255,255,0.02)",
-          border: "1px solid rgba(255,255,255,0.06)",
+          background: "var(--bg-subtle)",
+          border: "1px solid var(--border)",
         }}
       >
         <div>
-          <p className="text-sm font-semibold" style={{ color: "#D4D4D8" }}>Não tem conta ainda?</p>
-          <p className="text-xs mt-0.5" style={{ color: "#4B4F6A" }}>Crie grátis · Trial Pro por 7 dias</p>
+          <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Não tem conta ainda?</p>
+          <p className="text-xs mt-0.5" style={{ color: "var(--text-faint)" }}>Crie grátis · Trial Pro por 7 dias</p>
         </div>
         <div
           className="flex items-center gap-1.5 text-sm font-bold transition-transform duration-150 group-hover:translate-x-0.5"
@@ -313,10 +313,10 @@ export default function LoginPage() {
   return (
     <Suspense fallback={
       <div className="space-y-4 animate-pulse">
-        <div className="h-14 rounded-xl" style={{ background: "rgba(26,29,39,0.5)" }} />
-        <div className="h-12 rounded-xl" style={{ background: "rgba(26,29,39,0.5)" }} />
-        <div className="h-12 rounded-xl" style={{ background: "rgba(26,29,39,0.5)" }} />
-        <div className="h-12 rounded-xl" style={{ background: "rgba(26,29,39,0.5)" }} />
+        <div className="h-14 rounded-xl" style={{ background: "var(--bg-card)" }} />
+        <div className="h-12 rounded-xl" style={{ background: "var(--bg-card)" }} />
+        <div className="h-12 rounded-xl" style={{ background: "var(--bg-card)" }} />
+        <div className="h-12 rounded-xl" style={{ background: "var(--bg-card)" }} />
       </div>
     }>
       <LoginForm />

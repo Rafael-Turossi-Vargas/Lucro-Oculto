@@ -64,7 +64,7 @@ export function FAQSection() {
       <section
         id="faq"
         className="py-14 relative overflow-hidden"
-        style={{ background: "#0F1117", borderTop: "1px solid #2A2D3A" }}
+        style={{ background: "var(--bg-page)", borderTop: "1px solid var(--border)" }}
       >
         {/* Subtle glow */}
         <div
@@ -91,11 +91,11 @@ export function FAQSection() {
             </span>
             <h2
               className="text-2xl sm:text-3xl font-extrabold mb-2"
-              style={{ color: "#F4F4F5", letterSpacing: "-0.02em" }}
+              style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}
             >
               Tem dúvidas? Respondemos aqui.
             </h2>
-            <p className="text-sm max-w-md mx-auto" style={{ color: "#8B8FA8" }}>
+            <p className="text-sm max-w-md mx-auto" style={{ color: "var(--text-muted)" }}>
               As perguntas mais comuns sobre o Lucro Oculto.
             </p>
           </div>
@@ -112,10 +112,10 @@ export function FAQSection() {
                       key={i}
                       className="rounded-xl overflow-hidden transition-all duration-200"
                       style={{
-                        background: isOpen ? "rgba(0,208,132,0.04)" : "#1A1D27",
+                        background: isOpen ? "rgba(0,208,132,0.04)" : "var(--bg-card)",
                         border: isOpen
                           ? "1px solid rgba(0,208,132,0.22)"
-                          : "1px solid #2A2D3A",
+                          : "1px solid var(--border)",
                         borderLeft: isOpen
                           ? "3px solid #00D084"
                           : "3px solid transparent",
@@ -127,29 +127,29 @@ export function FAQSection() {
                       >
                         <span
                           className="font-semibold text-sm leading-snug"
-                          style={{ color: isOpen ? "#F4F4F5" : "#D4D4D8" }}
+                          style={{ color: "var(--text-primary)" }}
                         >
                           {faq.q}
                         </span>
                         <div
                           className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all duration-200"
                           style={{
-                            background: isOpen ? "rgba(0,208,132,0.12)" : "#212435",
+                            background: isOpen ? "rgba(0,208,132,0.12)" : "var(--bg-subtle)",
                             border: isOpen
                               ? "1px solid rgba(0,208,132,0.25)"
-                              : "1px solid #2A2D3A",
+                              : "1px solid var(--border)",
                           }}
                         >
                           {isOpen
                             ? <Minus className="w-2.5 h-2.5" style={{ color: "#00D084" }} />
-                            : <Plus className="w-2.5 h-2.5" style={{ color: "#4B4F6A" }} />
+                            : <Plus className="w-2.5 h-2.5" style={{ color: "var(--text-faint)" }} />
                           }
                         </div>
                       </button>
 
                       {isOpen && (
                         <div className="px-4 pb-4">
-                          <p className="text-xs leading-relaxed" style={{ color: "#8B8FA8" }}>
+                          <p className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>
                             {faq.a}
                           </p>
                         </div>

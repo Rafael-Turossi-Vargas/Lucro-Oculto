@@ -40,9 +40,9 @@ export function TestimonialsSection() {
     <section
       className="py-16 relative overflow-hidden"
       style={{
-        background: "linear-gradient(180deg, #1A1D27 0%, #1C1F2E 100%)",
-        borderTop: "1px solid #2A2D3A",
-        borderBottom: "1px solid #2A2D3A",
+        background: "linear-gradient(180deg, var(--bg-page) 0%, var(--bg-card) 100%)",
+        borderTop: "1px solid var(--border)",
+        borderBottom: "1px solid var(--border)",
       }}
     >
       {/* Subtle background glow */}
@@ -69,11 +69,11 @@ export function TestimonialsSection() {
           </span>
           <h2
             className="text-3xl sm:text-4xl font-extrabold mb-4"
-            style={{ color: "#F4F4F5", letterSpacing: "-0.02em" }}
+            style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}
           >
             O que nossos clientes encontraram
           </h2>
-          <p className="text-lg max-w-xl mx-auto" style={{ color: "#8B8FA8" }}>
+          <p className="text-lg max-w-xl mx-auto" style={{ color: "var(--text-muted)" }}>
             Empresas reais. Resultados reais. Sem consultores caros.
           </p>
         </div>
@@ -131,7 +131,7 @@ export function TestimonialsSection() {
               {/* Quote */}
               <p
                 className="text-base leading-relaxed flex-1 mb-6 relative z-10"
-                style={{ color: "#D4D4D8", fontStyle: "italic" }}
+                style={{ color: "var(--text-muted)", fontStyle: "italic" }}
               >
                 &ldquo;{t.quote}&rdquo;
               </p>
@@ -153,7 +153,7 @@ export function TestimonialsSection() {
                 >
                   {t.saving}
                 </p>
-                <p className="text-xs mt-0.5 font-medium" style={{ color: "#8B8FA8" }}>
+                <p className="text-xs mt-0.5 font-medium" style={{ color: "var(--text-muted)" }}>
                   {t.period}
                 </p>
               </div>
@@ -172,10 +172,10 @@ export function TestimonialsSection() {
                   {t.initials}
                 </div>
                 <div>
-                  <p className="font-semibold text-sm" style={{ color: "#F4F4F5" }}>
+                  <p className="font-semibold text-sm" style={{ color: "var(--text-primary)" }}>
                     {t.name}
                   </p>
-                  <p className="text-xs" style={{ color: "#4B4F6A" }}>
+                  <p className="text-xs" style={{ color: "var(--text-faint)" }}>
                     {t.role} · {t.company}
                   </p>
                 </div>
@@ -184,7 +184,7 @@ export function TestimonialsSection() {
           ))}
         </div>
 
-        <p className="text-center mt-8 text-xs" style={{ color: "#4B4F6A" }}>
+        <p className="text-center mt-8 text-xs" style={{ color: "var(--text-faint)" }}>
           * Valores de economia identificados pela plataforma. Resultados variam por empresa e período analisado.
         </p>
       </div>

@@ -47,9 +47,9 @@ export function HowItWorks() {
       id="how-it-works"
       className="py-16 relative overflow-hidden"
       style={{
-        background: "linear-gradient(180deg, #131620 0%, #1A1D27 100%)",
-        borderTop: "1px solid #2A2D3A",
-        borderBottom: "1px solid #2A2D3A",
+        background: "linear-gradient(180deg, var(--bg-page) 0%, var(--bg-card) 100%)",
+        borderTop: "1px solid var(--border)",
+        borderBottom: "1px solid var(--border)",
       }}
     >
       <div
@@ -75,11 +75,11 @@ export function HowItWorks() {
           </span>
           <h2
             className="text-2xl sm:text-3xl font-extrabold mb-2"
-            style={{ color: "#F4F4F5", letterSpacing: "-0.02em" }}
+            style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}
           >
             3 passos para descobrir onde seu lucro vaza
           </h2>
-          <p className="text-base max-w-md mx-auto" style={{ color: "#8B8FA8" }}>
+          <p className="text-base max-w-md mx-auto" style={{ color: "var(--text-muted)" }}>
             Simples como uma planilha. Poderoso como um auditor.
           </p>
         </div>
@@ -93,7 +93,7 @@ export function HowItWorks() {
                 <div
                   className="w-full h-full rounded-2xl p-5 flex flex-col gap-4 transition-all duration-200 hover:-translate-y-1"
                   style={{
-                    background: "#1A1D27",
+                    background: "var(--bg-card)",
                     border: `1px solid ${step.border}`,
                     borderLeft: `3px solid ${step.color}`,
                     boxShadow: `0 2px 20px ${step.glow}`,
@@ -133,11 +133,11 @@ export function HowItWorks() {
                   <div className="flex-1">
                     <h3
                       className="font-bold text-base mb-1.5"
-                      style={{ color: "#F4F4F5" }}
+                      style={{ color: "var(--text-primary)" }}
                     >
                       {step.title}
                     </h3>
-                    <p className="text-sm leading-relaxed" style={{ color: "#8B8FA8" }}>
+                    <p className="text-sm leading-relaxed" style={{ color: "var(--text-muted)" }}>
                       {step.description}
                     </p>
                   </div>
@@ -157,7 +157,7 @@ export function HowItWorks() {
                 {/* Connector arrow between cards */}
                 {i < steps.length - 1 && (
                   <div className="hidden md:flex items-center px-2 shrink-0">
-                    <ArrowRight className="w-4 h-4" style={{ color: "#2A2D3A" }} />
+                    <ArrowRight className="w-4 h-4" style={{ color: "var(--border)" }} />
                   </div>
                 )}
               </div>

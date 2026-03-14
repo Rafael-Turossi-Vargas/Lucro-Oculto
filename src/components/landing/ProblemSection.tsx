@@ -20,7 +20,7 @@ export function ProblemSection() {
     <section
       id="problem"
       className="py-16 relative overflow-hidden"
-      style={{ background: "#0F1117", borderTop: "1px solid #2A2D3A" }}
+      style={{ background: "var(--bg-page)", borderTop: "1px solid var(--border)" }}
     >
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -38,11 +38,11 @@ export function ProblemSection() {
           </span>
           <h2
             className="text-2xl sm:text-3xl font-extrabold mb-3"
-            style={{ color: "#F4F4F5", letterSpacing: "-0.02em" }}
+            style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}
           >
             Você fatura bem. Mas onde vai o lucro?
           </h2>
-          <p className="text-base max-w-lg mx-auto" style={{ color: "#8B8FA8" }}>
+          <p className="text-base max-w-lg mx-auto" style={{ color: "var(--text-muted)" }}>
             Você monitora o óbvio — mas os maiores vazamentos de caixa são os que você nunca vê.
           </p>
         </div>
@@ -54,14 +54,14 @@ export function ProblemSection() {
           <div
             className="rounded-2xl p-5"
             style={{
-              background: "#1A1D27",
-              border: "1px solid #2A2D3A",
+              background: "var(--bg-card)",
+              border: "1px solid var(--border)",
             }}
           >
             {/* Card header */}
             <div
               className="flex items-center gap-2 pb-4 mb-4"
-              style={{ borderBottom: "1px solid #2A2D3A" }}
+              style={{ borderBottom: "1px solid var(--border)" }}
             >
               <div
                 className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
@@ -70,8 +70,8 @@ export function ProblemSection() {
                 <Eye className="w-3.5 h-3.5" style={{ color: "#3B82F6" }} />
               </div>
               <div>
-                <p className="text-sm font-bold" style={{ color: "#F4F4F5" }}>O que você monitora</p>
-                <p className="text-xs" style={{ color: "#4B4F6A" }}>Visão parcial — apenas o óbvio</p>
+                <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>O que você monitora</p>
+                <p className="text-xs" style={{ color: "var(--text-faint)" }}>Visão parcial — apenas o óbvio</p>
               </div>
             </div>
 
@@ -80,10 +80,10 @@ export function ProblemSection() {
                 <div
                   key={i}
                   className="flex items-center justify-between px-3 py-2.5 rounded-xl"
-                  style={{ background: "#212435", border: "1px solid #2A2D3A" }}
+                  style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)" }}
                 >
-                  <span className="text-sm font-medium" style={{ color: "#D4D4D8" }}>{item.text}</span>
-                  <span className="text-xs" style={{ color: "#4B4F6A" }}>{item.sub}</span>
+                  <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{item.text}</span>
+                  <span className="text-xs" style={{ color: "var(--text-faint)" }}>{item.sub}</span>
                 </div>
               ))}
             </div>
@@ -92,7 +92,7 @@ export function ProblemSection() {
               className="mt-4 px-3 py-2.5 rounded-xl text-center"
               style={{ background: "rgba(59,130,246,0.05)", border: "1px solid rgba(59,130,246,0.12)" }}
             >
-              <p className="text-xs font-medium" style={{ color: "#4B4F6A" }}>
+              <p className="text-xs font-medium" style={{ color: "var(--text-faint)" }}>
                 3 métricas visíveis · parece suficiente...
               </p>
             </div>
@@ -102,7 +102,7 @@ export function ProblemSection() {
           <div
             className="rounded-2xl p-5 relative overflow-hidden"
             style={{
-              background: "linear-gradient(145deg, rgba(255,77,79,0.08) 0%, rgba(15,17,23,0.9) 60%)",
+              background: "linear-gradient(145deg, rgba(255,77,79,0.08) 0%, var(--bg-page-overlay) 60%)",
               border: "1px solid rgba(255,77,79,0.22)",
               boxShadow: "0 4px 32px rgba(255,77,79,0.06)",
             }}
@@ -131,7 +131,7 @@ export function ProblemSection() {
                 <EyeOff className="w-3.5 h-3.5" style={{ color: "#FF4D4F" }} />
               </div>
               <div>
-                <p className="text-sm font-bold" style={{ color: "#F4F4F5" }}>O que drena seu lucro</p>
+                <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>O que drena seu lucro</p>
                 <p className="text-xs font-semibold" style={{ color: "#FF4D4F" }}>Invisível — até agora</p>
               </div>
             </div>
@@ -146,7 +146,7 @@ export function ProblemSection() {
                     borderLeft: "2px solid rgba(255,77,79,0.4)",
                   }}
                 >
-                  <span className="text-xs" style={{ color: "#D4D4D8" }}>{item.text}</span>
+                  <span className="text-xs" style={{ color: "var(--text-muted)" }}>{item.text}</span>
                   <span
                     className="text-xs font-bold shrink-0 ml-2"
                     style={{ color: "#FF4D4F" }}
@@ -176,7 +176,7 @@ export function ProblemSection() {
           >
             <TrendingDown className="w-5 h-5" style={{ color: "#00D084" }} />
           </div>
-          <p className="text-base font-bold" style={{ color: "#F4F4F5", letterSpacing: "-0.01em" }}>
+          <p className="text-base font-bold" style={{ color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
             Seu problema pode não ser vender mais.{" "}
             <span
               style={{

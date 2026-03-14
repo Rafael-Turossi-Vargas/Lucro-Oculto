@@ -51,10 +51,10 @@ function DashboardMock() {
       <div
         className="relative rounded-2xl overflow-hidden"
         style={{
-          background: "#1A1D27",
-          border: "1px solid rgba(255,255,255,0.08)",
+          background: "var(--bg-card)",
+          border: "1px solid var(--border)",
           boxShadow:
-            "0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,208,132,0.07), inset 0 1px 0 rgba(255,255,255,0.05)",
+            "0 24px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,208,132,0.07)",
           transform: "rotateX(2deg) rotateY(-2deg)",
         }}
       >
@@ -62,8 +62,8 @@ function DashboardMock() {
         <div
           className="flex items-center gap-2 px-4 py-2.5"
           style={{
-            background: "linear-gradient(90deg, #212435 0%, #1E2132 100%)",
-            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            background: "linear-gradient(90deg, var(--bg-subtle) 0%, var(--bg-card) 100%)",
+            borderBottom: "1px solid var(--border)",
           }}
         >
           <div className="flex gap-1.5">
@@ -73,7 +73,7 @@ function DashboardMock() {
           </div>
           <div
             className="flex-1 rounded-md h-5 text-xs px-3 flex items-center"
-            style={{ background: "#2A2D3A", color: "#4B4F6A" }}
+            style={{ background: "var(--border)", color: "var(--text-faint)" }}
           >
             lucrooculto.com/app/dashboard
           </div>
@@ -90,7 +90,7 @@ function DashboardMock() {
                 border: "1px solid rgba(0,208,132,0.22)",
               }}
             >
-              <p className="text-xs mb-1" style={{ color: "#8B8FA8" }}>Score de Eficiência</p>
+              <p className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>Score de Eficiência</p>
               <div className="flex items-baseline gap-1">
                 <span
                   className="text-2xl font-bold font-mono tabular-nums"
@@ -98,7 +98,7 @@ function DashboardMock() {
                 >
                   {score}
                 </span>
-                <span className="text-xs" style={{ color: "#4B4F6A" }}>/100</span>
+                <span className="text-xs" style={{ color: "var(--text-faint)" }}>/100</span>
               </div>
               <p className="text-xs mt-0.5" style={{ color: "#F59E0B" }}>⚠ Atenção</p>
             </div>
@@ -110,12 +110,12 @@ function DashboardMock() {
                 border: "1px solid rgba(59,130,246,0.18)",
               }}
             >
-              <p className="text-xs mb-1" style={{ color: "#8B8FA8" }}>Receita / Despesa</p>
+              <p className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>Receita / Despesa</p>
               <div className="flex items-baseline gap-1">
                 <span className="text-base font-bold font-mono" style={{ color: "#3B82F6" }}>R$42k</span>
-                <span className="text-xs" style={{ color: "#4B4F6A" }}>/R$37k</span>
+                <span className="text-xs" style={{ color: "var(--text-faint)" }}>/R$37k</span>
               </div>
-              <p className="text-xs mt-0.5" style={{ color: "#4B4F6A" }}>Margem 11,9%</p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--text-faint)" }}>Margem 11,9%</p>
             </div>
           </div>
 
@@ -127,13 +127,13 @@ function DashboardMock() {
               border: "1px solid rgba(0,208,132,0.15)",
             }}
           >
-            <p className="text-xs mb-1" style={{ color: "#8B8FA8" }}>Economia potencial detectada</p>
+            <p className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>Economia potencial detectada</p>
             <div className="flex items-center justify-between">
               <div className="flex items-baseline gap-1">
                 <span className="text-lg font-bold font-mono" style={{ color: "#00D084" }}>
                   R$ {saving.toLocaleString("pt-BR")}
                 </span>
-                <span className="text-xs" style={{ color: "#4B4F6A" }}>– R$ 7.800 / mês</span>
+                <span className="text-xs" style={{ color: "var(--text-faint)" }}>– R$ 7.800 / mês</span>
               </div>
               <div
                 className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
@@ -146,9 +146,9 @@ function DashboardMock() {
           </div>
 
           {/* Leaks */}
-          <div className="rounded-xl p-3" style={{ background: "#212435", border: "1px solid #2A2D3A" }}>
+          <div className="rounded-xl p-3" style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)" }}>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium" style={{ color: "#F4F4F5" }}>Vazamentos Detectados</p>
+              <p className="text-xs font-medium" style={{ color: "var(--text-primary)" }}>Vazamentos Detectados</p>
               <span
                 className="text-xs px-1.5 py-0.5 rounded-full font-bold"
                 style={{ background: "rgba(255,77,79,0.18)", color: "#FF4D4F" }}
@@ -164,11 +164,11 @@ function DashboardMock() {
               <div
                 key={index}
                 className="flex items-center justify-between py-1.5"
-                style={{ borderTop: index > 0 ? "1px solid #2A2D3A" : undefined }}
+                style={{ borderTop: index > 0 ? "1px solid var(--border)" : undefined }}
               >
                 <div className="flex items-center gap-2">
                   <span className="text-sm">{item.icon}</span>
-                  <span className="text-xs" style={{ color: "#8B8FA8" }}>{item.text}</span>
+                  <span className="text-xs" style={{ color: "var(--text-muted)" }}>{item.text}</span>
                 </div>
                 <span className="text-xs font-semibold" style={{ color: "#FF4D4F" }}>{item.val}</span>
               </div>
@@ -181,7 +181,7 @@ function DashboardMock() {
             style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)" }}
           >
             <AlertTriangle className="w-3.5 h-3.5 shrink-0" style={{ color: "#F59E0B" }} />
-            <p className="text-xs" style={{ color: "#F4F4F5" }}>
+            <p className="text-xs" style={{ color: "var(--text-primary)" }}>
               Caixa pode entrar em pressão em <strong style={{ color: "#F59E0B" }}>22 dias</strong>
             </p>
           </div>
@@ -208,11 +208,11 @@ function HeroEmailForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Seu melhor email"
-        className="flex-1 px-4 py-3 rounded-xl text-sm outline-none placeholder-[#4B4F6A]"
+        className="flex-1 px-4 py-3 rounded-xl text-sm outline-none placeholder-[var(--text-faint)]"
         style={{
-          background: "#1A1D27",
-          border: "1px solid #2A2D3A",
-          color: "#F4F4F5",
+          background: "var(--bg-card)",
+          border: "1px solid var(--border)",
+          color: "var(--text-primary)",
         }}
       />
       <button
@@ -220,7 +220,7 @@ function HeroEmailForm() {
         className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold text-sm whitespace-nowrap transition-all duration-150 hover:scale-[1.02] active:scale-[0.98]"
         style={{
           background: "linear-gradient(135deg, #00D084 0%, #00B872 100%)",
-          color: "#0A0C14",
+          color: "var(--bg-page)",
           boxShadow: "0 0 24px rgba(0,208,132,0.4)",
         }}
       >
@@ -234,7 +234,7 @@ export function Hero() {
   return (
     <section
       className="relative flex items-center pt-14 overflow-hidden"
-      style={{ background: "#0F1117" }}
+      style={{ background: "var(--bg-page)" }}
     >
       {/* Grid */}
       <div
@@ -283,7 +283,7 @@ export function Hero() {
             {/* Headline */}
             <h1
               className="text-4xl sm:text-5xl font-extrabold leading-tight mb-4"
-              style={{ color: "#F4F4F5", letterSpacing: "-0.03em" }}
+              style={{ color: "var(--text-primary)", letterSpacing: "-0.03em" }}
             >
               Seu diagnóstico{" "}
               <br className="hidden sm:block" />
@@ -300,7 +300,7 @@ export function Hero() {
               </span>
             </h1>
 
-            <p className="text-base mb-6 leading-relaxed max-w-lg mx-auto lg:mx-0" style={{ color: "#8B8FA8" }}>
+            <p className="text-base mb-6 leading-relaxed max-w-lg mx-auto lg:mx-0" style={{ color: "var(--text-muted)" }}>
               Descubra agora quanto dinheiro sua empresa está perdendo.
               Sem consultores. Sem planilhas. Sem cartão de crédito.
             </p>
@@ -316,8 +316,8 @@ export function Hero() {
                 { icon: Clock, label: "Resultado em 1 minuto" },
               ].map(({ icon: Icon, label }) => (
                 <div key={label} className="flex items-center gap-1.5">
-                  <Icon className="w-3 h-3" style={{ color: "#4B4F6A" }} />
-                  <span className="text-xs" style={{ color: "#4B4F6A" }}>{label}</span>
+                  <Icon className="w-3 h-3" style={{ color: "var(--text-faint)" }} />
+                  <span className="text-xs" style={{ color: "var(--text-faint)" }}>{label}</span>
                 </div>
               ))}
             </div>
@@ -325,7 +325,7 @@ export function Hero() {
             {/* Stats */}
             <div
               className="mt-8 grid grid-cols-3 gap-4 pt-6"
-              style={{ borderTop: "1px solid #2A2D3A" }}
+              style={{ borderTop: "1px solid var(--border)" }}
             >
               {stats.map((stat, index) => (
                 <div
@@ -333,13 +333,13 @@ export function Hero() {
                   className="text-center lg:text-left"
                   style={{
                     paddingLeft: index > 0 ? "1rem" : 0,
-                    borderLeft: index > 0 ? "1px solid #2A2D3A" : "none",
+                    borderLeft: index > 0 ? "1px solid var(--border)" : "none",
                   }}
                 >
-                  <p className="text-lg sm:text-xl font-bold font-mono" style={{ color: "#F4F4F5" }}>
+                  <p className="text-lg sm:text-xl font-bold font-mono" style={{ color: "var(--text-primary)" }}>
                     {stat.value}
                   </p>
-                  <p className="text-xs mt-0.5 leading-snug" style={{ color: "#8B8FA8" }}>
+                  <p className="text-xs mt-0.5 leading-snug" style={{ color: "var(--text-muted)" }}>
                     {stat.label}
                   </p>
                 </div>

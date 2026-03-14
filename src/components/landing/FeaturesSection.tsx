@@ -59,7 +59,7 @@ export function FeaturesSection() {
     <section
       id="features"
       className="py-16 relative overflow-hidden"
-      style={{ background: "#0F1117" }}
+      style={{ background: "var(--bg-page)" }}
     >
       <div
         className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none"
@@ -85,11 +85,11 @@ export function FeaturesSection() {
           </span>
           <h2
             className="text-2xl sm:text-3xl font-extrabold mb-2"
-            style={{ color: "#F4F4F5", letterSpacing: "-0.02em" }}
+            style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}
           >
             Tudo que você precisa para parar de perder dinheiro
           </h2>
-          <p className="text-base max-w-xl mx-auto" style={{ color: "#8B8FA8" }}>
+          <p className="text-base max-w-xl mx-auto" style={{ color: "var(--text-muted)" }}>
             Como um consultor financeiro automatizado — sem jargão, sem planilha. Só ação prática.
           </p>
         </div>
@@ -103,8 +103,8 @@ export function FeaturesSection() {
                 key={i}
                 className="rounded-xl p-5 flex gap-4 transition-all duration-200 hover:-translate-y-0.5 group relative overflow-hidden"
                 style={{
-                  background: "#1A1D27",
-                  border: "1px solid #2A2D3A",
+                  background: "var(--bg-card)",
+                  border: "1px solid var(--border)",
                   borderLeft: `3px solid ${f.color}`,
                 }}
                 onMouseOver={(e) => {
@@ -113,7 +113,7 @@ export function FeaturesSection() {
                   e.currentTarget.style.boxShadow = `0 6px 24px ${f.color}14`
                 }}
                 onMouseOut={(e) => {
-                  e.currentTarget.style.borderColor = "#2A2D3A"
+                  e.currentTarget.style.borderColor = "var(--border)"
                   e.currentTarget.style.borderLeftColor = f.color
                   e.currentTarget.style.boxShadow = "none"
                 }}
@@ -138,7 +138,7 @@ export function FeaturesSection() {
                 {/* Content */}
                 <div className="relative z-10 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-bold text-sm" style={{ color: "#F4F4F5" }}>
+                    <h3 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>
                       {f.title}
                     </h3>
                     {f.badge && (
@@ -146,14 +146,14 @@ export function FeaturesSection() {
                         className="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
                         style={{
                           background: "linear-gradient(135deg, #00D084 0%, #00B872 100%)",
-                          color: "#0F1117",
+                          color: "var(--bg-page)",
                         }}
                       >
                         {f.badge}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs leading-relaxed" style={{ color: "#8B8FA8" }}>
+                  <p className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>
                     {f.description}
                   </p>
                 </div>

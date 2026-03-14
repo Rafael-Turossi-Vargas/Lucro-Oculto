@@ -28,11 +28,11 @@ function PasswordStrength({ password }: { password: string }) {
           <div
             key={i}
             className="h-0.5 flex-1 rounded-full transition-all duration-300"
-            style={{ background: i < strength ? colors[strength] : "#2A2D3A" }}
+            style={{ background: i < strength ? colors[strength] : "var(--border)" }}
           />
         ))}
       </div>
-      <p className="text-[11px] font-medium" style={{ color: colors[strength] ?? "#4B4F6A" }}>
+      <p className="text-[11px] font-medium" style={{ color: colors[strength] ?? "var(--text-faint)" }}>
         {labels[strength]}
       </p>
     </div>
@@ -87,20 +87,20 @@ const plans: { id: Plan; label: string; price: string; icon: typeof Zap; color: 
 ]
 
 const inputBase: React.CSSProperties = {
-  background: "rgba(33,36,53,0.8)",
-  border: "1px solid #2A2D3A",
-  color: "#F4F4F5",
+  background: "var(--bg-subtle)",
+  border: "1px solid var(--border-hover)",
+  color: "var(--text-primary)",
 }
 
 function focusInput(e: React.FocusEvent<HTMLInputElement>, color = "rgba(0,208,132,0.45)") {
   e.target.style.borderColor = color
   e.target.style.boxShadow = "0 0 0 3px rgba(0,208,132,0.07)"
-  e.target.style.background = "rgba(33,36,53,1)"
+  e.target.style.background = "var(--bg-subtle)"
 }
 function blurInput(e: React.FocusEvent<HTMLInputElement>) {
-  e.target.style.borderColor = "#2A2D3A"
+  e.target.style.borderColor = "var(--border-hover)"
   e.target.style.boxShadow = "none"
-  e.target.style.background = "rgba(33,36,53,0.8)"
+  e.target.style.background = "var(--bg-subtle)"
 }
 
 function RegisterForm() {
@@ -191,10 +191,10 @@ function RegisterForm() {
           <Rocket style={{ color: "#00D084", width: "18px", height: "18px" }} />
         </div>
         <div>
-          <h1 className="text-2xl font-extrabold leading-tight" style={{ color: "#F4F4F5", letterSpacing: "-0.02em" }}>
+          <h1 className="text-2xl font-extrabold leading-tight" style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
             Comece agora
           </h1>
-          <p className="text-sm mt-1" style={{ color: "#8B8FA8" }}>
+          <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
             Descubra onde seu lucro está vazando
           </p>
         </div>
@@ -212,8 +212,8 @@ function RegisterForm() {
               onClick={() => setSelectedPlan(plan.id)}
               className="relative flex flex-col gap-1.5 p-3 rounded-xl text-left transition-all duration-150"
               style={{
-                background: active ? plan.bg : "rgba(33,36,53,0.6)",
-                border: `1px solid ${active ? plan.border : "rgba(42,45,58,0.8)"}`,
+                background: active ? plan.bg : "var(--bg-card)",
+                border: `1px solid ${active ? plan.border : "var(--border)"}`,
                 boxShadow: active ? `0 0 16px ${plan.color}20` : "none",
               }}
             >
@@ -226,15 +226,15 @@ function RegisterForm() {
                 </span>
               )}
               <div className="flex items-center gap-1.5">
-                <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: active ? plan.color : "#4B4F6A" }} />
-                <span className="text-sm font-bold" style={{ color: active ? plan.color : "#D4D4D8" }}>
+                <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: active ? plan.color : "var(--text-muted)" }} />
+                <span className="text-sm font-bold" style={{ color: active ? plan.color : "var(--text-primary)" }}>
                   {plan.label}
                 </span>
               </div>
-              <span className="text-[10px] font-mono leading-tight" style={{ color: active ? plan.color : "#4B4F6A", opacity: active ? 1 : 0.8 }}>
+              <span className="text-[10px] font-mono leading-tight" style={{ color: active ? plan.color : "var(--text-muted)" }}>
                 {plan.price}
               </span>
-              <span className="text-[10px]" style={{ color: "#4B4F6A" }}>{plan.feature}</span>
+              <span className="text-[10px]" style={{ color: active ? plan.color : "var(--text-muted)", opacity: 0.85 }}>{plan.feature}</span>
             </button>
           )
         })}
@@ -250,9 +250,9 @@ function RegisterForm() {
           }}
         >
           <CreditCard className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: activePlan.color }} />
-          <p className="text-xs leading-relaxed" style={{ color: "#8B8FA8" }}>
+          <p className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>
             Cartão necessário para o trial.{" "}
-            <strong style={{ color: "#F4F4F5" }}>Sem cobrança agora.</strong>{" "}
+            <strong style={{ color: "var(--text-primary)" }}>Sem cobrança agora.</strong>{" "}
             Cobrado {selectedPlan === "premium" ? "R$297" : "R$97"}/mês após 7 dias — cancele antes e não paga nada.
           </p>
         </div>
@@ -275,7 +275,7 @@ function RegisterForm() {
         {/* Name + org — 2 col */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "#4B4F6A" }}>
+            <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "var(--text-muted)" }}>
               Nome
             </label>
             <input
@@ -291,7 +291,7 @@ function RegisterForm() {
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "#4B4F6A" }}>
+            <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "var(--text-muted)" }}>
               Empresa
             </label>
             <input
@@ -310,7 +310,7 @@ function RegisterForm() {
 
         {/* CNPJ */}
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "#4B4F6A" }}>
+          <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "var(--text-muted)" }}>
             CNPJ
           </label>
           <div className="relative">
@@ -325,13 +325,13 @@ function RegisterForm() {
               className="w-full px-3.5 py-2.5 pr-10 rounded-xl text-sm outline-none transition-all duration-150 font-mono"
               style={{
                 ...inputBase,
-                borderColor: cnpjStatus === "valid" ? "rgba(0,208,132,0.5)" : cnpjStatus === "invalid" ? "rgba(255,77,79,0.5)" : "#2A2D3A",
+                borderColor: cnpjStatus === "valid" ? "rgba(0,208,132,0.5)" : cnpjStatus === "invalid" ? "rgba(255,77,79,0.5)" : "var(--border)",
                 boxShadow: cnpjStatus === "valid" ? "0 0 0 3px rgba(0,208,132,0.07)" : cnpjStatus === "invalid" ? "0 0 0 3px rgba(255,77,79,0.07)" : "none",
               }}
               onFocus={(e) => { if (cnpjStatus === "idle") focusInput(e) }}
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              {cnpjStatus === "checking" && <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#8B8FA8" }} />}
+              {cnpjStatus === "checking" && <Loader2 className="w-4 h-4 animate-spin" style={{ color: "var(--text-muted)" }} />}
               {cnpjStatus === "valid" && <CheckCircle2 className="w-4 h-4" style={{ color: "#00D084" }} />}
               {cnpjStatus === "invalid" && <AlertCircle className="w-4 h-4" style={{ color: "#FF4D4F" }} />}
             </div>
@@ -351,7 +351,7 @@ function RegisterForm() {
 
         {/* Email */}
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "#4B4F6A" }}>
+          <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "var(--text-muted)" }}>
             Email
           </label>
           <input
@@ -369,7 +369,7 @@ function RegisterForm() {
 
         {/* Senha */}
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "#4B4F6A" }}>
+          <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "var(--text-muted)" }}>
             Senha
           </label>
           <div className="relative">
@@ -388,7 +388,7 @@ function RegisterForm() {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 p-1 transition-opacity hover:opacity-70"
-              style={{ color: "#4B4F6A" }}
+              style={{ color: "var(--text-faint)" }}
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
@@ -408,15 +408,15 @@ function RegisterForm() {
             <div
               className="w-4 h-4 rounded flex items-center justify-center transition-all duration-150"
               style={{
-                background: agreed ? "#00D084" : "rgba(33,36,53,0.8)",
-                border: `1px solid ${agreed ? "#00D084" : "#2A2D3A"}`,
+                background: agreed ? "#00D084" : "var(--bg-subtle)",
+                border: `1px solid ${agreed ? "#00D084" : "var(--border-hover)"}`,
                 boxShadow: agreed ? "0 0 8px rgba(0,208,132,0.3)" : "none",
               }}
             >
               {agreed && <CheckCircle2 className="w-2.5 h-2.5" style={{ color: "#0A0C14" }} />}
             </div>
           </div>
-          <span className="text-xs leading-relaxed" style={{ color: "#8B8FA8" }}>
+          <span className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>
             Li e aceito os{" "}
             <Link href="/terms" className="font-semibold hover:opacity-80" style={{ color: "#00D084" }}>Termos de Uso</Link>
             {" "}e a{" "}
@@ -428,7 +428,7 @@ function RegisterForm() {
         <button
           type="submit"
           disabled={loading || cnpjStatus !== "valid"}
-          className="relative w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group"
+          className="relative w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm transition-all duration-200 disabled:brightness-90 disabled:cursor-not-allowed overflow-hidden group"
           style={{
             background: selectedPlan === "premium"
               ? "linear-gradient(135deg, #A855F7 0%, #9333EA 100%)"
@@ -462,7 +462,7 @@ function RegisterForm() {
         </button>
 
         {(selectedPlan === "pro" || selectedPlan === "premium") && (
-          <p className="text-center text-xs" style={{ color: "#4B4F6A" }}>
+          <p className="text-center text-xs" style={{ color: "var(--text-faint)" }}>
             ✓ Sem cobrança por 7 dias · Cancele antes e não paga nada
           </p>
         )}
@@ -470,20 +470,20 @@ function RegisterForm() {
 
       {/* Divider */}
       <div className="flex items-center gap-3 my-5">
-        <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, transparent, #2A2D3A)" }} />
-        <span className="text-xs font-medium" style={{ color: "#2A2D3A" }}>OU</span>
-        <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, #2A2D3A, transparent)" }} />
+        <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, transparent, var(--border))" }} />
+        <span className="text-xs font-medium" style={{ color: "var(--text-faint)" }}>OU</span>
+        <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, var(--border), transparent)" }} />
       </div>
 
       {/* Login link */}
       <Link
         href="/login"
         className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl transition-all duration-150 group"
-        style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
+        style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)" }}
       >
         <div>
-          <p className="text-sm font-semibold" style={{ color: "#D4D4D8" }}>Já tem uma conta?</p>
-          <p className="text-xs mt-0.5" style={{ color: "#4B4F6A" }}>Entre e acesse seu diagnóstico</p>
+          <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Já tem uma conta?</p>
+          <p className="text-xs mt-0.5" style={{ color: "var(--text-faint)" }}>Entre e acesse seu diagnóstico</p>
         </div>
         <div
           className="flex items-center gap-1.5 text-sm font-bold transition-transform duration-150 group-hover:translate-x-0.5"
@@ -501,7 +501,7 @@ export default function RegisterPage() {
     <Suspense fallback={
       <div className="space-y-4 animate-pulse">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-12 rounded-xl" style={{ background: "rgba(26,29,39,0.5)" }} />
+          <div key={i} className="h-12 rounded-xl" style={{ background: "var(--bg-card)" }} />
         ))}
       </div>
     }>

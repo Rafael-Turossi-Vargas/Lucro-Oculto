@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next"
 import { Inter, JetBrains_Mono } from "next/font/google"
 import "./globals.css"
 import { CookieConsent } from "@/components/ui/cookie-consent"
+import { ThemeProvider } from "@/lib/theme"
 
 /* ─── Fonts ─────────────────────────────────────────────────────────────────── */
 const inter = Inter({
@@ -97,11 +98,14 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: [{ color: "#0F1117" }],
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0F1117" },
+    { media: "(prefers-color-scheme: light)", color: "#F0F2F8" },
+  ],
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  colorScheme: "dark",
+  colorScheme: "dark light",
 }
 
 /* ─── Root Layout ────────────────────────────────────────────────────────────── */
@@ -119,17 +123,25 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
+        <script dangerouslySetInnerHTML={{ __html: `
+  try {
+    var t = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+  } catch(e) {}
+` }} />
       </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
         style={{
           fontFamily: "var(--font-inter), system-ui, -apple-system, sans-serif",
-          backgroundColor: "#0F1117",
-          color: "#F4F4F5",
+          backgroundColor: "var(--bg-page)",
+          color: "var(--text-primary)",
           minHeight: "100dvh",
         }}
       >
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
         <CookieConsent />
       </body>
     </html>

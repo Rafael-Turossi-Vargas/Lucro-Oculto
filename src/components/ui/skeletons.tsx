@@ -2,7 +2,7 @@ export function Skeleton({ className = "", style = {} }: { className?: string; s
   return (
     <div
       className={`rounded-xl animate-pulse ${className}`}
-      style={{ background: "#212435", ...style }}
+      style={{ background: "var(--bg-subtle)", ...style }}
     />
   )
 }
@@ -20,7 +20,7 @@ export function DashboardSkeleton() {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="rounded-2xl p-5 space-y-3" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+          <div key={i} className="rounded-2xl p-5 space-y-3" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
             <div className="flex justify-between">
               <Skeleton style={{ width: 100, height: 14 }} />
               <Skeleton style={{ width: 16, height: 16, borderRadius: 4 }} />
@@ -32,14 +32,14 @@ export function DashboardSkeleton() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="rounded-2xl p-6 space-y-4" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+        <div className="rounded-2xl p-6 space-y-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <Skeleton style={{ width: 120, height: 16 }} />
           <Skeleton className="mx-auto" style={{ width: 112, height: 112, borderRadius: "50%" }} />
           {Array.from({ length: 5 }).map((_, i) => (
             <Skeleton key={i} style={{ height: 8 }} />
           ))}
         </div>
-        <div className="lg:col-span-2 rounded-2xl p-6 space-y-4" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+        <div className="lg:col-span-2 rounded-2xl p-6 space-y-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <Skeleton style={{ width: 200, height: 16 }} />
           <Skeleton style={{ height: 200 }} />
         </div>
@@ -50,7 +50,7 @@ export function DashboardSkeleton() {
 
 export function CardSkeleton({ rows = 3 }: { rows?: number }) {
   return (
-    <div className="rounded-2xl p-6 space-y-4" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+    <div className="rounded-2xl p-6 space-y-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
       <Skeleton style={{ width: 160, height: 18 }} />
       {Array.from({ length: rows }).map((_, i) => (
         <div key={i} className="flex items-center gap-4">

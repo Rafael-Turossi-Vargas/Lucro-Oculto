@@ -1,6 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowLeft, TrendingDown, ShieldCheck, Zap, BarChart3, Star } from "lucide-react"
+import { ThemeLogo } from "@/components/ui/theme-logo"
 
 const features = [
   { icon: TrendingDown, label: "Detecção de vazamentos financeiros em tempo real" },
@@ -73,7 +74,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
             <h2
               className="text-4xl font-extrabold leading-tight mb-4"
-              style={{ color: "#F4F4F5", letterSpacing: "-0.03em" }}
+              style={{ color: "var(--text-primary)", letterSpacing: "-0.03em" }}
             >
               Pare de perder{" "}
               <span
@@ -87,7 +88,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 dinheiro invisível.
               </span>
             </h2>
-            <p className="text-base mb-8 leading-relaxed" style={{ color: "#8B8FA8", maxWidth: "400px" }}>
+            <p className="text-base mb-8 leading-relaxed" style={{ color: "var(--text-muted)", maxWidth: "400px" }}>
               Suba seu extrato e descubra exatamente onde sua empresa está sangrando — em menos de 1 minuto.
             </p>
 
@@ -98,8 +99,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             >
               {stats.map((s) => (
                 <div key={s.label} className="text-center">
-                  <p className="text-xl font-bold font-mono" style={{ color: "#F4F4F5" }}>{s.value}</p>
-                  <p className="text-[11px] mt-0.5" style={{ color: "#4B4F6A" }}>{s.label}</p>
+                  <p className="text-xl font-bold font-mono" style={{ color: "var(--text-primary)" }}>{s.value}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: "var(--text-faint)" }}>{s.label}</p>
                 </div>
               ))}
             </div>
@@ -114,7 +115,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                   >
                     <Icon className="w-3.5 h-3.5" style={{ color: "#00D084" }} />
                   </div>
-                  <span className="text-sm" style={{ color: "#8B8FA8" }}>{label}</span>
+                  <span className="text-sm" style={{ color: "var(--text-muted)" }}>{label}</span>
                 </div>
               ))}
             </div>
@@ -130,7 +131,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 <Star key={i} className="w-3.5 h-3.5 fill-current" style={{ color: "#F59E0B" }} />
               ))}
             </div>
-            <p className="text-sm leading-relaxed mb-3" style={{ color: "#8B8FA8" }}>
+            <p className="text-sm leading-relaxed mb-3" style={{ color: "var(--text-muted)" }}>
               &ldquo;Em 3 minutos o sistema encontrou R$&nbsp;2.800/mês em assinaturas que eu nem sabia que existiam. Valeu o investimento na primeira semana.&rdquo;
             </p>
             <div className="flex items-center gap-2.5">
@@ -141,8 +142,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 MR
               </div>
               <div>
-                <p className="text-xs font-semibold" style={{ color: "#D4D4D8" }}>Marcos Ribeiro</p>
-                <p className="text-[11px]" style={{ color: "#4B4F6A" }}>Sócio — Agência Digital, SP</p>
+                <p className="text-xs font-semibold" style={{ color: "var(--text-primary)" }}>Marcos Ribeiro</p>
+                <p className="text-[11px]" style={{ color: "var(--text-faint)" }}>Sócio — Agência Digital, SP</p>
               </div>
             </div>
           </div>
@@ -152,21 +153,22 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       {/* ─── VERTICAL SEPARATOR ─── */}
       <div
         className="hidden lg:block w-px shrink-0 relative"
-        style={{ background: "linear-gradient(180deg, transparent 0%, #2A2D3A 20%, rgba(0,208,132,0.3) 50%, #2A2D3A 80%, transparent 100%)" }}
+        style={{ background: "linear-gradient(180deg, transparent 0%, var(--border) 20%, rgba(0,208,132,0.3) 50%, var(--border) 80%, transparent 100%)" }}
       />
 
       {/* ─── RIGHT PANEL ─── */}
       <div
         className="flex-1 flex flex-col relative overflow-hidden"
-        style={{ background: "#0A0C14" }}
+        style={{ background: "var(--bg-page)" }}
       >
         {/* Background grid (subtle, different density) */}
         <div
-          className="absolute inset-0 pointer-events-none opacity-[0.08]"
+          className="absolute inset-0 pointer-events-none"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(42,45,58,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(42,45,58,0.8) 1px, transparent 1px)",
+              "linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)",
             backgroundSize: "36px 36px",
+            opacity: 0.4,
           }}
         />
 
@@ -200,7 +202,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-80"
-            style={{ color: "#4B4F6A" }}
+            style={{ color: "var(--text-faint)" }}
           >
             <ArrowLeft className="w-4 h-4" />
             Voltar ao início
@@ -218,7 +220,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               className="w-1.5 h-1.5 rounded-full animate-pulse"
               style={{ background: "#00D084", boxShadow: "0 0 6px #00D084" }}
             />
-            <span className="text-xs font-medium" style={{ color: "#4B4F6A" }}>
+            <span className="text-xs font-medium" style={{ color: "var(--text-faint)" }}>
               <span style={{ color: "#00D084", fontWeight: 700 }}>47</span> empresas analisadas hoje
             </span>
           </div>
@@ -231,7 +233,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             {/* Mobile logo */}
             <div className="lg:hidden flex justify-center mb-8">
               <Link href="/" className="inline-flex hover:opacity-80 transition-opacity">
-                <Image src="/logo.svg" alt="Lucro Oculto" width={152} height={38} priority />
+                <ThemeLogo width={152} height={38} priority />
               </Link>
             </div>
 
@@ -239,9 +241,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <div
               className="relative rounded-2xl p-8"
               style={{
-                background: "linear-gradient(145deg, rgba(26,29,39,0.9) 0%, rgba(15,17,23,0.95) 100%)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                boxShadow: "0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,208,132,0.05), inset 0 1px 0 rgba(255,255,255,0.05)",
+                background: "var(--bg-card)",
+                border: "1px solid var(--border)",
+                boxShadow: "var(--shadow-card-lg)",
                 backdropFilter: "blur(12px)",
               }}
             >
@@ -261,7 +263,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </div>
 
             {/* Below-card trust note */}
-            <p className="text-center mt-4 text-xs" style={{ color: "#2A2D3A" }}>
+            <p className="text-center mt-4 text-xs" style={{ color: "var(--text-faint)" }}>
               Dados protegidos por criptografia AES-256 · Conformidade LGPD
             </p>
           </div>

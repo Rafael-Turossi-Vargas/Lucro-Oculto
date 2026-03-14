@@ -73,12 +73,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           >
             <span className="shrink-0 mt-0.5">{ICONS[t.type]}</span>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold leading-tight" style={{ color: "#F4F4F5" }}>{t.title}</p>
+              <p className="text-sm font-semibold leading-tight" style={{ color: "var(--text-primary)" }}>{t.title}</p>
               {t.message && (
-                <p className="text-xs mt-0.5 leading-relaxed" style={{ color: "#8B8FA8" }}>{t.message}</p>
+                <p className="text-xs mt-0.5 leading-relaxed" style={{ color: "var(--text-muted)" }}>{t.message}</p>
               )}
             </div>
-            <button onClick={() => dismiss(t.id)} className="shrink-0 mt-0.5 p-0.5" style={{ color: "#4B4F6A" }}>
+            <button onClick={() => dismiss(t.id)} className="shrink-0 mt-0.5 p-0.5" style={{ color: "var(--text-faint)" }}>
               <X className="w-3.5 h-3.5" />
             </button>
           </div>

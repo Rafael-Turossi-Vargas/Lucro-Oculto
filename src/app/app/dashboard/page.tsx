@@ -57,14 +57,14 @@ function ScoreRing({ score, delta }: { score: number; delta: number | null }) {
   return (
     <div className="relative flex items-center justify-center w-28 h-28">
       <svg width="112" height="112" className="-rotate-90">
-        <circle cx="56" cy="56" r="44" fill="none" stroke="#2A2D3A" strokeWidth="8" />
+        <circle cx="56" cy="56" r="44" fill="none" stroke="var(--border)" strokeWidth="8" />
         <circle cx="56" cy="56" r="44" fill="none" stroke={color} strokeWidth="8"
           strokeDasharray={c} strokeDashoffset={c - (score / 100) * c} strokeLinecap="round"
           style={{ transition: "stroke-dashoffset 1s ease" }} />
       </svg>
       <div className="absolute text-center">
         <p className="text-2xl font-black leading-none" style={{ color }}>{score}</p>
-        <p className="text-[10px]" style={{ color: "#4B4F6A" }}>score</p>
+        <p className="text-[10px]" style={{ color: "var(--text-faint)" }}>score</p>
       </div>
       {delta !== null && delta !== 0 && (
         <div className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full text-[9px] font-black"
@@ -90,27 +90,27 @@ function EmptyState({ pending, canUpload }: { pending?: { id: string; status: st
 
   return (
     <div className="px-6 py-8">
-      <h1 className="text-2xl font-black mb-10" style={{ color: "#F4F4F5" }}>Dashboard</h1>
+      <h1 className="text-2xl font-black mb-10" style={{ color: "var(--text-primary)" }}>Dashboard</h1>
       {pending ? (
         <div className="rounded-2xl p-10 text-center max-w-md mx-auto"
-          style={{ background: "#1A1D27", border: "1px solid rgba(0,208,132,0.2)" }}>
+          style={{ background: "var(--bg-card)", border: "1px solid rgba(0,208,132,0.2)" }}>
           <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" style={{ color: "#00D084" }} />
-          <h2 className="text-base font-bold mb-2" style={{ color: "#F4F4F5" }}>Análise em andamento...</h2>
-          <p className="text-sm mb-5" style={{ color: "#8B8FA8" }}>A engine está processando. Aguarde alguns segundos.</p>
+          <h2 className="text-base font-bold mb-2" style={{ color: "var(--text-primary)" }}>Análise em andamento...</h2>
+          <p className="text-sm mb-5" style={{ color: "var(--text-muted)" }}>A engine está processando. Aguarde alguns segundos.</p>
           <button onClick={() => window.location.reload()}
             className="px-5 py-2.5 rounded-xl text-sm font-semibold"
-            style={{ background: "#00D084", color: "#0F1117" }}>Atualizar</button>
+            style={{ background: "#00D084", color: "var(--bg-page)" }}>Atualizar</button>
         </div>
       ) : (
         <div className="max-w-2xl mx-auto space-y-6">
           <div className="rounded-2xl p-10 text-center"
-            style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
             <div className="flex items-center justify-center w-14 h-14 rounded-2xl mx-auto mb-4"
-              style={{ background: "#212435" }}>
-              <FileText className="w-7 h-7" style={{ color: "#4B4F6A" }} />
+              style={{ background: "var(--bg-subtle)" }}>
+              <FileText className="w-7 h-7" style={{ color: "var(--text-faint)" }} />
             </div>
-            <h2 className="text-base font-bold mb-2" style={{ color: "#F4F4F5" }}>Nenhuma análise ainda</h2>
-            <p className="text-sm mb-6" style={{ color: "#8B8FA8" }}>
+            <h2 className="text-base font-bold mb-2" style={{ color: "var(--text-primary)" }}>Nenhuma análise ainda</h2>
+            <p className="text-sm mb-6" style={{ color: "var(--text-muted)" }}>
               {canUpload
                 ? "Faça upload do extrato bancário para descobrir onde seu lucro está vazando."
                 : "Aguardando análise — o responsável pelo upload ainda não enviou dados."}
@@ -118,27 +118,27 @@ function EmptyState({ pending, canUpload }: { pending?: { id: string; status: st
             {canUpload && (
               <Link href="/app/upload"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm"
-                style={{ background: "#00D084", color: "#0F1117" }}>
+                style={{ background: "#00D084", color: "var(--bg-page)" }}>
                 <Upload className="w-4 h-4" /> Fazer primeiro upload
               </Link>
             )}
           </div>
 
           {/* Benchmarks de mercado */}
-          <div className="rounded-2xl p-5" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-            <p className="text-xs font-semibold mb-4" style={{ color: "#4B4F6A", textTransform: "uppercase", letterSpacing: "1px" }}>
+          <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+            <p className="text-xs font-semibold mb-4" style={{ color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1px" }}>
               Benchmarks de mercado — PMEs brasileiras
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {BENCHMARKS.map(b => (
-                <div key={b.label} className="rounded-xl p-3.5" style={{ background: "#212435" }}>
+                <div key={b.label} className="rounded-xl p-3.5" style={{ background: "var(--bg-subtle)" }}>
                   <p className="text-xl font-black mb-1" style={{ color: "#F59E0B" }}>{b.value}</p>
-                  <p className="text-xs font-medium mb-0.5" style={{ color: "#F4F4F5" }}>{b.label}</p>
-                  <p className="text-[10px]" style={{ color: "#4B4F6A" }}>{b.desc}</p>
+                  <p className="text-xs font-medium mb-0.5" style={{ color: "var(--text-primary)" }}>{b.label}</p>
+                  <p className="text-[10px]" style={{ color: "var(--text-faint)" }}>{b.desc}</p>
                 </div>
               ))}
             </div>
-            <p className="text-xs mt-3" style={{ color: "#4B4F6A" }}>
+            <p className="text-xs mt-3" style={{ color: "var(--text-faint)" }}>
               Faça upload do seu extrato para comparar com esses benchmarks e descobrir onde está seu lucro oculto.
             </p>
           </div>
@@ -242,8 +242,8 @@ export default function DashboardPage() {
       {/* ── Item 12: Contextual header ─────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-black" style={{ color: "#F4F4F5" }}>Dashboard</h1>
-          <p className="text-sm" style={{ color: "#8B8FA8" }}>
+          <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Dashboard</h1>
+          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
             {periodLabel}
             {data.analysesCount > 1 && (
               <Link href="/app/history" className="ml-2 font-medium" style={{ color: "#00D084" }}>
@@ -255,7 +255,7 @@ export default function DashboardPage() {
         {canUpload && (
           <Link href="/app/upload"
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all"
-            style={{ background: "#00D084", color: "#0F1117" }}>
+            style={{ background: "#00D084", color: "var(--bg-page)" }}>
             <Upload className="w-4 h-4" /> Nova análise
           </Link>
         )}
@@ -269,13 +269,13 @@ export default function DashboardPage() {
           { label: "Resultado Líquido", value: n(a.netResult), color: n(a.netResult) >= 0 ? "#00D084" : "#FF4D4F", icon: TrendingUp, spark: netSparkline },
           { label: "Economia Potencial", value: null, color: "#F59E0B", icon: Lightbulb, spark: [] as number[] },
         ].map(({ label, value, color, icon: Icon, spark }) => (
-          <div key={label} className="rounded-2xl p-5" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+          <div key={label} className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-1.5">
-                <p className="text-xs font-medium" style={{ color: "#8B8FA8" }}>{label}</p>
+                <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>{label}</p>
                 <SimpleTooltip content={KPI_TOOLTIPS[label]} side="top">
                   <button className="p-0.5 rounded opacity-50 hover:opacity-100 transition-opacity">
-                    <Info className="w-3 h-3" style={{ color: "#8B8FA8" }} />
+                    <Info className="w-3 h-3" style={{ color: "var(--text-muted)" }} />
                   </button>
                 </SimpleTooltip>
               </div>
@@ -291,9 +291,9 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* ── Item 1: Score card com delta ───────────────────────────────── */}
-        <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+        <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Score Financeiro</p>
+            <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Score Financeiro</p>
             {scoreDelta !== null && scoreDelta !== 0 && (
               <span className="text-xs font-bold px-2 py-0.5 rounded-full"
                 style={{
@@ -306,7 +306,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex flex-col items-center mb-5">
             <ScoreRing score={a.score ?? 0} delta={scoreDelta} />
-            <p className="text-xs mt-2" style={{ color: "#8B8FA8" }}>
+            <p className="text-xs mt-2" style={{ color: "var(--text-muted)" }}>
               {(a.score ?? 0) >= 75 ? "Saúde boa" : (a.score ?? 0) >= 50 ? "Atenção necessária" : "Situação crítica"}
             </p>
           </div>
@@ -318,8 +318,8 @@ export default function DashboardPage() {
             ].map(({ label, value, color, href }) => (
               <Link key={label} href={href}
                 className="flex justify-between items-center px-3 py-2 rounded-lg transition-colors hover:opacity-80"
-                style={{ background: "#212435" }}>
-                <span className="text-xs" style={{ color: "#8B8FA8" }}>{label}</span>
+                style={{ background: "var(--bg-subtle)" }}>
+                <span className="text-xs" style={{ color: "var(--text-muted)" }}>{label}</span>
                 <span className="text-xs font-bold" style={{ color }}>{value}</span>
               </Link>
             ))}
@@ -327,8 +327,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Chart */}
-        <div className="lg:col-span-2 rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-          <p className="text-sm font-semibold mb-4" style={{ color: "#F4F4F5" }}>
+        <div className="lg:col-span-2 rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          <p className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>
             {monthlyTrend.length > 0 ? "Despesas x Receita" : "Evolução do Score"}
           </p>
           <ResponsiveContainer width="100%" height={200}>
@@ -342,18 +342,18 @@ export default function DashboardPage() {
                     <stop offset="5%" stopColor="#FF4D4F" stopOpacity={0.3} /><stop offset="95%" stopColor="#FF4D4F" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="month" tick={{ fill: "#4B4F6A", fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: "#4B4F6A", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
-                <Tooltip contentStyle={{ background: "#1A1D27", border: "1px solid #2A2D3A", borderRadius: 8 }}
-                  labelStyle={{ color: "#F4F4F5", fontSize: 12 }} formatter={val => [fmt(Number(val)), ""]} />
+                <XAxis dataKey="month" tick={{ fill: "var(--text-faint)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: "var(--text-faint)", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
+                <Tooltip contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 8 }}
+                  labelStyle={{ color: "var(--text-primary)", fontSize: 12 }} formatter={val => [fmt(Number(val)), ""]} />
                 <Area type="monotone" dataKey="income" stroke="#00D084" fill="url(#gI)" strokeWidth={2} name="Receita" />
                 <Area type="monotone" dataKey="expenses" stroke="#FF4D4F" fill="url(#gE)" strokeWidth={2} name="Despesas" />
               </AreaChart>
             ) : (
               <AreaChart data={scoreChart}>
-                <XAxis dataKey="date" tick={{ fill: "#4B4F6A", fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis domain={[0, 100]} tick={{ fill: "#4B4F6A", fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ background: "#1A1D27", border: "1px solid #2A2D3A", borderRadius: 8 }} />
+                <XAxis dataKey="date" tick={{ fill: "var(--text-faint)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis domain={[0, 100]} tick={{ fill: "var(--text-faint)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 8 }} />
                 <Area type="monotone" dataKey="score" stroke="#00D084" fill="rgba(0,208,132,0.1)" strokeWidth={2} name="Score" />
               </AreaChart>
             )}
@@ -366,11 +366,11 @@ export default function DashboardPage() {
           // ── Item 4: Pie chart with concentration warning ─────────────────
           <div className="rounded-2xl p-6"
             style={{
-              background: "#1A1D27",
-              border: hasConcentration ? "1px solid rgba(255,77,79,0.3)" : "1px solid #2A2D3A",
+              background: "var(--bg-card)",
+              border: hasConcentration ? "1px solid rgba(255,77,79,0.3)" : "1px solid var(--border)",
             }}>
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Despesas por categoria</p>
+              <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Despesas por categoria</p>
               {hasConcentration && (
                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg"
                   style={{ background: "rgba(255,77,79,0.08)", border: "1px solid rgba(255,77,79,0.2)" }}>
@@ -396,9 +396,9 @@ export default function DashboardPage() {
                   <div key={cat.category} className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full shrink-0"
                       style={{ background: hasConcentration && i === 0 ? "#FF4D4F" : PIE_COLORS[i % PIE_COLORS.length] }} />
-                    <span className="text-xs flex-1 truncate" style={{ color: "#8B8FA8" }}>{cat.category}</span>
+                    <span className="text-xs flex-1 truncate" style={{ color: "var(--text-muted)" }}>{cat.category}</span>
                     <span className="text-xs font-medium shrink-0"
-                      style={{ color: hasConcentration && i === 0 ? "#FF4D4F" : "#F4F4F5" }}>
+                      style={{ color: hasConcentration && i === 0 ? "#FF4D4F" : "var(--text-primary)" }}>
                       {cat.percentage}%
                     </span>
                   </div>
@@ -408,13 +408,13 @@ export default function DashboardPage() {
           </div>
         )}
 
-        <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+        <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Alertas</p>
+            <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Alertas</p>
             <Link href="/app/alerts" className="text-xs" style={{ color: "#00D084" }}>Ver todos</Link>
           </div>
           {a.alerts.length === 0 ? (
-            <p className="text-xs py-4 text-center" style={{ color: "#4B4F6A" }}>Nenhum alerta ativo</p>
+            <p className="text-xs py-4 text-center" style={{ color: "var(--text-faint)" }}>Nenhum alerta ativo</p>
           ) : (
             <div className="space-y-3">
               {a.alerts.slice(0, 3).map(alert => (
@@ -427,8 +427,8 @@ export default function DashboardPage() {
                   <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5"
                     style={{ color: alert.severity === "critical" ? "#FF4D4F" : "#F59E0B" }} />
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold truncate" style={{ color: "#F4F4F5" }}>{alert.title}</p>
-                    <p className="text-xs line-clamp-2 mt-0.5" style={{ color: "#8B8FA8" }}>{alert.message}</p>
+                    <p className="text-xs font-semibold truncate" style={{ color: "var(--text-primary)" }}>{alert.title}</p>
+                    <p className="text-xs line-clamp-2 mt-0.5" style={{ color: "var(--text-muted)" }}>{alert.message}</p>
                   </div>
                 </div>
               ))}
@@ -439,11 +439,11 @@ export default function DashboardPage() {
 
       {/* ── Item 15: Leaks with left border ───────────────────────────────── */}
       {leaks.filter(l => l.impact === "high").length > 0 && (
-        <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+        <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Principais vazamentos</p>
-              <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>
+              <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Principais vazamentos</p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
                 {leaks.length} detectados · {fmt(leaks.reduce((s, l) => s + n(l.amount), 0))}/mês de impacto
               </p>
             </div>
@@ -454,14 +454,14 @@ export default function DashboardPage() {
           <div className="space-y-3">
             {leaks.filter(l => l.impact === "high").slice(0, 3).map(leak => (
               <div key={leak.id} className="flex items-center gap-4 p-3 rounded-xl"
-                style={{ background: "#212435", borderLeft: "3px solid #FF4D4F" }}>
+                style={{ background: "var(--bg-subtle)", borderLeft: "3px solid #FF4D4F" }}>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate" style={{ color: "#F4F4F5" }}>{leak.title}</p>
-                  <p className="text-xs truncate mt-0.5" style={{ color: "#8B8FA8" }}>{leak.description}</p>
+                  <p className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>{leak.title}</p>
+                  <p className="text-xs truncate mt-0.5" style={{ color: "var(--text-muted)" }}>{leak.description}</p>
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-sm font-bold" style={{ color: "#FF4D4F" }}>−{fmt(n(leak.amount))}</p>
-                  <p className="text-xs" style={{ color: "#4B4F6A" }}>por mês</p>
+                  <p className="text-xs" style={{ color: "var(--text-faint)" }}>por mês</p>
                 </div>
               </div>
             ))}
@@ -471,15 +471,15 @@ export default function DashboardPage() {
 
       {/* Score History */}
       {data.scoreHistory.length >= 2 && (
-        <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+        <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Evolução do Score Financeiro</p>
-              <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>Seu progresso ao longo do tempo</p>
+              <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Evolução do Score Financeiro</p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Seu progresso ao longo do tempo</p>
             </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: "#212435" }}>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: "var(--bg-subtle)" }}>
               <div className="w-2 h-2 rounded-full" style={{ background: scoreChart[scoreChart.length-1]?.score >= scoreChart[0]?.score ? "#00D084" : "#FF4D4F" }} />
-              <span className="text-xs font-medium" style={{ color: "#F4F4F5" }}>
+              <span className="text-xs font-medium" style={{ color: "var(--text-primary)" }}>
                 {scoreChart[scoreChart.length-1]?.score >= scoreChart[0]?.score ? "+" : ""}{(scoreChart[scoreChart.length-1]?.score ?? 0) - (scoreChart[0]?.score ?? 0)} pts
               </span>
             </div>
@@ -492,9 +492,9 @@ export default function DashboardPage() {
                   <stop offset="95%" stopColor="#00D084" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <XAxis dataKey="date" tick={{ fill: "#4B4F6A", fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis domain={[0, 100]} tick={{ fill: "#4B4F6A", fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ background: "#1A1D27", border: "1px solid #2A2D3A", borderRadius: 8 }} labelStyle={{ color: "#F4F4F5", fontSize: 12 }} />
+              <XAxis dataKey="date" tick={{ fill: "var(--text-faint)", fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis domain={[0, 100]} tick={{ fill: "var(--text-faint)", fontSize: 11 }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 8 }} labelStyle={{ color: "var(--text-primary)", fontSize: 12 }} />
               <Area type="monotone" dataKey="score" stroke="#00D084" fill="url(#gScore)" strokeWidth={2} name="Score" dot={{ fill: "#00D084", strokeWidth: 0, r: 3 }} />
             </AreaChart>
           </ResponsiveContainer>

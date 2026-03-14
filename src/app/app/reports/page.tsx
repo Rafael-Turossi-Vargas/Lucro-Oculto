@@ -88,27 +88,27 @@ export default function ReportsPage() {
 
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-black" style={{ color: "#F4F4F5" }}>Relatórios</h1>
-        <p className="text-sm mt-0.5" style={{ color: "#8B8FA8" }}>
+        <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Relatórios</h1>
+        <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
           Exporte um resumo completo da análise financeira
         </p>
       </div>
 
       {/* Generate card */}
       {!dashData?.analysis ? (
-        <div className="rounded-2xl p-12 text-center" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-          <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "#212435" }}>
-            <FileText className="w-8 h-8" style={{ color: "#4B4F6A" }} />
+        <div className="rounded-2xl p-12 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "var(--bg-subtle)" }}>
+            <FileText className="w-8 h-8" style={{ color: "var(--text-faint)" }} />
           </div>
-          <p className="text-base font-semibold mb-1" style={{ color: "#F4F4F5" }}>Nenhuma análise disponível</p>
-          <p className="text-sm mb-6" style={{ color: "#8B8FA8" }}>
+          <p className="text-base font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Nenhuma análise disponível</p>
+          <p className="text-sm mb-6" style={{ color: "var(--text-muted)" }}>
             {canUpload
               ? "Faça upload do extrato bancário para gerar relatórios financeiros."
               : "Aguardando análise — o responsável pelo upload ainda não enviou dados."}
           </p>
           {canUpload && (
             <Link href="/app/upload" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm"
-              style={{ background: "#00D084", color: "#0F1117" }}>
+              style={{ background: "#00D084", color: "var(--bg-page)" }}>
               <Upload className="w-4 h-4" /> Fazer primeiro upload
             </Link>
           )}
@@ -123,8 +123,8 @@ export default function ReportsPage() {
                 <FileText className="w-6 h-6" style={{ color: "#00D084" }} />
               </div>
               <div>
-                <p className="text-base font-bold" style={{ color: "#F4F4F5" }}>Relatório Completo de Análise</p>
-                <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>
+                <p className="text-base font-bold" style={{ color: "var(--text-primary)" }}>Relatório Completo de Análise</p>
+                <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
                   Score: <span style={{ color: "#00D084", fontWeight: 700 }}>{dashData.analysis.score ?? "—"}/100</span>
                   {" "}· Gerado com dados reais da sua organização
                 </p>
@@ -133,15 +133,15 @@ export default function ReportsPage() {
           </div>
 
           {/* Content items */}
-          <div className="px-6 py-5" style={{ background: "#1A1D27" }}>
-            <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: "#4B4F6A" }}>
+          <div className="px-6 py-5" style={{ background: "var(--bg-card)" }}>
+            <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: "var(--text-faint)" }}>
               O que está incluído
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 mb-6">
               {REPORT_ITEMS.map((item) => (
                 <div key={item} className="flex items-center gap-2">
                   <CheckCircle className="w-3.5 h-3.5 shrink-0" style={{ color: "#00D084" }} />
-                  <span className="text-xs" style={{ color: "#8B8FA8" }}>{item}</span>
+                  <span className="text-xs" style={{ color: "var(--text-muted)" }}>{item}</span>
                 </div>
               ))}
             </div>
@@ -150,22 +150,22 @@ export default function ReportsPage() {
             {status === "idle" && canGenerate && (
               <button onClick={handleGenerate}
                 className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm transition-all hover:opacity-90"
-                style={{ background: "#00D084", color: "#0F1117" }}>
+                style={{ background: "#00D084", color: "var(--bg-page)" }}>
                 <FileText className="w-4 h-4" /> Gerar relatório PDF
               </button>
             )}
             {!canGenerate && (
               <div className="flex items-center gap-3 p-4 rounded-xl"
-                style={{ background: "#212435", border: "1px solid #2A2D3A" }}>
-                <FileText className="w-4 h-4 shrink-0" style={{ color: "#4B4F6A" }} />
-                <p className="text-xs" style={{ color: "#4B4F6A" }}>Você não tem permissão para gerar relatórios.</p>
+                style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)" }}>
+                <FileText className="w-4 h-4 shrink-0" style={{ color: "var(--text-faint)" }} />
+                <p className="text-xs" style={{ color: "var(--text-faint)" }}>Você não tem permissão para gerar relatórios.</p>
               </div>
             )}
             {status === "generating" && (
               <div className="flex items-center justify-center gap-3 py-3.5 rounded-xl"
-                style={{ background: "#212435", border: "1px solid #2A2D3A" }}>
+                style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)" }}>
                 <RefreshCw className="w-4 h-4 animate-spin" style={{ color: "#00D084" }} />
-                <span className="text-sm" style={{ color: "#8B8FA8" }}>Gerando relatório...</span>
+                <span className="text-sm" style={{ color: "var(--text-muted)" }}>Gerando relatório...</span>
               </div>
             )}
             {status === "done" && (
@@ -177,7 +177,7 @@ export default function ReportsPage() {
                 </div>
                 <button onClick={() => setStatus("idle")}
                   className="w-full py-2.5 rounded-xl text-xs font-medium"
-                  style={{ color: "#8B8FA8" }}>
+                  style={{ color: "var(--text-muted)" }}>
                   Gerar novo relatório
                 </button>
               </div>
@@ -187,7 +187,7 @@ export default function ReportsPage() {
                 <p className="text-xs text-center" style={{ color: "#FF4D4F" }}>Erro ao gerar relatório. Tente novamente.</p>
                 <button onClick={() => setStatus("idle")}
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm"
-                  style={{ background: "#212435", color: "#8B8FA8", border: "1px solid #2A2D3A" }}>
+                  style={{ background: "var(--bg-subtle)", color: "var(--text-muted)", border: "1px solid var(--border)" }}>
                   <RefreshCw className="w-4 h-4" /> Tentar novamente
                 </button>
               </div>
@@ -198,14 +198,14 @@ export default function ReportsPage() {
 
       {/* Reports history */}
       {reports.length > 0 && (
-        <div className="rounded-2xl overflow-hidden" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-          <div className="px-5 py-4" style={{ borderBottom: "1px solid #2A2D3A" }}>
-            <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>
+        <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          <div className="px-5 py-4" style={{ borderBottom: "1px solid var(--border)" }}>
+            <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
               Relatórios gerados
-              <span className="ml-2 text-xs font-normal" style={{ color: "#4B4F6A" }}>{reports.length}</span>
+              <span className="ml-2 text-xs font-normal" style={{ color: "var(--text-faint)" }}>{reports.length}</span>
             </p>
           </div>
-          <div className="divide-y" style={{ borderColor: "#212435" }}>
+          <div className="divide-y" style={{ borderColor: "var(--bg-subtle)" }}>
             {reports.map((report) => (
               <div key={report.id} className="flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-4">
                 <div className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0"
@@ -213,17 +213,17 @@ export default function ReportsPage() {
                   <FileText className="w-4 h-4" style={{ color: "#00D084" }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate" style={{ color: "#F4F4F5" }}>{report.title}</p>
-                  <p className="text-xs mt-0.5" style={{ color: "#4B4F6A" }}>{formatDate(report.createdAt)}</p>
+                  <p className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>{report.title}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--text-faint)" }}>{formatDate(report.createdAt)}</p>
                 </div>
                 {report.status === "done" && (
                   <div className="flex items-center gap-2">
                     <button onClick={() => copyLink(report.id)}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                       style={{
-                        background: copiedId === report.id ? "rgba(0,208,132,0.12)" : "#212435",
-                        color: copiedId === report.id ? "#00D084" : "#8B8FA8",
-                        border: `1px solid ${copiedId === report.id ? "rgba(0,208,132,0.2)" : "#2A2D3A"}`,
+                        background: copiedId === report.id ? "rgba(0,208,132,0.12)" : "var(--bg-subtle)",
+                        color: copiedId === report.id ? "#00D084" : "var(--text-muted)",
+                        border: `1px solid ${copiedId === report.id ? "rgba(0,208,132,0.2)" : "var(--border)"}`,
                       }}>
                       {copiedId === report.id
                         ? <><Check className="w-3 h-3" /> Copiado!</>
@@ -256,8 +256,8 @@ export default function ReportsPage() {
             <Crown className="w-4 h-4" style={{ color: "#F59E0B" }} />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-bold mb-1" style={{ color: "#F4F4F5" }}>Relatórios PDF com marca</p>
-            <p className="text-xs mb-3" style={{ color: "#8B8FA8" }}>
+            <p className="text-sm font-bold mb-1" style={{ color: "var(--text-primary)" }}>Relatórios PDF com marca</p>
+            <p className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>
               No plano Pro, gere PDFs com logo da sua empresa, gráficos detalhados e análises comparativas do seu setor.
             </p>
             <div className="flex flex-wrap gap-2 mb-4">
@@ -270,7 +270,7 @@ export default function ReportsPage() {
             </div>
             <Link href="/app/settings#upgrade"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all"
-              style={{ background: "#F59E0B", color: "#0F1117" }}>
+              style={{ background: "#F59E0B", color: "var(--bg-page)" }}>
               <Crown className="w-3.5 h-3.5" /> Fazer upgrade para Pro
             </Link>
           </div>

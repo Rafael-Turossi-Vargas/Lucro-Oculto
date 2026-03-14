@@ -35,10 +35,10 @@ export default function UploadPage() {
       <div className="px-4 sm:px-6 py-8 sm:py-10 max-w-2xl mx-auto w-full">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-black mb-1" style={{ color: "#F4F4F5" }}>
+          <h1 className="text-2xl font-black mb-1" style={{ color: "var(--text-primary)" }}>
             Nova análise financeira
           </h1>
-          <p className="text-sm" style={{ color: "#8B8FA8" }}>
+          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
             Faça upload do extrato bancário para descobrir onde seu dinheiro está indo.
           </p>
         </div>
@@ -50,14 +50,14 @@ export default function UploadPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-8">
           {FEATURES.map(({ icon: Icon, color, title, desc }) => (
             <div key={title} className="rounded-xl p-4 flex items-start gap-3"
-              style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+              style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
               <div className="flex items-center justify-center w-8 h-8 rounded-lg shrink-0"
                 style={{ background: `${color}14` }}>
                 <Icon className="w-4 h-4" style={{ color }} />
               </div>
               <div>
-                <p className="text-sm font-semibold mb-0.5" style={{ color: "#F4F4F5" }}>{title}</p>
-                <p className="text-xs leading-relaxed" style={{ color: "#8B8FA8" }}>{desc}</p>
+                <p className="text-sm font-semibold mb-0.5" style={{ color: "var(--text-primary)" }}>{title}</p>
+                <p className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>{desc}</p>
               </div>
             </div>
           ))}

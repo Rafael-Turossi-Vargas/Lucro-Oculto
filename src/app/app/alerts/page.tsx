@@ -51,23 +51,23 @@ export default function AlertsPage() {
   if (!data?.analysis) {
     return (
       <div className="px-4 sm:px-6 py-6 sm:py-8">
-        <h1 className="text-2xl font-black mb-6" style={{ color: "#F4F4F5" }}>Alertas</h1>
-        <div className="rounded-2xl p-12 text-center" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+        <h1 className="text-2xl font-black mb-6" style={{ color: "var(--text-primary)" }}>Alertas</h1>
+        <div className="rounded-2xl p-12 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
             style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}>
             <Bell className="w-8 h-8" style={{ color: "#F59E0B" }} />
           </div>
-          <p className="text-base font-bold mb-1" style={{ color: "#F4F4F5" }}>Nenhum alerta ativo</p>
-          <p className="text-sm mb-2" style={{ color: "#8B8FA8" }}>
+          <p className="text-base font-bold mb-1" style={{ color: "var(--text-primary)" }}>Nenhum alerta ativo</p>
+          <p className="text-sm mb-2" style={{ color: "var(--text-muted)" }}>
             {canUpload ? "Faça upload do extrato para monitorar alertas financeiros em tempo real." : "Aguardando análise."}
           </p>
-          <p className="text-xs mb-6 px-4" style={{ color: "#4B4F6A" }}>
+          <p className="text-xs mb-6 px-4" style={{ color: "var(--text-faint)" }}>
             Empresas que usam o Lucro Oculto economizam em média{" "}
             <span style={{ color: "#00D084", fontWeight: 700 }}>R$4.800/mês</span>
           </p>
           {canUpload && (
             <Link href="/app/upload" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm"
-              style={{ background: "#00D084", color: "#0F1117" }}>
+              style={{ background: "#00D084", color: "var(--bg-page)" }}>
               <Upload className="w-4 h-4" /> Fazer primeiro upload
             </Link>
           )}
@@ -102,12 +102,12 @@ export default function AlertsPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black" style={{ color: "#F4F4F5" }}>Alertas</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#8B8FA8" }}>
+          <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Alertas</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
             {criticalCount > 0 && (
               <span style={{ color: "#FF4D4F", fontWeight: 700 }}>{criticalCount} crítico{criticalCount > 1 ? "s" : ""}</span>
             )}
-            {criticalCount > 0 && warningCount > 0 && <span style={{ color: "#4B4F6A" }}> · </span>}
+            {criticalCount > 0 && warningCount > 0 && <span style={{ color: "var(--text-faint)" }}> · </span>}
             {warningCount > 0 && (
               <span style={{ color: "#F59E0B" }}>{warningCount} atenção</span>
             )}
@@ -115,7 +115,7 @@ export default function AlertsPage() {
               <span style={{ color: "#00D084" }}>Nenhum alerta ativo</span>
             )}
             {dismissedCount > 0 && (
-              <span style={{ color: "#4B4F6A" }}> · {dismissedCount} dispensado{dismissedCount > 1 ? "s" : ""}</span>
+              <span style={{ color: "var(--text-faint)" }}> · {dismissedCount} dispensado{dismissedCount > 1 ? "s" : ""}</span>
             )}
           </p>
         </div>
@@ -130,13 +130,13 @@ export default function AlertsPage() {
         ].map(({ sev, label, count, icon: Icon }) => (
           <div key={sev} className="rounded-2xl p-4"
             style={{
-              background: "#1A1D27",
-              border: "1px solid #2A2D3A",
+              background: "var(--bg-card)",
+              border: "1px solid var(--border)",
               borderLeft: `3px solid ${sev === "critical" ? "#FF4D4F" : sev === "warning" ? "#F59E0B" : "#00D084"}`,
             }}>
             <div className="flex items-center gap-2 mb-2">
               <Icon className="w-3.5 h-3.5" style={{ color: sev === "critical" ? "#FF4D4F" : sev === "warning" ? "#F59E0B" : "#00D084" }} />
-              <span className="text-xs font-semibold" style={{ color: "#8B8FA8" }}>{label}</span>
+              <span className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>{label}</span>
             </div>
             <p className="text-2xl font-black" style={{ color: sev === "critical" ? "#FF4D4F" : sev === "warning" ? "#F59E0B" : "#00D084" }}>
               {count}
@@ -147,7 +147,7 @@ export default function AlertsPage() {
 
       {/* Filter bar */}
       <div className="flex items-center gap-1.5 p-1 rounded-xl w-fit"
-        style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+        style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         {([
           { value: "all", label: `Todos (${allAlerts.length})` },
           { value: "critical", label: `Críticos (${criticalCount})` },
@@ -156,12 +156,12 @@ export default function AlertsPage() {
           <button key={f.value} onClick={() => setSeverityFilter(f.value)}
             className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
             style={{
-              background: severityFilter === f.value ? "#212435" : "transparent",
+              background: severityFilter === f.value ? "var(--bg-subtle)" : "transparent",
               color: severityFilter === f.value
-                ? (f.value === "critical" ? "#FF4D4F" : f.value === "warning" ? "#F59E0B" : "#F4F4F5")
-                : "#8B8FA8",
+                ? (f.value === "critical" ? "#FF4D4F" : f.value === "warning" ? "#F59E0B" : "var(--text-primary)")
+                : "var(--text-muted)",
               border: severityFilter === f.value
-                ? `1px solid ${f.value === "critical" ? "rgba(255,77,79,0.3)" : f.value === "warning" ? "rgba(245,158,11,0.3)" : "#2A2D3A"}`
+                ? `1px solid ${f.value === "critical" ? "rgba(255,77,79,0.3)" : f.value === "warning" ? "rgba(245,158,11,0.3)" : "var(--border)"}`
                 : "1px solid transparent",
             }}>
             {f.label}
@@ -170,10 +170,10 @@ export default function AlertsPage() {
       </div>
 
       {filteredAlerts.length === 0 && (
-        <div className="rounded-2xl p-10 text-center" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+        <div className="rounded-2xl p-10 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <ShieldCheck className="w-10 h-10 mx-auto mb-3" style={{ color: "#00D084" }} />
-          <p className="text-sm font-medium" style={{ color: "#8B8FA8" }}>Nenhum alerta nesta categoria</p>
-          <p className="text-xs mt-1" style={{ color: "#4B4F6A" }}>Sua situação financeira está limpa por enquanto</p>
+          <p className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>Nenhum alerta nesta categoria</p>
+          <p className="text-xs mt-1" style={{ color: "var(--text-faint)" }}>Sua situação financeira está limpa por enquanto</p>
         </div>
       )}
 
@@ -194,18 +194,18 @@ export default function AlertsPage() {
                 <SevIcon severity={alert.severity} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-1">
-                    <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>{alert.title}</p>
+                    <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{alert.title}</p>
                     {alert.amount !== undefined && alert.amount > 0 && (
                       <span className="text-sm font-black shrink-0 ml-2" style={{ color: "#FF4D4F" }}>
                         {fmt(alert.amount)}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs leading-relaxed" style={{ color: "#8B8FA8" }}>{alert.message}</p>
+                  <p className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>{alert.message}</p>
                 </div>
                 <button onClick={() => setDismissed((prev) => new Set([...prev, alert.id]))}
-                  className="p-1.5 rounded-lg shrink-0 transition-colors hover:bg-[#2A2D3A]"
-                  style={{ color: "#4B4F6A" }} title="Dispensar">
+                  className="p-1.5 rounded-lg shrink-0 transition-colors hover:bg-[var(--border)]"
+                  style={{ color: "var(--text-faint)" }} title="Dispensar">
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -231,18 +231,18 @@ export default function AlertsPage() {
                 <SevIcon severity={alert.severity} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-1">
-                    <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>{alert.title}</p>
+                    <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{alert.title}</p>
                     {alert.amount !== undefined && alert.amount > 0 && (
                       <span className="text-sm font-black shrink-0 ml-2" style={{ color: "#F59E0B" }}>
                         {fmt(alert.amount)}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs leading-relaxed" style={{ color: "#8B8FA8" }}>{alert.message}</p>
+                  <p className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>{alert.message}</p>
                 </div>
                 <button onClick={() => setDismissed((prev) => new Set([...prev, alert.id]))}
-                  className="p-1.5 rounded-lg shrink-0 transition-colors hover:bg-[#2A2D3A]"
-                  style={{ color: "#4B4F6A" }} title="Dispensar">
+                  className="p-1.5 rounded-lg shrink-0 transition-colors hover:bg-[var(--border)]"
+                  style={{ color: "var(--text-faint)" }} title="Dispensar">
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -257,7 +257,7 @@ export default function AlertsPage() {
           style={{ background: "rgba(0,208,132,0.04)", border: "1px solid rgba(0,208,132,0.15)" }}>
           <ShieldCheck className="w-10 h-10 mx-auto mb-3" style={{ color: "#00D084" }} />
           <p className="text-sm font-semibold" style={{ color: "#00D084" }}>Tudo limpo!</p>
-          <p className="text-xs mt-1" style={{ color: "#8B8FA8" }}>Nenhum alerta ativo neste momento</p>
+          <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>Nenhum alerta ativo neste momento</p>
         </div>
       )}
     </div>

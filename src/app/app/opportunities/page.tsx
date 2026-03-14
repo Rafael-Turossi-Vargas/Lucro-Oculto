@@ -6,7 +6,7 @@ import { Lightbulb, CheckCircle, Upload, Download, Zap, Target, TrendingUp, Arro
 import { useAnalysisData } from "@/hooks/useAnalysisData"
 import { CardSkeleton } from "@/components/ui/skeletons"
 
-const IMPACT_COLOR: Record<string, string> = { high: "#00D084", medium: "#F59E0B", low: "#8B8FA8" }
+const IMPACT_COLOR: Record<string, string> = { high: "#00D084", medium: "#F59E0B", low: "var(--text-muted)" }
 const IMPACT_LABEL: Record<string, string> = { high: "Alto", medium: "Médio", low: "Baixo" }
 const DIFF_LABEL: Record<string, string> = { easy: "Fácil", medium: "Médio", hard: "Difícil" }
 const DIFF_COLOR: Record<string, string> = { easy: "#00D084", medium: "#F59E0B", hard: "#FF4D4F" }
@@ -43,20 +43,20 @@ export default function OpportunitiesPage() {
   if (!data?.analysis) {
     return (
       <div className="px-4 sm:px-6 py-6 sm:py-8">
-        <h1 className="text-2xl font-black mb-6" style={{ color: "#F4F4F5" }}>Oportunidades de economia</h1>
-        <div className="rounded-2xl p-12 text-center" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+        <h1 className="text-2xl font-black mb-6" style={{ color: "var(--text-primary)" }}>Oportunidades de economia</h1>
+        <div className="rounded-2xl p-12 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
             style={{ background: "rgba(0,208,132,0.08)", border: "1px solid rgba(0,208,132,0.15)" }}>
             <Lightbulb className="w-8 h-8" style={{ color: "#00D084" }} />
           </div>
-          <p className="text-base font-bold mb-1" style={{ color: "#F4F4F5" }}>Nenhuma oportunidade identificada</p>
-          <p className="text-sm mb-2" style={{ color: "#8B8FA8" }}>Faça upload do extrato para identificar onde você pode economizar.</p>
-          <p className="text-xs mb-6 px-4" style={{ color: "#4B4F6A" }}>
+          <p className="text-base font-bold mb-1" style={{ color: "var(--text-primary)" }}>Nenhuma oportunidade identificada</p>
+          <p className="text-sm mb-2" style={{ color: "var(--text-muted)" }}>Faça upload do extrato para identificar onde você pode economizar.</p>
+          <p className="text-xs mb-6 px-4" style={{ color: "var(--text-faint)" }}>
             Empresas que usam o Lucro Oculto economizam em média{" "}
             <span style={{ color: "#00D084", fontWeight: 700 }}>R$4.800/mês</span>
           </p>
           <Link href="/app/upload" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm"
-            style={{ background: "#00D084", color: "#0F1117" }}>
+            style={{ background: "#00D084", color: "var(--bg-page)" }}>
             <Upload className="w-4 h-4" /> Fazer primeiro upload
           </Link>
         </div>
@@ -104,27 +104,27 @@ export default function OpportunitiesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-black" style={{ color: "#F4F4F5" }}>Oportunidades de economia</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#8B8FA8" }}>
+          <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Oportunidades de economia</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
             {opportunities.length} oportunidades · potencial de{" "}
             <span style={{ color: "#00D084", fontWeight: 700 }}>{fmt(totalEstimate)}/mês</span>
-            <span style={{ color: "#4B4F6A" }}> · {fmt(totalEstimate * 12)}/ano</span>
+            <span style={{ color: "var(--text-faint)" }}> · {fmt(totalEstimate * 12)}/ano</span>
           </p>
         </div>
         {opportunities.length > 0 && (
           <a href="/api/app/export?type=opportunities" download
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium shrink-0"
-            style={{ background: "#212435", color: "#8B8FA8", border: "1px solid #2A2D3A" }}>
+            style={{ background: "var(--bg-subtle)", color: "var(--text-muted)", border: "1px solid var(--border)" }}>
             <Download className="w-4 h-4" /> Exportar CSV
           </a>
         )}
       </div>
 
       {opportunities.length === 0 ? (
-        <div className="rounded-2xl p-10 text-center" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-          <Lightbulb className="w-10 h-10 mx-auto mb-3" style={{ color: "#2A2D3A" }} />
-          <p className="text-sm font-medium" style={{ color: "#8B8FA8" }}>Nenhuma oportunidade identificada</p>
-          <p className="text-xs mt-1" style={{ color: "#4B4F6A" }}>Seus gastos parecem bem otimizados 🎉</p>
+        <div className="rounded-2xl p-10 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          <Lightbulb className="w-10 h-10 mx-auto mb-3" style={{ color: "var(--border)" }} />
+          <p className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>Nenhuma oportunidade identificada</p>
+          <p className="text-xs mt-1" style={{ color: "var(--text-faint)" }}>Seus gastos parecem bem otimizados 🎉</p>
         </div>
       ) : (
         <>
@@ -132,52 +132,52 @@ export default function OpportunitiesPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Progress captured */}
             <div className="rounded-2xl p-5 col-span-1"
-              style={{ background: "#1A1D27", border: "1px solid #2A2D3A", borderLeft: "3px solid #00D084" }}>
+              style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: "3px solid #00D084" }}>
               <div className="flex items-center gap-2 mb-3">
                 <TrendingUp className="w-4 h-4" style={{ color: "#00D084" }} />
-                <span className="text-xs font-semibold" style={{ color: "#8B8FA8" }}>Economia capturada</span>
+                <span className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>Economia capturada</span>
               </div>
               <p className="text-2xl font-black mb-0.5" style={{ color: "#00D084" }}>{fmt(capturedEstimate)}</p>
-              <p className="text-xs mb-3" style={{ color: "#4B4F6A" }}>por mês · {fmt(capturedEstimate * 12)}/ano</p>
-              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "#212435" }}>
+              <p className="text-xs mb-3" style={{ color: "var(--text-faint)" }}>por mês · {fmt(capturedEstimate * 12)}/ano</p>
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--bg-subtle)" }}>
                 <div className="h-full rounded-full transition-all duration-500"
                   style={{ width: `${pct}%`, background: "#00D084" }} />
               </div>
-              <p className="text-[10px] mt-1.5" style={{ color: "#4B4F6A" }}>
+              <p className="text-[10px] mt-1.5" style={{ color: "var(--text-faint)" }}>
                 {done.size} de {opportunities.length} implementadas · {pct.toFixed(0)}%
               </p>
             </div>
 
             {/* Quick wins */}
             <div className="rounded-2xl p-5"
-              style={{ background: "#1A1D27", border: "1px solid #2A2D3A", borderLeft: "3px solid #F59E0B" }}>
+              style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: "3px solid #F59E0B" }}>
               <div className="flex items-center gap-2 mb-3">
                 <Zap className="w-4 h-4" style={{ color: "#F59E0B" }} />
-                <span className="text-xs font-semibold" style={{ color: "#8B8FA8" }}>Vitórias rápidas</span>
+                <span className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>Vitórias rápidas</span>
               </div>
               <p className="text-2xl font-black mb-0.5" style={{ color: "#F59E0B" }}>{easyWins.length}</p>
-              <p className="text-xs mb-3" style={{ color: "#4B4F6A" }}>fáceis de implementar</p>
-              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "#212435" }}>
+              <p className="text-xs mb-3" style={{ color: "var(--text-faint)" }}>fáceis de implementar</p>
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--bg-subtle)" }}>
                 <div className="h-full rounded-full"
                   style={{ width: `${opportunities.length > 0 ? (easyWins.length / opportunities.length) * 100 : 0}%`, background: "#F59E0B" }} />
               </div>
-              <p className="text-[10px] mt-1.5" style={{ color: "#4B4F6A" }}>{fmt(easyTotal)}/mês de potencial</p>
+              <p className="text-[10px] mt-1.5" style={{ color: "var(--text-faint)" }}>{fmt(easyTotal)}/mês de potencial</p>
             </div>
 
             {/* Pending */}
             <div className="rounded-2xl p-5"
-              style={{ background: "#1A1D27", border: "1px solid #2A2D3A", borderLeft: "3px solid #8B8FA8" }}>
+              style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: "3px solid var(--text-muted)" }}>
               <div className="flex items-center gap-2 mb-3">
-                <Target className="w-4 h-4" style={{ color: "#8B8FA8" }} />
-                <span className="text-xs font-semibold" style={{ color: "#8B8FA8" }}>Pendentes</span>
+                <Target className="w-4 h-4" style={{ color: "var(--text-muted)" }} />
+                <span className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>Pendentes</span>
               </div>
-              <p className="text-2xl font-black mb-0.5" style={{ color: "#F4F4F5" }}>{pendingCount}</p>
-              <p className="text-xs mb-3" style={{ color: "#4B4F6A" }}>ainda não implementadas</p>
-              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "#212435" }}>
+              <p className="text-2xl font-black mb-0.5" style={{ color: "var(--text-primary)" }}>{pendingCount}</p>
+              <p className="text-xs mb-3" style={{ color: "var(--text-faint)" }}>ainda não implementadas</p>
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--bg-subtle)" }}>
                 <div className="h-full rounded-full"
-                  style={{ width: `${opportunities.length > 0 ? (pendingCount / opportunities.length) * 100 : 0}%`, background: "#8B8FA8" }} />
+                  style={{ width: `${opportunities.length > 0 ? (pendingCount / opportunities.length) * 100 : 0}%`, background: "var(--text-muted)" }} />
               </div>
-              <p className="text-[10px] mt-1.5" style={{ color: "#4B4F6A" }}>
+              <p className="text-[10px] mt-1.5" style={{ color: "var(--text-faint)" }}>
                 {fmt(opportunities.filter(o => !done.has(o.id)).reduce((s, o) => s + o.savingsEstimate, 0))}/mês restante
               </p>
             </div>
@@ -188,7 +188,7 @@ export default function OpportunitiesPage() {
             <div className="flex items-center gap-3 p-4 rounded-xl"
               style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.2)" }}>
               <Zap className="w-4 h-4 shrink-0" style={{ color: "#F59E0B" }} />
-              <p className="text-sm flex-1" style={{ color: "#F4F4F5" }}>
+              <p className="text-sm flex-1" style={{ color: "var(--text-primary)" }}>
                 <span className="font-bold" style={{ color: "#F59E0B" }}>
                   {easyWins.filter(o => !done.has(o.id)).length} vitória{easyWins.filter(o => !done.has(o.id)).length > 1 ? "s" : ""} rápida{easyWins.filter(o => !done.has(o.id)).length > 1 ? "s" : ""}
                 </span>
@@ -206,7 +206,7 @@ export default function OpportunitiesPage() {
           {/* Filter + Sort bar */}
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center gap-1.5 rounded-xl p-1"
-              style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+              style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
               {([
                 { value: "all", label: `Todas (${opportunities.length})` },
                 { value: "easy", label: `Vitórias rápidas (${easyWins.length})` },
@@ -215,9 +215,9 @@ export default function OpportunitiesPage() {
                 <button key={f.value} onClick={() => setFilter(f.value)}
                   className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                   style={{
-                    background: filter === f.value ? "#212435" : "transparent",
-                    color: filter === f.value ? "#F4F4F5" : "#8B8FA8",
-                    border: filter === f.value ? "1px solid #2A2D3A" : "1px solid transparent",
+                    background: filter === f.value ? "var(--bg-subtle)" : "transparent",
+                    color: filter === f.value ? "var(--text-primary)" : "var(--text-muted)",
+                    border: filter === f.value ? "1px solid var(--border)" : "1px solid transparent",
                   }}>
                   {f.label}
                 </button>
@@ -225,7 +225,7 @@ export default function OpportunitiesPage() {
             </div>
             <select value={sortBy} onChange={(e) => setSortBy(e.target.value as "savings" | "difficulty" | "impact")}
               className="text-xs px-3 py-2 rounded-xl ml-auto outline-none"
-              style={{ background: "#1A1D27", border: "1px solid #2A2D3A", color: "#8B8FA8" }}>
+              style={{ background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--text-muted)" }}>
               <option value="savings">Maior economia</option>
               <option value="difficulty">Mais fácil primeiro</option>
               <option value="impact">Maior impacto</option>
@@ -240,8 +240,8 @@ export default function OpportunitiesPage() {
                 <div key={opp.id}
                   className="rounded-2xl p-5 transition-all"
                   style={{
-                    background: isDone ? "rgba(0,208,132,0.04)" : "#1A1D27",
-                    border: isDone ? "1px solid rgba(0,208,132,0.2)" : "1px solid #2A2D3A",
+                    background: isDone ? "rgba(0,208,132,0.04)" : "var(--bg-card)",
+                    border: isDone ? "1px solid rgba(0,208,132,0.2)" : "1px solid var(--border)",
                     borderLeft: `3px solid ${isDone ? "#00D084" : IMPACT_COLOR[opp.impact]}`,
                     opacity: isDone ? 0.75 : 1,
                   }}>
@@ -260,7 +260,7 @@ export default function OpportunitiesPage() {
                       <div className="flex items-start justify-between gap-3 mb-1.5">
                         <div className="flex items-center gap-2 flex-wrap min-w-0">
                           <p className="text-sm font-semibold"
-                            style={{ color: isDone ? "#8B8FA8" : "#F4F4F5", textDecoration: isDone ? "line-through" : "none" }}>
+                            style={{ color: isDone ? "var(--text-muted)" : "var(--text-primary)", textDecoration: isDone ? "line-through" : "none" }}>
                             {opp.title}
                           </p>
                           {opp.difficulty === "easy" && !isDone && (
@@ -271,26 +271,26 @@ export default function OpportunitiesPage() {
                           )}
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-base font-black" style={{ color: isDone ? "#8B8FA8" : "#00D084" }}>
+                          <p className="text-base font-black" style={{ color: isDone ? "var(--text-muted)" : "#00D084" }}>
                             +{fmt(opp.savingsEstimate)}/mês
                           </p>
-                          <p className="text-[10px] font-semibold" style={{ color: isDone ? "#4B4F6A" : "#00D084", opacity: 0.6 }}>
+                          <p className="text-[10px] font-semibold" style={{ color: isDone ? "var(--text-faint)" : "#00D084", opacity: 0.6 }}>
                             +{fmt(opp.savingsEstimate * 12)}/ano
                           </p>
                         </div>
                       </div>
 
                       {/* Description */}
-                      <p className="text-xs leading-relaxed mb-3" style={{ color: "#8B8FA8" }}>{opp.description}</p>
+                      <p className="text-xs leading-relaxed mb-3" style={{ color: "var(--text-muted)" }}>{opp.description}</p>
 
                       {/* Action box */}
                       {opp.action && (
                         <div className="rounded-xl px-3 py-2.5 mb-3"
-                          style={{ background: "#212435", border: "1px solid #2A2D3A" }}>
-                          <p className="text-[10px] font-semibold mb-0.5" style={{ color: "#4B4F6A", textTransform: "uppercase", letterSpacing: "0.6px" }}>
+                          style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)" }}>
+                          <p className="text-[10px] font-semibold mb-0.5" style={{ color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.6px" }}>
                             Como fazer
                           </p>
-                          <p className="text-xs" style={{ color: "#8B8FA8" }}>{opp.action}</p>
+                          <p className="text-xs" style={{ color: "var(--text-muted)" }}>{opp.action}</p>
                         </div>
                       )}
 
@@ -307,9 +307,9 @@ export default function OpportunitiesPage() {
                         <button onClick={() => toggle(opp.id)}
                           className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                           style={{
-                            background: isDone ? "rgba(0,208,132,0.1)" : "#212435",
-                            color: isDone ? "#00D084" : "#8B8FA8",
-                            border: isDone ? "1px solid rgba(0,208,132,0.2)" : "1px solid #2A2D3A",
+                            background: isDone ? "rgba(0,208,132,0.1)" : "var(--bg-subtle)",
+                            color: isDone ? "#00D084" : "var(--text-muted)",
+                            border: isDone ? "1px solid rgba(0,208,132,0.2)" : "1px solid var(--border)",
                           }}>
                           <CheckCircle className="w-3.5 h-3.5" />
                           {isDone ? "Concluída — desfazer" : "Marcar como feita"}
@@ -326,21 +326,21 @@ export default function OpportunitiesPage() {
           <div className="rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-3"
             style={{ background: "rgba(0,208,132,0.04)", border: "1px solid rgba(0,208,132,0.12)" }}>
             <div>
-              <p className="text-xs font-semibold mb-0.5" style={{ color: "#8B8FA8" }}>
+              <p className="text-xs font-semibold mb-0.5" style={{ color: "var(--text-muted)" }}>
                 {done.size > 0 ? "Progresso atual" : "Potencial total"}
               </p>
               {done.size > 0 ? (
-                <p className="text-sm" style={{ color: "#F4F4F5" }}>
+                <p className="text-sm" style={{ color: "var(--text-primary)" }}>
                   Você já capturou{" "}
                   <span className="font-black" style={{ color: "#00D084" }}>{fmt(capturedEstimate)}/mês</span>
                   {" "}·{" "}
                   <span className="font-bold" style={{ color: "#00D084" }}>{fmt(capturedEstimate * 12)}/ano</span>
                   {pendingCount > 0 && (
-                    <span style={{ color: "#4B4F6A" }}> · {pendingCount} ainda pendentes</span>
+                    <span style={{ color: "var(--text-faint)" }}> · {pendingCount} ainda pendentes</span>
                   )}
                 </p>
               ) : (
-                <p className="text-sm" style={{ color: "#F4F4F5" }}>
+                <p className="text-sm" style={{ color: "var(--text-primary)" }}>
                   Implementar tudo pode gerar{" "}
                   <span className="font-black" style={{ color: "#00D084" }}>{fmt(totalEstimate)}/mês</span>
                   {" "}·{" "}
@@ -350,7 +350,7 @@ export default function OpportunitiesPage() {
             </div>
             <Link href={`/app/analysis/${data.analysis.id}#actions`}
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold shrink-0"
-              style={{ background: "#00D084", color: "#0F1117" }}>
+              style={{ background: "#00D084", color: "var(--bg-page)" }}>
               Ver plano completo <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>

@@ -81,9 +81,9 @@ export function PricingSection() {
       id="pricing"
       className="py-12 relative overflow-hidden"
       style={{
-        background: "linear-gradient(180deg, #131620 0%, #1A1D27 100%)",
-        borderTop: "1px solid #2A2D3A",
-        borderBottom: "1px solid #2A2D3A",
+        background: "linear-gradient(180deg, var(--bg-page) 0%, var(--bg-card) 100%)",
+        borderTop: "1px solid var(--border)",
+        borderBottom: "1px solid var(--border)",
       }}
     >
       {/* Green glow top-center */}
@@ -114,7 +114,7 @@ export function PricingSection() {
           </span>
           <h2
             className="text-2xl sm:text-3xl font-extrabold mb-2"
-            style={{ color: "#F4F4F5", letterSpacing: "-0.02em" }}
+            style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}
           >
             Quanto custa{" "}
             <span
@@ -128,7 +128,7 @@ export function PricingSection() {
               perder R$ 5.000/mês?
             </span>
           </h2>
-          <p className="text-sm max-w-md mx-auto mb-4" style={{ color: "#8B8FA8" }}>
+          <p className="text-sm max-w-md mx-auto mb-4" style={{ color: "var(--text-muted)" }}>
             O diagnóstico custa muito menos do que o desperdício que ele elimina.
           </p>
 
@@ -142,9 +142,9 @@ export function PricingSection() {
             }}
           >
             <TrendingUp className="w-4 h-4 shrink-0" style={{ color: "#00D084" }} />
-            <p className="text-sm font-medium" style={{ color: "#D4D4D8" }}>
+            <p className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>
               ROI típico: <span style={{ color: "#F59E0B", fontWeight: 700 }}>R$97/mês</span>
-              <span style={{ color: "#4B4F6A" }}> → </span>
+              <span style={{ color: "var(--text-faint)" }}> → </span>
               <span style={{ color: "#00D084", fontWeight: 700 }}>R$2.400+ em economia identificada</span>
             </p>
           </div>
@@ -154,15 +154,15 @@ export function PricingSection() {
             <div
               className="inline-flex items-center p-1 rounded-full"
               style={{
-                background: "#0D0F18",
-                border: "1px solid #2A2D3A",
+                background: "var(--bg-page)",
+                border: "1px solid var(--border)",
               }}
             >
               <button
                 className="px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200"
                 style={{
-                  background: !annual ? "#1A1D27" : "transparent",
-                  color: !annual ? "#F4F4F5" : "#4B4F6A",
+                  background: !annual ? "var(--bg-card)" : "transparent",
+                  color: !annual ? "var(--text-primary)" : "var(--text-faint)",
                   boxShadow: !annual ? "0 1px 6px rgba(0,0,0,0.5)" : "none",
                 }}
                 onClick={() => setAnnual(false)}
@@ -172,8 +172,8 @@ export function PricingSection() {
               <button
                 className="px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 flex items-center gap-2"
                 style={{
-                  background: annual ? "#1A1D27" : "transparent",
-                  color: annual ? "#F4F4F5" : "#4B4F6A",
+                  background: annual ? "var(--bg-card)" : "transparent",
+                  color: annual ? "var(--text-primary)" : "var(--text-faint)",
                   boxShadow: annual ? "0 1px 6px rgba(0,0,0,0.5)" : "none",
                 }}
                 onClick={() => setAnnual(true)}
@@ -207,7 +207,7 @@ export function PricingSection() {
                   key={i}
                   className="relative rounded-2xl flex flex-col"
                   style={{
-                    background: "linear-gradient(160deg, rgba(0,208,132,0.09) 0%, rgba(0,208,132,0.03) 50%, #131620 100%)",
+                    background: "linear-gradient(160deg, rgba(0,208,132,0.09) 0%, rgba(0,208,132,0.03) 50%, var(--bg-page) 100%)",
                     border: "1px solid rgba(0,208,132,0.45)",
                     boxShadow: "0 0 60px rgba(0,208,132,0.14), 0 0 0 1px rgba(0,208,132,0.08), 0 20px 60px rgba(0,0,0,0.5)",
                     padding: "20px 20px 20px",
@@ -225,7 +225,7 @@ export function PricingSection() {
                       className="flex items-center gap-1.5 px-4 py-1 rounded-full text-xs font-bold whitespace-nowrap"
                       style={{
                         background: "linear-gradient(135deg, #00D084 0%, #00B872 100%)",
-                        color: "#0A0C14",
+                        color: "var(--bg-page)",
                         boxShadow: "0 4px 16px rgba(0,208,132,0.45)",
                       }}
                     >
@@ -247,8 +247,8 @@ export function PricingSection() {
                       <Icon className="w-4 h-4" style={{ color: "#00D084" }} />
                     </div>
                     <div>
-                      <p className="font-bold text-base" style={{ color: "#F4F4F5" }}>{plan.name}</p>
-                      <p className="text-xs" style={{ color: "#8B8FA8" }}>{plan.description}</p>
+                      <p className="font-bold text-base" style={{ color: "var(--text-primary)" }}>{plan.name}</p>
+                      <p className="text-xs" style={{ color: "var(--text-muted)" }}>{plan.description}</p>
                     </div>
                   </div>
 
@@ -257,11 +257,11 @@ export function PricingSection() {
                     <div className="flex items-baseline gap-1">
                       <span
                         className="text-3xl font-extrabold font-mono"
-                        style={{ color: "#F4F4F5", letterSpacing: "-0.02em" }}
+                        style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}
                       >
                         {displayPrice}
                       </span>
-                      <span className="text-sm font-medium" style={{ color: "#8B8FA8" }}>/mês</span>
+                      <span className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>/mês</span>
                     </div>
                     {annual && (
                       <p className="text-xs mt-1 font-medium" style={{ color: "#00D084" }}>
@@ -276,7 +276,7 @@ export function PricingSection() {
                     className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-150 mb-1 hover:scale-[1.02] active:scale-[0.98]"
                     style={{
                       background: "linear-gradient(135deg, #00D084 0%, #00B872 100%)",
-                      color: "#0A0C14",
+                      color: "var(--bg-page)",
                       boxShadow: "0 4px 24px rgba(0,208,132,0.5), 0 1px 0 rgba(255,255,255,0.1) inset",
                     }}
                   >
@@ -294,7 +294,7 @@ export function PricingSection() {
                     {plan.features.map((feat, j) => (
                       <div key={j} className="flex items-center gap-2">
                         <Check className="w-3 h-3 shrink-0" style={{ color: "#00D084" }} />
-                        <span className="text-xs" style={{ color: "#D4D4D8" }}>{feat}</span>
+                        <span className="text-xs" style={{ color: "var(--text-muted)" }}>{feat}</span>
                       </div>
                     ))}
                   </div>
@@ -307,8 +307,8 @@ export function PricingSection() {
                 key={i}
                 className="relative rounded-2xl p-4 flex flex-col transition-all duration-200 hover:-translate-y-1"
                 style={{
-                  background: "#1A1D27",
-                  border: "1px solid #2A2D3A",
+                  background: "var(--bg-card)",
+                  border: "1px solid var(--border)",
                   borderTop: `2px solid ${plan.color}30`,
                 }}
                 onMouseOver={(e) => {
@@ -316,7 +316,7 @@ export function PricingSection() {
                   e.currentTarget.style.boxShadow = `0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px ${plan.color}20`
                 }}
                 onMouseOut={(e) => {
-                  e.currentTarget.style.borderColor = "#2A2D3A"
+                  e.currentTarget.style.borderColor = "var(--border)"
                   e.currentTarget.style.boxShadow = "none"
                 }}
               >
@@ -332,23 +332,23 @@ export function PricingSection() {
                     <Icon className="w-4 h-4" style={{ color: plan.color }} />
                   </div>
                   <div>
-                    <p className="font-bold text-sm" style={{ color: "#F4F4F5" }}>{plan.name}</p>
-                    <p className="text-xs" style={{ color: "#4B4F6A" }}>{plan.description}</p>
+                    <p className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>{plan.name}</p>
+                    <p className="text-xs" style={{ color: "var(--text-faint)" }}>{plan.description}</p>
                   </div>
                 </div>
 
                 {/* Price */}
                 <div className="mb-3">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-2xl font-extrabold font-mono" style={{ color: "#F4F4F5" }}>
+                    <span className="text-2xl font-extrabold font-mono" style={{ color: "var(--text-primary)" }}>
                       {displayPrice}
                     </span>
                     {plan.price.monthly > 0 && (
-                      <span className="text-xs" style={{ color: "#8B8FA8" }}>/mês</span>
+                      <span className="text-xs" style={{ color: "var(--text-muted)" }}>/mês</span>
                     )}
                   </div>
                   {annual && plan.price.annual > 0 && (
-                    <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
                       R${plan.price.annual}/ano
                     </p>
                   )}
@@ -357,28 +357,28 @@ export function PricingSection() {
                 {/* CTA */}
                 <Link
                   href={plan.href}
-                  className="block text-center px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-150 mb-1 hover:bg-white/5"
+                  className="block text-center px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-150 mb-1"
                   style={{
-                    background: "transparent",
-                    color: "#D4D4D8",
-                    border: "1px solid #2A2D3A",
+                    background: "var(--bg-subtle)",
+                    color: "var(--text-primary)",
+                    border: "1px solid var(--border)",
                   }}
                 >
                   {plan.cta}
                 </Link>
-                <p className="text-center text-xs mb-3" style={{ color: "#4B4F6A" }}>
+                <p className="text-center text-xs mb-3" style={{ color: "var(--text-faint)" }}>
                   {plan.ctaNote}
                 </p>
 
                 {/* Divider */}
-                <div className="mb-2.5 h-px" style={{ background: "#2A2D3A" }} />
+                <div className="mb-2.5 h-px" style={{ background: "var(--border)" }} />
 
                 {/* Features */}
                 <div className="space-y-1.5 flex-1">
                   {plan.features.map((feat, j) => (
                     <div key={j} className="flex items-center gap-2">
                       <Check className="w-3.5 h-3.5 shrink-0" style={{ color: plan.color }} />
-                      <span className="text-xs" style={{ color: "#8B8FA8" }}>{feat}</span>
+                      <span className="text-xs" style={{ color: "var(--text-muted)" }}>{feat}</span>
                     </div>
                   ))}
                 </div>
@@ -388,7 +388,7 @@ export function PricingSection() {
         </div>
 
         {/* Bottom trust */}
-        <p className="text-center mt-4 text-xs" style={{ color: "#4B4F6A" }}>
+        <p className="text-center mt-4 text-xs" style={{ color: "var(--text-faint)" }}>
           Sem taxa de setup · Cancele quando quiser · Dados criptografados
         </p>
       </div>

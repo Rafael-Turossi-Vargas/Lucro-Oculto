@@ -120,8 +120,8 @@ function ProfileTab() {
   return (
     <div className="space-y-6">
       {/* Avatar + name */}
-      <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-        <div className="flex items-center gap-4 mb-6 pb-6" style={{ borderBottom: "1px solid #2A2D3A" }}>
+      <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+        <div className="flex items-center gap-4 mb-6 pb-6" style={{ borderBottom: "1px solid var(--border)" }}>
           <div
             className="flex items-center justify-center w-16 h-16 rounded-2xl text-xl font-black shrink-0"
             style={{ background: "rgba(0,208,132,0.12)", border: "2px solid rgba(0,208,132,0.25)", color: "#00D084" }}
@@ -129,14 +129,14 @@ function ProfileTab() {
             {initials || <User className="w-7 h-7" />}
           </div>
           <div>
-            <p className="text-base font-bold" style={{ color: "#F4F4F5" }}>{name || "Seu nome"}</p>
-            <p className="text-sm" style={{ color: "#8B8FA8" }}>{session?.user?.email}</p>
+            <p className="text-base font-bold" style={{ color: "var(--text-primary)" }}>{name || "Seu nome"}</p>
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>{session?.user?.email}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "#4B4F6A" }}>
+            <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>
               Nome completo
             </label>
             <input
@@ -144,13 +144,13 @@ function ProfileTab() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all"
-              style={{ background: "#212435", border: "1px solid #2A2D3A", color: "#F4F4F5" }}
+              style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
               onFocus={(e) => (e.target.style.borderColor = "#00D084")}
-              onBlur={(e) => (e.target.style.borderColor = "#2A2D3A")}
+              onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "#4B4F6A" }}>
+            <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>
               Email
             </label>
             <div className="relative">
@@ -159,28 +159,28 @@ function ProfileTab() {
                 value={session?.user?.email ?? ""}
                 readOnly
                 className="w-full px-4 py-3 pr-10 rounded-xl text-sm"
-                style={{ background: "#212435", border: "1px solid #2A2D3A", color: "#4B4F6A", cursor: "not-allowed" }}
+                style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)", color: "var(--text-faint)", cursor: "not-allowed" }}
               />
-              <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "#4B4F6A" }} />
+              <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "var(--text-faint)" }} />
             </div>
           </div>
         </div>
       </div>
 
       {/* Company */}
-      <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+      <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <div className="flex items-center gap-3 mb-5">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ background: "#212435" }}>
-            <Building2 className="w-4 h-4" style={{ color: "#8B8FA8" }} />
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ background: "var(--bg-subtle)" }}>
+            <Building2 className="w-4 h-4" style={{ color: "var(--text-muted)" }} />
           </div>
           <div>
-            <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Empresa</p>
-            <p className="text-xs" style={{ color: "#4B4F6A" }}>{isOwner ? "Dados da organização" : "Dados da organização (somente leitura)"}</p>
+            <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Empresa</p>
+            <p className="text-xs" style={{ color: "var(--text-faint)" }}>{isOwner ? "Dados da organização" : "Dados da organização (somente leitura)"}</p>
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "#4B4F6A" }}>
+            <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>
               Nome da empresa
             </label>
             <div className="relative">
@@ -191,15 +191,15 @@ function ProfileTab() {
                 readOnly={!isOwner}
                 placeholder="Minha Empresa Ltda"
                 className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all"
-                style={{ background: "#212435", border: "1px solid #2A2D3A", color: isOwner ? "#F4F4F5" : "#4B4F6A", cursor: isOwner ? "text" : "not-allowed" }}
+                style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)", color: isOwner ? "var(--text-primary)" : "var(--text-faint)", cursor: isOwner ? "text" : "not-allowed" }}
                 onFocus={isOwner ? (e) => (e.target.style.borderColor = "#00D084") : undefined}
-                onBlur={isOwner ? (e) => (e.target.style.borderColor = "#2A2D3A") : undefined}
+                onBlur={isOwner ? (e) => (e.target.style.borderColor = "var(--border)") : undefined}
               />
-              {!isOwner && <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "#4B4F6A" }} />}
+              {!isOwner && <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "var(--text-faint)" }} />}
             </div>
           </div>
           <div>
-            <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "#4B4F6A" }}>
+            <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>
               Setor / Nicho
             </label>
             <div className="relative">
@@ -210,11 +210,11 @@ function ProfileTab() {
                 readOnly={!isOwner}
                 placeholder="Ex: Agência, Academia..."
                 className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all"
-                style={{ background: "#212435", border: "1px solid #2A2D3A", color: isOwner ? "#F4F4F5" : "#4B4F6A", cursor: isOwner ? "text" : "not-allowed" }}
+                style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)", color: isOwner ? "var(--text-primary)" : "var(--text-faint)", cursor: isOwner ? "text" : "not-allowed" }}
                 onFocus={isOwner ? (e) => (e.target.style.borderColor = "#00D084") : undefined}
-                onBlur={isOwner ? (e) => (e.target.style.borderColor = "#2A2D3A") : undefined}
+                onBlur={isOwner ? (e) => (e.target.style.borderColor = "var(--border)") : undefined}
               />
-              {!isOwner && <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "#4B4F6A" }} />}
+              {!isOwner && <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "var(--text-faint)" }} />}
             </div>
           </div>
         </div>
@@ -222,14 +222,14 @@ function ProfileTab() {
 
       {/* Save */}
       <div className="flex items-center justify-between pt-2">
-        <p className="text-xs" style={{ color: error ? "#FF4D4F" : saved ? "#00D084" : "#4B4F6A" }}>
+        <p className="text-xs" style={{ color: error ? "#FF4D4F" : saved ? "#00D084" : "var(--text-faint)" }}>
           {error || (saved ? "Alterações salvas com sucesso." : "")}
         </p>
         <button
           onClick={handleSave}
           disabled={saving}
           className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all disabled:opacity-60"
-          style={{ background: "#00D084", color: "#0F1117" }}
+          style={{ background: "#00D084", color: "var(--bg-page)" }}
         >
           {saving ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> Salvando...</>
@@ -279,27 +279,27 @@ function PlanUpgradeCard({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <p className="text-base font-black" style={{ color: "#F4F4F5" }}>{label}</p>
+              <p className="text-base font-black" style={{ color: "var(--text-primary)" }}>{label}</p>
               {badge && (
-                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider" style={{ background: accentColor, color: "#0F1117" }}>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider" style={{ background: accentColor, color: "var(--bg-page)" }}>
                   {badge}
                 </span>
               )}
             </div>
-            <p className="text-xs" style={{ color: "#8B8FA8" }}>{description}</p>
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>{description}</p>
           </div>
         </div>
         <div className="text-right shrink-0">
           <p className="text-2xl font-black" style={{ color: accentColor }}>R${price}</p>
-          <p className="text-xs" style={{ color: "#8B8FA8" }}>por mês</p>
+          <p className="text-xs" style={{ color: "var(--text-muted)" }}>por mês</p>
         </div>
       </div>
-      <div className="px-6 py-5" style={{ background: "#1A1D27" }}>
+      <div className="px-6 py-5" style={{ background: "var(--bg-card)" }}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-6">
           {features.map((f) => (
             <div key={f} className="flex items-center gap-2.5">
               <Sparkles className="w-3.5 h-3.5 shrink-0" style={{ color: accentColor }} />
-              <span className="text-xs" style={{ color: "#8B8FA8" }}>{f}</span>
+              <span className="text-xs" style={{ color: "var(--text-muted)" }}>{f}</span>
             </div>
           ))}
         </div>
@@ -310,7 +310,7 @@ function PlanUpgradeCard({
           onClick={() => onUpgrade(targetPlan)}
           disabled={loading}
           className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm transition-all disabled:opacity-70"
-          style={{ background: accentColor, color: "#0F1117" }}
+          style={{ background: accentColor, color: "var(--bg-page)" }}
         >
           {loading ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> Redirecionando...</>
@@ -318,7 +318,7 @@ function PlanUpgradeCard({
             <>{targetPlan === "premium" ? <Building2 className="w-4 h-4" /> : <Crown className="w-4 h-4" />} Fazer upgrade para {label} — R${price}/mês</>
           )}
         </button>
-        <p className="text-center text-xs mt-2" style={{ color: "#4B4F6A" }}>
+        <p className="text-center text-xs mt-2" style={{ color: "var(--text-faint)" }}>
           Cancele a qualquer momento. Sem taxa de cancelamento.
         </p>
       </div>
@@ -390,7 +390,7 @@ function PlanTab({ showUpgradedBanner }: { showUpgradedBanner: boolean }) {
           <CheckCircle className="w-5 h-5 shrink-0" style={{ color: "#00D084" }} />
           <div>
             <p className="text-sm font-bold" style={{ color: "#00D084" }}>Upgrade realizado com sucesso!</p>
-            <p className="text-xs" style={{ color: "#8B8FA8" }}>Seu novo plano está ativo. Aproveite todas as funcionalidades.</p>
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>Seu novo plano está ativo. Aproveite todas as funcionalidades.</p>
           </div>
         </div>
       )}
@@ -403,7 +403,7 @@ function PlanTab({ showUpgradedBanner }: { showUpgradedBanner: boolean }) {
             <p className="text-sm font-bold" style={{ color: "#F59E0B" }}>
               {trialDaysLeft > 0 ? `Trial Pro — ${trialDaysLeft} dia${trialDaysLeft !== 1 ? "s" : ""} restante${trialDaysLeft !== 1 ? "s" : ""}` : "Trial Pro — expira hoje"}
             </p>
-            <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
               Você está aproveitando todos os recursos Pro gratuitamente. Assine antes de expirar para não perder o acesso.
             </p>
           </div>
@@ -423,27 +423,27 @@ function PlanTab({ showUpgradedBanner }: { showUpgradedBanner: boolean }) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
-            <p className="text-sm font-bold" style={{ color: "#F4F4F5" }}>{currentPlanLabel}</p>
+            <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{currentPlanLabel}</p>
             <span className="text-[10px] px-1.5 py-0.5 rounded font-semibold" style={{ background: `${planColor}20`, color: planColor }}>
               Plano atual
             </span>
           </div>
-          <p className="text-xs" style={{ color: "#8B8FA8" }}>{currentPlanDesc}</p>
+          <p className="text-xs" style={{ color: "var(--text-muted)" }}>{currentPlanDesc}</p>
         </div>
         <div className="text-right shrink-0">
-          <p className="text-lg font-black" style={{ color: "#F4F4F5" }}>{currentPlanPrice}</p>
-          <p className="text-xs" style={{ color: "#4B4F6A" }}>{currentPlanPriceLabel}</p>
+          <p className="text-lg font-black" style={{ color: "var(--text-primary)" }}>{currentPlanPrice}</p>
+          <p className="text-xs" style={{ color: "var(--text-faint)" }}>{currentPlanPriceLabel}</p>
         </div>
       </div>
 
       {/* Comparativo de planos para free users */}
       {isFree && (
-        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #2A2D3A" }}>
-          <div className="px-5 py-4" style={{ background: "#212435", borderBottom: "1px solid #2A2D3A" }}>
-            <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>O que você está perdendo no plano Grátis</p>
+        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+          <div className="px-5 py-4" style={{ background: "var(--bg-subtle)", borderBottom: "1px solid var(--border)" }}>
+            <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>O que você está perdendo no plano Grátis</p>
           </div>
           <div className="overflow-x-auto">
-            <div className="grid grid-cols-3 divide-x min-w-[360px]" style={{ background: "#1A1D27", borderColor: "#2A2D3A" }}>
+            <div className="grid grid-cols-3 divide-x min-w-[360px]" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
               {[
                 { label: "Uploads/mês", free: "1", pro: "Ilimitado", premium: "Ilimitado" },
                 { label: "Transações", free: "200", pro: "10.000", premium: "50.000" },
@@ -453,25 +453,25 @@ function PlanTab({ showUpgradedBanner }: { showUpgradedBanner: boolean }) {
                 { label: "Usuários", free: "1", pro: "1", premium: "Até 5" },
               ].map((row, i) => (
                 <div key={i} className="contents">
-                  <div className="px-4 py-2.5 col-span-1" style={{ borderBottom: "1px solid #2A2D3A" }}>
-                    <p className="text-xs font-medium" style={{ color: "#8B8FA8" }}>{row.label}</p>
+                  <div className="px-4 py-2.5 col-span-1" style={{ borderBottom: "1px solid var(--border)" }}>
+                    <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>{row.label}</p>
                   </div>
-                  <div className="px-4 py-2.5 text-center" style={{ borderBottom: "1px solid #2A2D3A" }}>
-                    <p className="text-xs" style={{ color: row.free === "—" ? "#4B4F6A" : "#F4F4F5" }}>{row.free}</p>
+                  <div className="px-4 py-2.5 text-center" style={{ borderBottom: "1px solid var(--border)" }}>
+                    <p className="text-xs" style={{ color: row.free === "—" ? "var(--text-faint)" : "var(--text-primary)" }}>{row.free}</p>
                   </div>
-                  <div className="px-4 py-2.5 text-center" style={{ borderBottom: "1px solid #2A2D3A", background: "rgba(245,158,11,0.03)" }}>
-                    <p className="text-xs font-medium" style={{ color: row.pro === "—" ? "#4B4F6A" : "#F59E0B" }}>{row.pro}</p>
+                  <div className="px-4 py-2.5 text-center" style={{ borderBottom: "1px solid var(--border)", background: "rgba(245,158,11,0.03)" }}>
+                    <p className="text-xs font-medium" style={{ color: row.pro === "—" ? "var(--text-faint)" : "#F59E0B" }}>{row.pro}</p>
                   </div>
-                  <div className="px-4 py-2.5 text-center" style={{ borderBottom: "1px solid #2A2D3A", background: "rgba(168,85,247,0.03)" }}>
-                    <p className="text-xs font-medium" style={{ color: row.premium === "—" ? "#4B4F6A" : "#A855F7" }}>{row.premium}</p>
+                  <div className="px-4 py-2.5 text-center" style={{ borderBottom: "1px solid var(--border)", background: "rgba(168,85,247,0.03)" }}>
+                    <p className="text-xs font-medium" style={{ color: row.premium === "—" ? "var(--text-faint)" : "#A855F7" }}>{row.premium}</p>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-4 px-0 min-w-[360px]" style={{ background: "#1A1D27" }}>
+            <div className="grid grid-cols-4 px-0 min-w-[360px]" style={{ background: "var(--bg-card)" }}>
               <div className="px-4 py-3" />
               <div className="px-4 py-3 text-center">
-                <p className="text-xs font-bold" style={{ color: "#4B4F6A" }}>Grátis</p>
+                <p className="text-xs font-bold" style={{ color: "var(--text-faint)" }}>Grátis</p>
               </div>
               <div className="px-4 py-3 text-center" style={{ background: "rgba(245,158,11,0.03)" }}>
                 <p className="text-xs font-bold" style={{ color: "#F59E0B" }}>Pro — R$97</p>
@@ -517,16 +517,16 @@ function PlanTab({ showUpgradedBanner }: { showUpgradedBanner: boolean }) {
       )}
 
       {/* Billing history / Stripe Portal */}
-      <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-        <p className="text-sm font-semibold mb-1" style={{ color: "#F4F4F5" }}>Histórico de cobrança</p>
-        <p className="text-xs mb-4" style={{ color: "#4B4F6A" }}>
+      <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+        <p className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Histórico de cobrança</p>
+        <p className="text-xs mb-4" style={{ color: "var(--text-faint)" }}>
           {isPremium || (isPro && !isTrial)
             ? "Gerencie cobranças, altere cartão e cancele pelo portal seguro do Stripe."
             : "Nenhuma cobrança registrada no plano Grátis ou Trial."}
         </p>
-        <div className="flex items-center gap-2 p-3 rounded-xl mb-4" style={{ background: "#212435" }}>
-          <CreditCard className="w-4 h-4 shrink-0" style={{ color: "#4B4F6A" }} />
-          <span className="text-xs" style={{ color: "#4B4F6A" }}>
+        <div className="flex items-center gap-2 p-3 rounded-xl mb-4" style={{ background: "var(--bg-subtle)" }}>
+          <CreditCard className="w-4 h-4 shrink-0" style={{ color: "var(--text-faint)" }} />
+          <span className="text-xs" style={{ color: "var(--text-faint)" }}>
             {isPremium ? "Assinatura Premium ativa via Stripe" : isPro && !isTrial ? "Assinatura Pro ativa via Stripe" : "Nenhum método de pagamento cadastrado"}
           </span>
         </div>
@@ -538,9 +538,9 @@ function PlanTab({ showUpgradedBanner }: { showUpgradedBanner: boolean }) {
               if (data.url) window.open(data.url, "_blank")
             }}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all"
-            style={{ background: "#212435", border: "1px solid #2A2D3A", color: "#F4F4F5" }}
-            onMouseOver={(e) => (e.currentTarget.style.borderColor = "#3D4158")}
-            onMouseOut={(e) => (e.currentTarget.style.borderColor = "#2A2D3A")}
+            style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+            onMouseOver={(e) => (e.currentTarget.style.borderColor = "var(--border-hover)")}
+            onMouseOut={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
           >
             <CreditCard className="w-4 h-4" style={{ color: "#00D084" }} />
             Gerenciar assinatura no Stripe →
@@ -593,27 +593,27 @@ function NotificationsTab() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #2A2D3A" }}>
-        <div className="px-6 py-4" style={{ background: "#1A1D27", borderBottom: "1px solid #2A2D3A" }}>
-          <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Preferências de email</p>
-          <p className="text-xs mt-0.5" style={{ color: "#4B4F6A" }}>Escolha quais notificações deseja receber</p>
+      <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+        <div className="px-6 py-4" style={{ background: "var(--bg-card)", borderBottom: "1px solid var(--border)" }}>
+          <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Preferências de email</p>
+          <p className="text-xs mt-0.5" style={{ color: "var(--text-faint)" }}>Escolha quais notificações deseja receber</p>
         </div>
-        <div style={{ background: "#1A1D27", opacity: loading ? 0.5 : 1 }}>
+        <div style={{ background: "var(--bg-card)", opacity: loading ? 0.5 : 1 }}>
           {items.map((item, i) => (
             <div
               key={item.key}
               className="flex items-center justify-between px-6 py-4"
-              style={{ borderBottom: i < items.length - 1 ? "1px solid #212435" : "none" }}
+              style={{ borderBottom: i < items.length - 1 ? "1px solid var(--bg-subtle)" : "none" }}
             >
               <div className="flex-1 min-w-0 pr-4">
-                <p className="text-sm font-medium" style={{ color: "#F4F4F5" }}>{item.label}</p>
-                <p className="text-xs mt-0.5" style={{ color: "#4B4F6A" }}>{item.desc}</p>
+                <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{item.label}</p>
+                <p className="text-xs mt-0.5" style={{ color: "var(--text-faint)" }}>{item.desc}</p>
               </div>
               <button
                 onClick={() => toggle(item.key)}
                 disabled={loading}
                 className="relative rounded-full transition-all duration-200 shrink-0"
-                style={{ background: toggles[item.key] ? "#00D084" : "#2A2D3A", width: 40, height: 22 }}
+                style={{ background: toggles[item.key] ? "#00D084" : "var(--border)", width: 40, height: 22 }}
               >
                 <span
                   className="absolute top-0.5 rounded-full transition-all duration-200"
@@ -630,7 +630,7 @@ function NotificationsTab() {
           onClick={handleSave}
           disabled={saving || loading}
           className="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-50"
-          style={{ background: "#00D084", color: "#0F1117" }}
+          style={{ background: "#00D084", color: "var(--bg-page)" }}
         >
           {saving ? "Salvando..." : "Salvar preferências"}
         </button>
@@ -690,14 +690,14 @@ function FinancePinSection() {
   }
 
   return (
-    <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid rgba(245,158,11,0.2)" }}>
+    <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid rgba(245,158,11,0.2)" }}>
       <div className="flex items-center gap-3 mb-5">
         <div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ background: "rgba(245,158,11,0.1)" }}>
           <KeyRound className="w-4 h-4" style={{ color: "#F59E0B" }} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>PIN de Acesso Financeiro</p>
-          <p className="text-xs" style={{ color: "#4B4F6A" }}>
+          <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>PIN de Acesso Financeiro</p>
+          <p className="text-xs" style={{ color: "var(--text-faint)" }}>
             Contadores precisam digitar este PIN para visualizar dados de plano e integrações bancárias
           </p>
         </div>
@@ -706,7 +706,7 @@ function FinancePinSection() {
             className="text-[10px] px-2 py-0.5 rounded-full font-semibold shrink-0"
             style={hasPin
               ? { background: "rgba(0,208,132,0.1)", color: "#00D084" }
-              : { background: "rgba(139,143,168,0.1)", color: "#8B8FA8" }}
+              : { background: "rgba(139,143,168,0.1)", color: "var(--text-muted)" }}
           >
             {hasPin ? "Configurado" : "Não configurado"}
           </span>
@@ -719,7 +719,7 @@ function FinancePinSection() {
           { label: "Confirmar PIN", value: confirmPin, onChange: setConfirmPin },
         ].map(({ label, value, onChange }) => (
           <div key={label}>
-            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: "#4B4F6A" }}>{label}</label>
+            <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>{label}</label>
             <div className="relative">
               <input
                 type={showPin ? "text" : "password"}
@@ -729,15 +729,15 @@ function FinancePinSection() {
                 onChange={(e) => { setError(""); onChange(e.target.value.replace(/\D/g, "")) }}
                 placeholder="••••••"
                 className="w-full px-4 py-3 pr-10 rounded-xl text-sm outline-none transition-all"
-                style={{ background: "#212435", border: "1px solid #2A2D3A", color: "#F4F4F5" }}
+                style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
                 onFocus={(e) => (e.target.style.borderColor = "#F59E0B")}
-                onBlur={(e) => (e.target.style.borderColor = "#2A2D3A")}
+                onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
               />
               <button
                 type="button"
                 onClick={() => setShowPin(p => !p)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 opacity-50 hover:opacity-100"
-                style={{ color: "#8B8FA8" }}
+                style={{ color: "var(--text-muted)" }}
               >
                 {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -746,8 +746,8 @@ function FinancePinSection() {
         ))}
       </div>
 
-      <div className="flex items-center justify-between mt-5 pt-5 flex-wrap gap-3" style={{ borderTop: "1px solid #212435" }}>
-        <p className="text-xs" style={{ color: error ? "#FF4D4F" : saved ? "#00D084" : "#4B4F6A" }}>
+      <div className="flex items-center justify-between mt-5 pt-5 flex-wrap gap-3" style={{ borderTop: "1px solid var(--bg-subtle)" }}>
+        <p className="text-xs" style={{ color: error ? "#FF4D4F" : saved ? "#00D084" : "var(--text-faint)" }}>
           {error || (saved ? "PIN salvo com sucesso." : "Apenas números. Mínimo 4, máximo 8 dígitos.")}
         </p>
         <div className="flex items-center gap-2">
@@ -766,7 +766,7 @@ function FinancePinSection() {
             onClick={handleSave}
             disabled={saving || !newPin || !confirmPin}
             className="flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold disabled:opacity-60 transition-all"
-            style={{ background: "#F59E0B", color: "#0F1117" }}
+            style={{ background: "#F59E0B", color: "var(--bg-page)" }}
           >
             {saving ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Salvando...</> : (hasPin ? "Alterar PIN" : "Definir PIN")}
           </button>
@@ -830,14 +830,14 @@ function SecurityTab() {
     <div className="space-y-6">
       {/* Change password — owner only */}
       {canChangePassword && (
-        <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+        <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="flex items-center gap-3 mb-5">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ background: "#212435" }}>
-              <KeyRound className="w-4 h-4" style={{ color: "#8B8FA8" }} />
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ background: "var(--bg-subtle)" }}>
+              <KeyRound className="w-4 h-4" style={{ color: "var(--text-muted)" }} />
             </div>
             <div>
-              <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Alterar senha</p>
-              <p className="text-xs" style={{ color: "#4B4F6A" }}>Recomendamos uma senha forte com letras, números e símbolos</p>
+              <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Alterar senha</p>
+              <p className="text-xs" style={{ color: "var(--text-faint)" }}>Recomendamos uma senha forte com letras, números e símbolos</p>
             </div>
           </div>
           <div className="space-y-3">
@@ -847,7 +847,7 @@ function SecurityTab() {
               { label: "Confirmar nova senha", value: confirmPassword, onChange: setConfirmPassword },
             ].map(({ label, value, onChange }) => (
               <div key={label}>
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: "#4B4F6A" }}>
+                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>
                   {label}
                 </label>
                 <input
@@ -856,22 +856,22 @@ function SecurityTab() {
                   onChange={(e) => onChange(e.target.value)}
                   placeholder="••••••••"
                   className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all"
-                  style={{ background: "#212435", border: "1px solid #2A2D3A", color: "#F4F4F5" }}
+                  style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
                   onFocus={(e) => (e.target.style.borderColor = "#00D084")}
-                  onBlur={(e) => (e.target.style.borderColor = "#2A2D3A")}
+                  onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
                 />
               </div>
             ))}
           </div>
-          <div className="flex items-center justify-between mt-5 pt-5" style={{ borderTop: "1px solid #212435" }}>
-            <p className="text-xs" style={{ color: error ? "#FF4D4F" : saved ? "#00D084" : "#4B4F6A" }}>
+          <div className="flex items-center justify-between mt-5 pt-5" style={{ borderTop: "1px solid var(--bg-subtle)" }}>
+            <p className="text-xs" style={{ color: error ? "#FF4D4F" : saved ? "#00D084" : "var(--text-faint)" }}>
               {error || (saved ? "Senha alterada com sucesso." : "Use no mínimo 8 caracteres.")}
             </p>
             <button
               onClick={handleSave}
               disabled={saving || !currentPassword || !newPassword || !confirmPassword}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all disabled:opacity-60"
-              style={{ background: "#00D084", color: "#0F1117" }}
+              style={{ background: "#00D084", color: "var(--bg-page)" }}
             >
               {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Salvando...</> : "Atualizar senha"}
             </button>
@@ -883,14 +883,14 @@ function SecurityTab() {
       {can(role, "finance:manage") && <FinancePinSection />}
 
       {/* Sessions */}
-      <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-        <p className="text-sm font-semibold mb-1" style={{ color: "#F4F4F5" }}>Sessões ativas</p>
-        <p className="text-xs mb-4" style={{ color: "#4B4F6A" }}>Dispositivos com sessão aberta na sua conta</p>
-        <div className="flex items-center gap-3 p-3.5 rounded-xl" style={{ background: "#212435" }}>
+      <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+        <p className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Sessões ativas</p>
+        <p className="text-xs mb-4" style={{ color: "var(--text-faint)" }}>Dispositivos com sessão aberta na sua conta</p>
+        <div className="flex items-center gap-3 p-3.5 rounded-xl" style={{ background: "var(--bg-subtle)" }}>
           <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#00D084" }} />
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium" style={{ color: "#F4F4F5" }}>Este dispositivo</p>
-            <p className="text-xs" style={{ color: "#4B4F6A" }}>Navegador web · Agora</p>
+            <p className="text-xs font-medium" style={{ color: "var(--text-primary)" }}>Este dispositivo</p>
+            <p className="text-xs" style={{ color: "var(--text-faint)" }}>Navegador web · Agora</p>
           </div>
           <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "rgba(0,208,132,0.1)", color: "#00D084" }}>
             Atual
@@ -900,16 +900,16 @@ function SecurityTab() {
 
       {/* LGPD — Dados pessoais (somente proprietário pode exportar dados da organização) */}
       {isOwner && (
-        <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-          <p className="text-sm font-semibold mb-1" style={{ color: "#F4F4F5" }}>Seus dados (LGPD)</p>
-          <p className="text-xs mb-4" style={{ color: "#4B4F6A" }}>
+        <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          <p className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Seus dados (LGPD)</p>
+          <p className="text-xs mb-4" style={{ color: "var(--text-faint)" }}>
             Conforme a Lei Geral de Proteção de Dados, você pode exportar ou excluir todos os seus dados a qualquer momento.
           </p>
           <a
             href="/api/account/export"
             download
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all"
-            style={{ background: "#212435", color: "#8B8FA8", border: "1px solid #2A2D3A", display: "inline-flex" }}
+            style={{ background: "var(--bg-subtle)", color: "var(--text-muted)", border: "1px solid var(--border)", display: "inline-flex" }}
           >
             <Save className="w-3.5 h-3.5" />
             Exportar todos os meus dados (.json)
@@ -919,12 +919,12 @@ function SecurityTab() {
 
       {/* Danger zone — owner only */}
       {isOwner && (
-        <div className="rounded-2xl p-6" style={{ background: "#1A1D27", border: "1px solid rgba(255,77,79,0.2)" }}>
+        <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid rgba(255,77,79,0.2)" }}>
           <div className="flex items-start gap-3 mb-4">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#FF4D4F" }} />
             <div>
               <p className="text-sm font-semibold" style={{ color: "#FF4D4F" }}>Zona de perigo</p>
-              <p className="text-xs mt-0.5" style={{ color: "#8B8FA8" }}>
+              <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
                 Excluir a conta remove permanentemente todos os dados, análises, equipe e histórico da organização. Ação irreversível.
               </p>
             </div>
@@ -942,7 +942,7 @@ function SecurityTab() {
 
           {deleteStep === "password" && (
             <div className="space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#4B4F6A" }}>
+              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>
                 Etapa 1 de 2 — Confirme sua senha
               </p>
               <input
@@ -952,14 +952,14 @@ function SecurityTab() {
                 placeholder="Sua senha atual"
                 autoFocus
                 className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
-                style={{ background: "#212435", border: `1px solid ${deleteError ? "#FF4D4F" : "rgba(255,77,79,0.2)"}`, color: "#F4F4F5" }}
+                style={{ background: "var(--bg-subtle)", border: `1px solid ${deleteError ? "#FF4D4F" : "rgba(255,77,79,0.2)"}`, color: "var(--text-primary)" }}
               />
               {deleteError && <p className="text-xs" style={{ color: "#FF4D4F" }}>{deleteError}</p>}
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => { setDeleteStep("idle"); setDeletePassword(""); setDeleteError("") }}
                   className="px-4 py-2 rounded-xl text-xs font-medium"
-                  style={{ background: "#212435", color: "#8B8FA8" }}
+                  style={{ background: "var(--bg-subtle)", color: "var(--text-muted)" }}
                 >
                   Cancelar
                 </button>
@@ -981,7 +981,7 @@ function SecurityTab() {
 
           {deleteStep === "confirm" && (
             <div className="space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#4B4F6A" }}>
+              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>
                 Etapa 2 de 2 — Digite EXCLUIR para confirmar
               </p>
               <input
@@ -991,13 +991,13 @@ function SecurityTab() {
                 placeholder="EXCLUIR"
                 autoFocus
                 className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
-                style={{ background: "#212435", border: "1px solid rgba(255,77,79,0.2)", color: "#F4F4F5" }}
+                style={{ background: "var(--bg-subtle)", border: "1px solid rgba(255,77,79,0.2)", color: "var(--text-primary)" }}
               />
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => { setDeleteStep("idle"); setDeletePassword(""); setDeleteConfirm(""); setDeleteError("") }}
                   className="px-4 py-2 rounded-xl text-xs font-medium"
-                  style={{ background: "#212435", color: "#8B8FA8" }}
+                  style={{ background: "var(--bg-subtle)", color: "var(--text-muted)" }}
                 >
                   Cancelar
                 </button>
@@ -1220,28 +1220,28 @@ function IntegrationTab() {
       {/* Open Finance */}
       <div className="relative">
       {/* "Em Breve" overlay */}
-      <div className="absolute inset-0 z-10 rounded-2xl flex flex-col items-center justify-center gap-3 backdrop-blur-sm" style={{ background: "rgba(15,17,23,0.6)" }}>
+      <div className="absolute inset-0 z-10 rounded-2xl flex flex-col items-center justify-center gap-3 backdrop-blur-sm" style={{ background: "var(--bg-page-overlay)" }}>
         <div className="flex flex-col items-center gap-2 px-4 text-center">
           <span className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full" style={{ background: "rgba(59,130,246,0.15)", color: "#3B82F6", border: "1px solid rgba(59,130,246,0.3)" }}>Em Breve</span>
-          <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Open Finance em desenvolvimento</p>
-          <p className="text-xs max-w-xs" style={{ color: "#4B4F6A" }}>As conexões bancárias automáticas estarão disponíveis nas próximas atualizações.</p>
+          <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Open Finance em desenvolvimento</p>
+          <p className="text-xs max-w-xs" style={{ color: "var(--text-faint)" }}>As conexões bancárias automáticas estarão disponíveis nas próximas atualizações.</p>
         </div>
       </div>
-      <div className="rounded-2xl p-6 pointer-events-none select-none" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
+      <div className="rounded-2xl p-6 pointer-events-none select-none" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <div className="flex items-start gap-3 mb-5">
-          <div className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0" style={{ background: "#212435" }}>
+          <div className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0" style={{ background: "var(--bg-subtle)" }}>
             <Plug className="w-4 h-4" style={{ color: "#3B82F6" }} />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-0.5">
-              <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Open Finance & Conexões Bancárias</p>
+              <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Open Finance & Conexões Bancárias</p>
               {connections.length > 0 && (
                 <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: "rgba(0,208,132,0.15)", color: "#00D084" }}>
                   {connections.length} conectado{connections.length > 1 ? "s" : ""}
                 </span>
               )}
             </div>
-            <p className="text-xs" style={{ color: "#4B4F6A" }}>
+            <p className="text-xs" style={{ color: "var(--text-faint)" }}>
               Conecte sua conta bancária para análises automáticas sem precisar fazer upload manual de extratos.
             </p>
           </div>
@@ -1287,9 +1287,9 @@ function IntegrationTab() {
                     {conn.bankName.slice(0, 2).toUpperCase()}
                   </div>
                   <div>
-                    <span className="text-sm font-medium" style={{ color: "#F4F4F5" }}>{conn.bankName}</span>
+                    <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{conn.bankName}</span>
                     {conn.lastSyncAt && (
-                      <p className="text-[10px]" style={{ color: "#4B4F6A" }}>
+                      <p className="text-[10px]" style={{ color: "var(--text-faint)" }}>
                         Sync {new Date(conn.lastSyncAt).toLocaleDateString("pt-BR")}
                       </p>
                     )}
@@ -1336,8 +1336,8 @@ function IntegrationTab() {
                 key={bank.name}
                 className="flex items-center justify-between px-4 py-3 rounded-xl transition-all"
                 style={{
-                  background: connected ? "rgba(0,208,132,0.05)" : "#212435",
-                  border: connected ? "1px solid rgba(0,208,132,0.25)" : "1px solid #2A2D3A",
+                  background: connected ? "rgba(0,208,132,0.05)" : "var(--bg-subtle)",
+                  border: connected ? "1px solid rgba(0,208,132,0.25)" : "1px solid var(--border)",
                 }}
               >
                 <div className="flex items-center gap-3">
@@ -1352,9 +1352,9 @@ function IntegrationTab() {
                     </div>
                   )}
                   <div>
-                    <span className="text-sm font-medium" style={{ color: "#F4F4F5" }}>{bank.name}</span>
+                    <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{bank.name}</span>
                     {connected && conn?.lastSyncAt && (
-                      <p className="text-[10px]" style={{ color: "#4B4F6A" }}>
+                      <p className="text-[10px]" style={{ color: "var(--text-faint)" }}>
                         Sync {new Date(conn.lastSyncAt).toLocaleDateString("pt-BR")}
                       </p>
                     )}
@@ -1393,7 +1393,7 @@ function IntegrationTab() {
                     onClick={() => handleConnect(bank.name)}
                     disabled={isConnecting || connectingBank !== null}
                     className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-semibold transition-all disabled:opacity-50"
-                    style={{ background: "#00D084", color: "#0F1117" }}
+                    style={{ background: "#00D084", color: "var(--bg-page)" }}
                   >
                     {isConnecting ? (
                       <><Loader2 className="w-3 h-3 animate-spin" />Conectando...</>
@@ -1407,7 +1407,7 @@ function IntegrationTab() {
           })}
         </div>
 
-        <p className="text-xs mt-4 flex items-center gap-1.5" style={{ color: "#4B4F6A" }}>
+        <p className="text-xs mt-4 flex items-center gap-1.5" style={{ color: "var(--text-faint)" }}>
           <Shield className="w-3 h-3 shrink-0" />
           Integração via Pluggy.ai (Open Finance) — seus dados bancários nunca são armazenados em nossos servidores
         </p>
@@ -1429,13 +1429,13 @@ function IntegrationTab() {
       )}
 
       {/* Webhooks */}
-      <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #2A2D3A" }}>
-        <div className="flex items-center justify-between px-6 py-4" style={{ background: "#1A1D27", borderBottom: "1px solid #2A2D3A" }}>
+      <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+        <div className="flex items-center justify-between px-6 py-4" style={{ background: "var(--bg-card)", borderBottom: "1px solid var(--border)" }}>
           <div className="flex items-center gap-3">
-            <Webhook className="w-4 h-4" style={{ color: "#8B8FA8" }} />
+            <Webhook className="w-4 h-4" style={{ color: "var(--text-muted)" }} />
             <div>
-              <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>Webhooks</p>
-              <p className="text-xs mt-0.5" style={{ color: "#4B4F6A" }}>
+              <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Webhooks</p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--text-faint)" }}>
                 Receba notificações em tempo real no seu sistema ou Slack
               </p>
             </div>
@@ -1447,17 +1447,17 @@ function IntegrationTab() {
           )}
         </div>
 
-        <div className="px-6 py-5" style={{ background: "#1A1D27" }}>
+        <div className="px-6 py-5" style={{ background: "var(--bg-card)" }}>
           {!isPremium ? (
             <div className="text-center py-4">
-              <p className="text-sm font-medium mb-1" style={{ color: "#8B8FA8" }}>Apenas para usuários Premium</p>
-              <p className="text-xs mb-4" style={{ color: "#4B4F6A" }}>
+              <p className="text-sm font-medium mb-1" style={{ color: "var(--text-muted)" }}>Apenas para usuários Premium</p>
+              <p className="text-xs mb-4" style={{ color: "var(--text-faint)" }}>
                 Configure webhooks para receber notificações em tempo real no seu sistema ou Slack.
               </p>
               <button
                 onClick={() => {}}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold"
-                style={{ background: "#F59E0B", color: "#0F1117" }}
+                style={{ background: "#F59E0B", color: "var(--bg-page)" }}
               >
                 <Crown className="w-3.5 h-3.5" />
                 Fazer upgrade para Premium
@@ -1467,7 +1467,7 @@ function IntegrationTab() {
             <div className="space-y-4">
               {/* URL input */}
               <div>
-                <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "#4B4F6A" }}>
+                <label className="block text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>
                   URL do Webhook
                 </label>
                 <div className="flex gap-2">
@@ -1477,15 +1477,15 @@ function IntegrationTab() {
                     onChange={e => setWebhookUrl(e.target.value)}
                     placeholder="https://seu-sistema.com/webhook"
                     className="flex-1 px-4 py-3 rounded-xl text-sm outline-none transition-all"
-                    style={{ background: "#212435", border: "1px solid #2A2D3A", color: "#F4F4F5" }}
+                    style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
                     onFocus={e => (e.target.style.borderColor = "#00D084")}
-                    onBlur={e => (e.target.style.borderColor = "#2A2D3A")}
+                    onBlur={e => (e.target.style.borderColor = "var(--border)")}
                   />
                   <button
                     onClick={handleSaveWebhook}
                     disabled={!webhookUrl}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-50"
-                    style={{ background: "#00D084", color: "#0F1117" }}
+                    style={{ background: "#00D084", color: "var(--bg-page)" }}
                   >
                     {webhookSaved ? <CheckCircle className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
                     {webhookSaved ? "Salvo!" : "Adicionar"}
@@ -1495,7 +1495,7 @@ function IntegrationTab() {
 
               {/* Events */}
               <div>
-                <p className="text-xs font-semibold mb-3 uppercase tracking-wider" style={{ color: "#4B4F6A" }}>
+                <p className="text-xs font-semibold mb-3 uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>
                   Eventos para assinar
                 </p>
                 <div className="space-y-2">
@@ -1504,18 +1504,18 @@ function IntegrationTab() {
                       <div
                         className="w-4 h-4 rounded flex items-center justify-center shrink-0 transition-all"
                         style={{
-                          background: webhookEvents.has(event.key) ? "#00D084" : "#212435",
-                          border: webhookEvents.has(event.key) ? "1px solid #00D084" : "1px solid #2A2D3A",
+                          background: webhookEvents.has(event.key) ? "#00D084" : "var(--bg-subtle)",
+                          border: webhookEvents.has(event.key) ? "1px solid #00D084" : "1px solid var(--border)",
                         }}
                         onClick={() => toggleEvent(event.key)}
                       >
                         {webhookEvents.has(event.key) && (
                           <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                            <path d="M1 4L3.5 6.5L9 1" stroke="#0F1117" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M1 4L3.5 6.5L9 1" stroke="var(--bg-page)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
                         )}
                       </div>
-                      <span className="text-sm" style={{ color: "#F4F4F5" }}>{event.label}</span>
+                      <span className="text-sm" style={{ color: "var(--text-primary)" }}>{event.label}</span>
                     </label>
                   ))}
                 </div>
@@ -1590,8 +1590,8 @@ function SettingsContent() {
   return (
     <div className="px-4 sm:px-6 py-6 sm:py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-black" style={{ color: "#F4F4F5" }}>Configurações</h1>
-        <p className="text-sm mt-0.5" style={{ color: "#8B8FA8" }}>Gerencie sua conta, plano e preferências</p>
+        <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Configurações</h1>
+        <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>Gerencie sua conta, plano e preferências</p>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
@@ -1606,7 +1606,7 @@ function SettingsContent() {
                 style={{
                   background: activeTab === id ? "rgba(0,208,132,0.08)" : "transparent",
                   border: activeTab === id ? "1px solid rgba(0,208,132,0.15)" : "1px solid transparent",
-                  color: activeTab === id ? "#00D084" : "#8B8FA8",
+                  color: activeTab === id ? "#00D084" : "var(--text-muted)",
                 }}
               >
                 <div className="flex items-center gap-2.5">
@@ -1624,12 +1624,12 @@ function SettingsContent() {
           {sidebarWidget && (
             <div className="mt-6 p-4 rounded-2xl" style={{ background: sidebarWidget.bg, border: sidebarWidget.border }}>
               {sidebarWidget.icon}
-              <p className="text-xs font-bold mb-1" style={{ color: "#F4F4F5" }}>{sidebarWidget.title}</p>
-              <p className="text-xs mb-3" style={{ color: "#8B8FA8" }}>{sidebarWidget.desc}</p>
+              <p className="text-xs font-bold mb-1" style={{ color: "var(--text-primary)" }}>{sidebarWidget.title}</p>
+              <p className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>{sidebarWidget.desc}</p>
               <button
                 onClick={() => setActiveTab("plan")}
                 className="w-full py-2 rounded-lg text-xs font-bold"
-                style={{ background: sidebarWidget.color, color: "#0F1117" }}
+                style={{ background: sidebarWidget.color, color: "var(--bg-page)" }}
               >
                 Ver planos
               </button>
@@ -1638,7 +1638,7 @@ function SettingsContent() {
 
           {isOnPaidPlan && plan !== "admin" && (
             <div className="mt-4 px-2">
-              <p className="text-xs text-center" style={{ color: "#4B4F6A" }}>
+              <p className="text-xs text-center" style={{ color: "var(--text-faint)" }}>
                 Gerencie sua assinatura no{" "}
                 <a href="https://billing.stripe.com" target="_blank" rel="noopener noreferrer" style={{ color: "#00D084" }}>
                   portal Stripe

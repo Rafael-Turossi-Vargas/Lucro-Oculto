@@ -67,15 +67,15 @@ export default function HistoryPage() {
       {/* Delete modal */}
       {confirmId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="rounded-2xl p-6 w-full max-w-sm mx-4" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-            <h3 className="text-base font-bold mb-2" style={{ color: "#F4F4F5" }}>Excluir análise?</h3>
-            <p className="text-sm mb-5" style={{ color: "#8B8FA8" }}>
+          <div className="rounded-2xl p-6 w-full max-w-sm mx-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+            <h3 className="text-base font-bold mb-2" style={{ color: "var(--text-primary)" }}>Excluir análise?</h3>
+            <p className="text-sm mb-5" style={{ color: "var(--text-muted)" }}>
               Esta ação é irreversível. O arquivo, transações, insights e alertas serão apagados permanentemente.
             </p>
             <div className="flex gap-3">
               <button onClick={() => setConfirmId(null)}
                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
-                style={{ background: "#212435", color: "#8B8FA8" }}>
+                style={{ background: "var(--bg-subtle)", color: "var(--text-muted)" }}>
                 Cancelar
               </button>
               <button onClick={() => handleDelete(confirmId)} disabled={!!deleting}
@@ -91,8 +91,8 @@ export default function HistoryPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-black" style={{ color: "#F4F4F5" }}>Histórico de análises</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#8B8FA8" }}>
+          <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Histórico de análises</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
             {analyses.length > 0
               ? `${analyses.length} análise${analyses.length > 1 ? "s" : ""} realizadas`
               : "Nenhuma análise ainda"}
@@ -101,7 +101,7 @@ export default function HistoryPage() {
         {canUpload && (
           <Link href="/app/upload"
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold shrink-0"
-            style={{ background: "#00D084", color: "#0F1117" }}>
+            style={{ background: "#00D084", color: "var(--bg-page)" }}>
             <Upload className="w-4 h-4" /> Nova análise
           </Link>
         )}
@@ -112,17 +112,17 @@ export default function HistoryPage() {
           <CardSkeleton /><CardSkeleton /><CardSkeleton />
         </div>
       ) : analyses.length === 0 ? (
-        <div className="rounded-2xl p-12 text-center" style={{ background: "#1A1D27", border: "1px solid #2A2D3A" }}>
-          <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "#212435" }}>
-            <BarChart3 className="w-8 h-8" style={{ color: "#4B4F6A" }} />
+        <div className="rounded-2xl p-12 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "var(--bg-subtle)" }}>
+            <BarChart3 className="w-8 h-8" style={{ color: "var(--text-faint)" }} />
           </div>
-          <p className="text-sm font-semibold mb-1" style={{ color: "#F4F4F5" }}>Nenhuma análise no histórico</p>
-          <p className="text-xs mb-6" style={{ color: "#8B8FA8" }}>
+          <p className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Nenhuma análise no histórico</p>
+          <p className="text-xs mb-6" style={{ color: "var(--text-muted)" }}>
             {canUpload ? "Faça seu primeiro upload para começar" : "Aguardando análise — o responsável pelo upload ainda não enviou dados."}
           </p>
           {canUpload && (
             <Link href="/app/upload" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold"
-              style={{ background: "#00D084", color: "#0F1117" }}>
+              style={{ background: "#00D084", color: "var(--bg-page)" }}>
               <Upload className="w-4 h-4" /> Fazer upload
             </Link>
           )}
@@ -132,16 +132,16 @@ export default function HistoryPage() {
           {/* Stats summary */}
           {doneAnalyses.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="rounded-2xl p-4" style={{ background: "#1A1D27", border: "1px solid #2A2D3A", borderLeft: "3px solid #00D084" }}>
-                <p className="text-xs font-semibold mb-2" style={{ color: "#8B8FA8" }}>Total de análises</p>
-                <p className="text-2xl font-black" style={{ color: "#F4F4F5" }}>{analyses.length}</p>
+              <div className="rounded-2xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: "3px solid #00D084" }}>
+                <p className="text-xs font-semibold mb-2" style={{ color: "var(--text-muted)" }}>Total de análises</p>
+                <p className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>{analyses.length}</p>
               </div>
-              <div className="rounded-2xl p-4" style={{ background: "#1A1D27", border: "1px solid #2A2D3A", borderLeft: "3px solid #F59E0B" }}>
-                <p className="text-xs font-semibold mb-2" style={{ color: "#8B8FA8" }}>Melhor score</p>
+              <div className="rounded-2xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: "3px solid #F59E0B" }}>
+                <p className="text-xs font-semibold mb-2" style={{ color: "var(--text-muted)" }}>Melhor score</p>
                 <p className="text-2xl font-black" style={{ color: "#F59E0B" }}>{bestScore ?? "—"}</p>
               </div>
-              <div className="rounded-2xl p-4" style={{ background: "#1A1D27", border: "1px solid #2A2D3A", borderLeft: "3px solid #3B82F6" }}>
-                <p className="text-xs font-semibold mb-2" style={{ color: "#8B8FA8" }}>Score atual</p>
+              <div className="rounded-2xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderLeft: "3px solid #3B82F6" }}>
+                <p className="text-xs font-semibold mb-2" style={{ color: "var(--text-muted)" }}>Score atual</p>
                 <p className="text-2xl font-black" style={{
                   color: (doneAnalyses[0]?.score ?? 0) >= 75 ? "#00D084" : (doneAnalyses[0]?.score ?? 0) >= 50 ? "#F59E0B" : "#FF4D4F"
                 }}>
@@ -165,16 +165,16 @@ export default function HistoryPage() {
               return (
                 <div key={a.id} className="rounded-2xl p-5 transition-all"
                   style={{
-                    background: "#1A1D27",
-                    border: "1px solid #2A2D3A",
-                    borderLeft: `3px solid ${isDone ? scoreColor : isProcessing ? "#F59E0B" : "#4B4F6A"}`,
+                    background: "var(--bg-card)",
+                    border: "1px solid var(--border)",
+                    borderLeft: `3px solid ${isDone ? scoreColor : isProcessing ? "#F59E0B" : "var(--text-faint)"}`,
                   }}>
                   <div className="flex items-start gap-4">
                     {/* Score badge */}
                     <div className="flex flex-col items-center justify-center w-12 h-12 rounded-xl shrink-0 font-black text-lg"
                       style={{
-                        background: isDone ? `${scoreColor}14` : "#212435",
-                        color: isDone ? scoreColor : "#4B4F6A",
+                        background: isDone ? `${scoreColor}14` : "var(--bg-subtle)",
+                        color: isDone ? scoreColor : "var(--text-faint)",
                       }}>
                       {isProcessing ? <Clock className="w-5 h-5 animate-pulse" style={{ color: "#F59E0B" }} /> : (a.score ?? "—")}
                     </div>
@@ -182,7 +182,7 @@ export default function HistoryPage() {
                     <div className="flex-1 min-w-0">
                       {/* Title + badges */}
                       <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                        <p className="text-sm font-semibold" style={{ color: "#F4F4F5" }}>
+                        <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
                           {a.upload?.fileName ?? `Análise #${analyses.length - idx}`}
                         </p>
                         <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
@@ -206,23 +206,23 @@ export default function HistoryPage() {
                       {/* Meta info */}
                       <div className="flex items-center gap-3 flex-wrap">
                         {a.periodStart && a.periodEnd && (
-                          <span className="text-xs" style={{ color: "#8B8FA8" }}>
+                          <span className="text-xs" style={{ color: "var(--text-muted)" }}>
                             {new Date(a.periodStart).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })} —{" "}
                             {new Date(a.periodEnd).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })}
                           </span>
                         )}
                         {a.upload?.rowsCount != null && (
-                          <span className="text-xs" style={{ color: "#4B4F6A" }}>
+                          <span className="text-xs" style={{ color: "var(--text-faint)" }}>
                             {a.upload.rowsCount.toLocaleString("pt-BR")} transações
                           </span>
                         )}
-                        <span className="text-xs" style={{ color: "#4B4F6A" }}>{fmtDate(a.createdAt)}</span>
+                        <span className="text-xs" style={{ color: "var(--text-faint)" }}>{fmtDate(a.createdAt)}</span>
                       </div>
 
                       {/* Financial KPIs */}
                       {isDone && (
                         <div className="flex items-center gap-4 mt-2.5 pt-2.5 flex-wrap"
-                          style={{ borderTop: "1px solid #212435" }}>
+                          style={{ borderTop: "1px solid var(--bg-subtle)" }}>
                           <div className="flex items-center gap-1.5">
                             <TrendingDown className="w-3 h-3" style={{ color: "#FF4D4F" }} />
                             <span className="text-xs font-semibold" style={{ color: "#FF4D4F" }}>{fmt(a.totalExpenses)}</span>
@@ -232,7 +232,7 @@ export default function HistoryPage() {
                             <span className="text-xs font-semibold" style={{ color: "#00D084" }}>{fmt(a.totalIncome)}</span>
                           </div>
                           <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] font-semibold" style={{ color: "#4B4F6A" }}>Líquido</span>
+                            <span className="text-[10px] font-semibold" style={{ color: "var(--text-faint)" }}>Líquido</span>
                             <span className="text-xs font-bold" style={{ color: netVal >= 0 ? "#00D084" : "#FF4D4F" }}>
                               {fmt(a.netResult)}
                             </span>
@@ -242,7 +242,7 @@ export default function HistoryPage() {
                               💰 até {fmt(a.savingsMax)}/mês
                             </span>
                           )}
-                          <span className="text-xs" style={{ color: "#4B4F6A" }}>
+                          <span className="text-xs" style={{ color: "var(--text-faint)" }}>
                             {a._count.insights} insights · {a._count.alerts} alertas
                           </span>
                         </div>
@@ -254,14 +254,14 @@ export default function HistoryPage() {
                       {isDone && (
                         <Link href={`/app/analysis/${a.id}`}
                           className="flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-semibold transition-all"
-                          style={{ background: "#212435", color: "#8B8FA8", border: "1px solid #2A2D3A" }}>
+                          style={{ background: "var(--bg-subtle)", color: "var(--text-muted)", border: "1px solid var(--border)" }}>
                           <span className="hidden sm:inline">Ver detalhes</span> <ArrowRight className="w-3.5 h-3.5" />
                         </Link>
                       )}
                       {canDelete && (
                         <button onClick={() => setConfirmId(a.id)}
                           className="flex items-center justify-center w-9 h-9 rounded-xl transition-all hover:opacity-80"
-                          style={{ background: "#212435", border: "1px solid #2A2D3A" }}
+                          style={{ background: "var(--bg-subtle)", border: "1px solid var(--border)" }}
                           title="Excluir análise">
                           <Trash2 className="w-4 h-4" style={{ color: "#FF4D4F" }} />
                         </button>
