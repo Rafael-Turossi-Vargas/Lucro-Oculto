@@ -170,9 +170,15 @@ export default function TeamPage() {
 
   return (
     <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">Equipe</h1>
-        <p className="text-[var(--text-muted)] mt-1">{memberCount}/{maxMembers} membros · Plano Premium</p>
+      <div className="flex items-start gap-3">
+        <div className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0 mt-0.5"
+          style={{ background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.18)" }}>
+          <Users className="w-5 h-5" style={{ color: "#A855F7" }} />
+        </div>
+        <div>
+          <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Equipe</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>{memberCount}/{maxMembers} membros · Plano Premium</p>
+        </div>
       </div>
 
       {/* Roles legend */}

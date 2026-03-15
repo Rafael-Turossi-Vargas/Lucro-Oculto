@@ -3,15 +3,16 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { syncBankTransactions } from "@/lib/bank-sync"
-import { rateLimit } from "@/lib/rate-limit"
+import { rateLimit, getClientIp } from "@/lib/rate-limit"
 
 /** POST /api/app/bank/sync/[itemId] — manually trigger a re-sync */
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ itemId: string }> }
 ) {
-  const ip = req.headers.get("x-forwarded-for") ?? "unknown"
-  if (!rateLimit(`bank-sync-manual:${ip}`, 5, 3600)) {
+  const ip = getClientIp(req)
+  const rl = await rateLimit(`bank-sync-manual:${ip}`, 5, 60 * 60 * 1000)
+  if (!rl.success) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 })
   }
 

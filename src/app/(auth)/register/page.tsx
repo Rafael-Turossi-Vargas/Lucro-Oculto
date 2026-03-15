@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useState } from "react"
+import { Suspense, useState, useRef } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
@@ -106,8 +106,10 @@ function blurInput(e: React.FocusEvent<HTMLInputElement>) {
 function RegisterForm() {
   const router = useRouter()
   const params = useSearchParams()
+  // Valida plan param — qualquer valor inválido cai em "free"
   const rawPlan = params.get("plan")
-  const initialPlan: Plan = rawPlan === "premium" ? "premium" : rawPlan === "pro" ? "pro" : "free"
+  const VALID_PLANS: Plan[] = ["free", "pro", "premium"]
+  const initialPlan: Plan = VALID_PLANS.includes(rawPlan as Plan) ? (rawPlan as Plan) : "free"
   const [selectedPlan, setSelectedPlan] = useState<Plan>(initialPlan)
   const [form, setForm] = useState({
     name: "",
@@ -122,18 +124,12 @@ function RegisterForm() {
   const [error, setError] = useState("")
   const [cnpjStatus, setCnpjStatus] = useState<CnpjStatus>("idle")
   const [cnpjCompanyName, setCnpjCompanyName] = useState("")
+  const cnpjDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const update = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }))
 
-  const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm((prev) => ({ ...prev, cnpj: formatCnpj(e.target.value) }))
-    setCnpjStatus("idle")
-    setCnpjCompanyName("")
-  }
-
-  const validateCnpj = async () => {
-    const digits = form.cnpj.replace(/\D/g, "")
+  const validateCnpjDigits = async (digits: string) => {
     if (digits.length !== 14) { setCnpjStatus("invalid"); return }
     setCnpjStatus("checking")
     try {
@@ -147,6 +143,25 @@ function RegisterForm() {
     } catch {
       setCnpjStatus("invalid")
     }
+  }
+
+  const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCnpj(e.target.value)
+    setForm((prev) => ({ ...prev, cnpj: formatted }))
+    setCnpjStatus("idle")
+    setCnpjCompanyName("")
+    const digits = formatted.replace(/\D/g, "")
+    if (cnpjDebounceRef.current) clearTimeout(cnpjDebounceRef.current)
+    if (digits.length === 14) {
+      cnpjDebounceRef.current = setTimeout(() => validateCnpjDigits(digits), 500)
+    }
+  }
+
+  // Mantido para onBlur (caso usuário não altere o campo após preencher 14 dígitos)
+  const validateCnpj = () => {
+    const digits = form.cnpj.replace(/\D/g, "")
+    if (cnpjStatus === "valid" || cnpjStatus === "checking") return
+    void validateCnpjDigits(digits)
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

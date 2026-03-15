@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { db } from "@/lib/db"
+import { logAudit } from "@/lib/audit"
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Link expirado. Solicite um novo." }, { status: 400 })
     }
 
-    const passwordHash = await bcrypt.hash(password, 12)
+    const passwordHash = await bcrypt.hash(password, 13)
 
     await db.$transaction([
       db.user.update({
@@ -43,6 +44,8 @@ export async function POST(request: NextRequest) {
         data: { usedAt: new Date() },
       }),
     ])
+
+    void logAudit({ action: "password.reset_completed", status: "success", userId: resetToken.userId })
 
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -95,7 +95,7 @@ export function FeaturesSection() {
         </div>
 
         {/* 3×2 grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {features.map((f, i) => {
             const Icon = f.icon
             return (
@@ -132,7 +132,7 @@ export function FeaturesSection() {
                     border: `1px solid ${f.border}`,
                   }}
                 >
-                  <Icon className="w-4 h-4" style={{ color: f.color }} />
+                  <Icon className="w-5 h-5" style={{ color: f.color }} />
                 </div>
 
                 {/* Content */}

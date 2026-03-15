@@ -342,3 +342,20 @@ model BankConnection {
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  userId         String?
+  organizationId String?
+  action         String
+  status         String   // "success" | "failure"
+  ip             String?
+  userAgent      String?
+  metadata       Json?
+  createdAt      DateTime @default(now())
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([action])
+  @@index([createdAt])
+}

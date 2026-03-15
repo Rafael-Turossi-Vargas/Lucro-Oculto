@@ -1,5 +1,15 @@
 import { Resend } from "resend"
 
+/** Escapa caracteres HTML para evitar XSS em templates de email */
+function esc(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;")
+}
+
 const resend = new Resend(process.env.RESEND_API_KEY ?? "re_placeholder")
 const FROM = process.env.EMAIL_FROM ?? "onboarding@resend.dev"
 const REPLY_TO = process.env.EMAIL_REPLY_TO
@@ -38,7 +48,7 @@ export async function sendWelcomeEmail(to: string, name: string) {
           <tr>
             <td style="padding:40px 32px;">
               <h1 style="margin:0 0 12px;color:#F4F4F5;font-size:24px;font-weight:700;line-height:1.3;">
-                Olá, ${name}! Sua conta está pronta. 🎉
+                Olá, ${esc(name)}! Sua conta está pronta. 🎉
               </h1>
               <p style="margin:0 0 24px;color:#8B8FA8;font-size:15px;line-height:1.6;">
                 Bem-vindo ao Lucro Oculto. Agora você pode descobrir exatamente onde sua empresa está perdendo dinheiro — e receber um plano de ação para aumentar o lucro.
@@ -185,7 +195,7 @@ export async function sendTeamInviteEmail(
               </h1>
               <p style="margin:0 0 24px;color:#8B8FA8;font-size:15px;line-height:1.6;">
                 <strong style="color:#F4F4F5;">${invitedByName}</strong> te convidou para colaborar em
-                <strong style="color:#A855F7;">${organizationName}</strong> no Lucro Oculto.
+                <strong style="color:#A855F7;">${esc(organizationName)}</strong> no Lucro Oculto.
               </p>
               <div style="background:#212435;border:1px solid #2A2D3A;border-radius:12px;padding:20px;margin-bottom:28px;">
                 <p style="margin:0 0 8px;color:#F4F4F5;font-size:14px;font-weight:600;">Com acesso à equipe você poderá:</p>
@@ -252,14 +262,14 @@ export async function sendInviteSetupEmail(
                 Você foi adicionado à equipe!
               </h1>
               <p style="margin:0 0 24px;color:#8B8FA8;font-size:15px;line-height:1.6;">
-                <strong style="color:#F4F4F5;">${invitedByName}</strong> te adicionou à equipe de
-                <strong style="color:#A855F7;">${organizationName}</strong>. Sua conta foi criada automaticamente com o email <strong style="color:#F4F4F5;">${to}</strong>.
+                <strong style="color:#F4F4F5;">${esc(invitedByName)}</strong> te adicionou à equipe de
+                <strong style="color:#A855F7;">${esc(organizationName)}</strong>. Sua conta foi criada automaticamente com o email <strong style="color:#F4F4F5;">${esc(to)}</strong>.
               </p>
               <div style="background:#212435;border:1px solid #2A2D3A;border-radius:12px;padding:20px;margin-bottom:28px;">
                 <p style="margin:0 0 8px;color:#F4F4F5;font-size:14px;font-weight:600;">Próximos passos:</p>
                 <p style="margin:0 0 6px;color:#8B8FA8;font-size:14px;">1. Clique no botão abaixo para criar sua senha</p>
                 <p style="margin:0 0 6px;color:#8B8FA8;font-size:14px;">2. Entre com seu email e a senha criada</p>
-                <p style="margin:0;color:#8B8FA8;font-size:14px;">3. Acesse os relatórios e diagnósticos de ${organizationName}</p>
+                <p style="margin:0;color:#8B8FA8;font-size:14px;">3. Acesse os relatórios e diagnósticos de ${esc(organizationName)}</p>
               </div>
               <a href="${setupUrl}" style="display:inline-block;background:#A855F7;color:#fff;font-size:15px;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;letter-spacing:-0.3px;">
                 Criar minha senha →

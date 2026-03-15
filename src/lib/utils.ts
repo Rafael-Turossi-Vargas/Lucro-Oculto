@@ -352,7 +352,19 @@ export function endOfMonth(date: Date): Date {
 
 /* ─── Misc ──────────────────────────────────────────────────────────────────── */
 export function generateId(): string {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID().replace(/-/g, "").slice(0, 12)
+  }
   return Math.random().toString(36).slice(2, 11)
+}
+
+/** Formata bytes em string legível: 1024 → "1 KB", 1048576 → "1 MB" */
+export function formatBytes(bytes: number, decimals = 1): string {
+  if (bytes === 0) return "0 B"
+  const k = 1024
+  const sizes = ["B", "KB", "MB", "GB"]
+  const i = Math.floor(Math.log(Math.abs(bytes)) / Math.log(k))
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(decimals))} ${sizes[i]}`
 }
 
 export function debounce<T extends (...args: unknown[]) => unknown>(

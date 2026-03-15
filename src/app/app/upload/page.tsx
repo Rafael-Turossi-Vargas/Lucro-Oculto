@@ -1,6 +1,6 @@
 import { FileUploader } from "@/components/upload/FileUploader"
 import { AccessGuard } from "@/components/auth/AccessGuard"
-import { FileText, Shield, Zap, TrendingUp } from "lucide-react"
+import { FileText, Shield, Zap, TrendingUp, Upload } from "lucide-react"
 
 const FEATURES = [
   {
@@ -34,13 +34,19 @@ export default function UploadPage() {
     <AccessGuard permission="upload:create">
       <div className="px-4 sm:px-6 py-8 sm:py-10 max-w-2xl mx-auto w-full">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-black mb-1" style={{ color: "var(--text-primary)" }}>
-            Nova análise financeira
-          </h1>
-          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-            Faça upload do extrato bancário para descobrir onde seu dinheiro está indo.
-          </p>
+        <div className="flex items-start gap-3 mb-8">
+          <div className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0 mt-0.5"
+            style={{ background: "rgba(0,208,132,0.08)", border: "1px solid rgba(0,208,132,0.18)" }}>
+            <Upload className="w-5 h-5" style={{ color: "#00D084" }} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black mb-0.5" style={{ color: "var(--text-primary)" }}>
+              Nova análise financeira
+            </h1>
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+              Faça upload do extrato bancário para descobrir onde seu dinheiro está indo.
+            </p>
+          </div>
         </div>
 
         {/* Uploader */}

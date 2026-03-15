@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse, after } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
@@ -7,6 +7,7 @@ import { parseXLSX } from "@/lib/parsers/xlsx"
 import { runAnalysis } from "@/lib/analysis/engine"
 import { rateLimit } from "@/lib/rate-limit"
 import { can } from "@/lib/roles"
+import { randomUUID } from "crypto"
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024
 
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Rate limit: 10 uploads por hora por organização
-    const rl = rateLimit(`upload:${session.user.organizationId}`, 10, 60 * 60 * 1000)
+    const rl = await rateLimit(`upload:${session.user.organizationId}`, 10, 60 * 60 * 1000)
     if (!rl.success) {
       return NextResponse.json(
         { error: "Muitos uploads. Tente novamente mais tarde." },
@@ -107,12 +108,15 @@ export async function POST(request: NextRequest) {
           }
         }
 
+        // Usa nome gerado aleatoriamente para evitar path traversal e enumeração
+        const safeFileName = `${randomUUID()}.${extension}`
+
         const newUpload = await tx.upload.create({
           data: {
             organizationId,
             userId,
-            fileName: file.name,
-            fileUrl: `local://${file.name}`,
+            fileName: safeFileName,
+            fileUrl: `local://${safeFileName}`,
             fileSize: file.size,
             fileType: extension,
             status: "processing",
@@ -174,6 +178,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    console.log(`[upload] parsed: ${parsed.transactions.length} transactions, errors: ${JSON.stringify(parsed.errors ?? [])}`)
+
+    // If parser returned 0 transactions, surface the error so the user knows why
+    if (parsed.transactions.length === 0) {
+      const detail = parsed.errors?.length
+        ? parsed.errors[0]
+        : "Nenhuma transação encontrada. Verifique se o arquivo possui colunas de data, descrição e valor."
+
+      await db.upload.update({
+        where: { id: upload.id },
+        data: { status: "error", errorMessage: detail },
+      })
+      await db.analysis.update({
+        where: { id: analysis.id },
+        data: { status: "error" },
+      })
+
+      return NextResponse.json({ error: detail }, { status: 422 })
+    }
+
     const rowLimit =
       organization.plan === "free"
         ? 200
@@ -195,15 +219,30 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    runAnalysis(transactions, organizationId, upload.id, analysis.id).catch(
-      async (error) => {
-        console.error("Analysis error:", error)
-        await db.analysis.update({
-          where: { id: analysis.id },
-          data: { status: "error" },
-        })
-      }
-    )
+    console.log(`[upload] scheduling analysis for ${transactions.length} transactions`)
+
+    const runWithErrorHandling = async () => {
+      console.log(`[upload] starting runAnalysis with ${transactions.length} transactions`)
+      await runAnalysis(transactions, organizationId, upload.id, analysis.id).catch(
+        async (error) => {
+          console.error("Analysis error:", error)
+          await db.analysis.update({
+            where: { id: analysis.id },
+            data: { status: "error" },
+          })
+        }
+      )
+    }
+
+    // In development, after() may not extend the request lifecycle —
+    // fire-and-forget works because the dev server process keeps running.
+    // In production (Vercel), after() is required to keep the serverless function
+    // alive after the HTTP response is flushed.
+    if (process.env.NODE_ENV === "development") {
+      void runWithErrorHandling()
+    } else {
+      after(runWithErrorHandling)
+    }
 
     return NextResponse.json(
       {

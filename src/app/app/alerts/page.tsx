@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
 import { AlertTriangle, Bell, X, Upload, ShieldCheck } from "lucide-react"
@@ -19,7 +19,6 @@ const SEV_BORDER: Record<string, string> = {
   warning: "rgba(245,158,11,0.2)",
   info: "rgba(59,130,246,0.2)",
 }
-const SEV_LABEL: Record<string, string> = { critical: "Crítico", warning: "Atenção", info: "Info" }
 
 function SevIcon({ severity }: { severity: string }) {
   if (severity === "critical") return <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: SEV_COLOR.critical }} />
@@ -36,8 +35,26 @@ export default function AlertsPage() {
   const { data, loading } = useAnalysisData()
   const { data: session } = useSession()
   const canUpload = can(session?.user?.role ?? "", "upload:create")
-  const [dismissed, setDismissed] = useState<Set<string>>(new Set())
+  const [dismissed, setDismissed] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem("alerts_dismissed_v1")
+      return saved ? new Set<string>(JSON.parse(saved)) : new Set<string>()
+    } catch { return new Set<string>() }
+  })
+  const [fading, setFading] = useState<Set<string>>(new Set())
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>("all")
+
+  useEffect(() => {
+    try { localStorage.setItem("alerts_dismissed_v1", JSON.stringify([...dismissed])) } catch { /* ignore */ }
+  }, [dismissed])
+
+  const dismiss = (id: string) => {
+    setFading(prev => new Set([...prev, id]))
+    setTimeout(() => {
+      setDismissed(prev => new Set([...prev, id]))
+      setFading(prev => { const n = new Set(prev); n.delete(id); return n })
+    }, 300)
+  }
 
   if (loading) {
     return (
@@ -101,23 +118,29 @@ export default function AlertsPage() {
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Alertas</h1>
-          <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
-            {criticalCount > 0 && (
-              <span style={{ color: "#FF4D4F", fontWeight: 700 }}>{criticalCount} crítico{criticalCount > 1 ? "s" : ""}</span>
-            )}
-            {criticalCount > 0 && warningCount > 0 && <span style={{ color: "var(--text-faint)" }}> · </span>}
-            {warningCount > 0 && (
-              <span style={{ color: "#F59E0B" }}>{warningCount} atenção</span>
-            )}
-            {criticalCount === 0 && warningCount === 0 && (
-              <span style={{ color: "#00D084" }}>Nenhum alerta ativo</span>
-            )}
-            {dismissedCount > 0 && (
-              <span style={{ color: "var(--text-faint)" }}> · {dismissedCount} dispensado{dismissedCount > 1 ? "s" : ""}</span>
-            )}
-          </p>
+        <div className="flex items-start gap-3">
+          <div className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0 mt-0.5"
+            style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.18)" }}>
+            <Bell className="w-5 h-5" style={{ color: "#F59E0B" }} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Alertas</h1>
+            <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
+              {criticalCount > 0 && (
+                <span style={{ color: "#FF4D4F", fontWeight: 700 }}>{criticalCount} crítico{criticalCount > 1 ? "s" : ""}</span>
+              )}
+              {criticalCount > 0 && warningCount > 0 && <span style={{ color: "var(--text-faint)" }}> · </span>}
+              {warningCount > 0 && (
+                <span style={{ color: "#F59E0B" }}>{warningCount} atenção</span>
+              )}
+              {criticalCount === 0 && warningCount === 0 && (
+                <span style={{ color: "#00D084" }}>Nenhum alerta ativo</span>
+              )}
+              {dismissedCount > 0 && (
+                <span style={{ color: "var(--text-faint)" }}> · {dismissedCount} dispensado{dismissedCount > 1 ? "s" : ""}</span>
+              )}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -184,11 +207,13 @@ export default function AlertsPage() {
             Ação imediata necessária
           </p>
           {critical.map((alert) => (
-            <div key={alert.id} className="rounded-2xl p-5 transition-all"
+            <div key={alert.id} className="rounded-2xl p-5 transition-all duration-300"
               style={{
                 background: SEV_BG.critical,
                 border: `1px solid ${SEV_BORDER.critical}`,
                 borderLeft: `3px solid ${SEV_COLOR.critical}`,
+                opacity: fading.has(alert.id) ? 0 : 1,
+                transform: fading.has(alert.id) ? "translateX(12px)" : "translateX(0)",
               }}>
               <div className="flex items-start gap-3">
                 <SevIcon severity={alert.severity} />
@@ -203,7 +228,7 @@ export default function AlertsPage() {
                   </div>
                   <p className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>{alert.message}</p>
                 </div>
-                <button onClick={() => setDismissed((prev) => new Set([...prev, alert.id]))}
+                <button onClick={() => dismiss(alert.id)}
                   className="p-1.5 rounded-lg shrink-0 transition-colors hover:bg-[var(--border)]"
                   style={{ color: "var(--text-faint)" }} title="Dispensar">
                   <X className="w-3.5 h-3.5" />
@@ -221,11 +246,13 @@ export default function AlertsPage() {
             Monitorar
           </p>
           {warning.map((alert) => (
-            <div key={alert.id} className="rounded-2xl p-5 transition-all"
+            <div key={alert.id} className="rounded-2xl p-5 transition-all duration-300"
               style={{
                 background: SEV_BG.warning,
                 border: `1px solid ${SEV_BORDER.warning}`,
                 borderLeft: `3px solid ${SEV_COLOR.warning}`,
+                opacity: fading.has(alert.id) ? 0 : 1,
+                transform: fading.has(alert.id) ? "translateX(12px)" : "translateX(0)",
               }}>
               <div className="flex items-start gap-3">
                 <SevIcon severity={alert.severity} />
@@ -240,7 +267,7 @@ export default function AlertsPage() {
                   </div>
                   <p className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>{alert.message}</p>
                 </div>
-                <button onClick={() => setDismissed((prev) => new Set([...prev, alert.id]))}
+                <button onClick={() => dismiss(alert.id)}
                   className="p-1.5 rounded-lg shrink-0 transition-colors hover:bg-[var(--border)]"
                   style={{ color: "var(--text-faint)" }} title="Dispensar">
                   <X className="w-3.5 h-3.5" />

@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { sendTeamInviteEmail } from "@/lib/email/templates"
 import { can, getInvitableRoles } from "@/lib/roles"
 import { z } from "zod"
+import { logAudit } from "@/lib/audit"
 
 const MAX_MEMBERS = 5
 
@@ -92,6 +93,8 @@ export async function POST(req: Request) {
   })
 
   await sendTeamInviteEmail(email, invite.token, org?.name ?? "sua empresa", inviterName ?? "Alguém").catch(() => {})
+
+  void logAudit({ action: "team.member_invited", status: "success", userId: session.user.id, organizationId, metadata: { targetEmail: email, role: targetRole } })
 
   return NextResponse.json({ success: true, invite })
 }

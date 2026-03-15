@@ -103,13 +103,19 @@ export default function OpportunitiesPage() {
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Oportunidades de economia</h1>
-          <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
-            {opportunities.length} oportunidades · potencial de{" "}
-            <span style={{ color: "#00D084", fontWeight: 700 }}>{fmt(totalEstimate)}/mês</span>
-            <span style={{ color: "var(--text-faint)" }}> · {fmt(totalEstimate * 12)}/ano</span>
-          </p>
+        <div className="flex items-start gap-3">
+          <div className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0 mt-0.5"
+            style={{ background: "rgba(0,208,132,0.08)", border: "1px solid rgba(0,208,132,0.18)" }}>
+            <Lightbulb className="w-5 h-5" style={{ color: "#00D084" }} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Oportunidades de economia</h1>
+            <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
+              {opportunities.length} oportunidades · potencial de{" "}
+              <span style={{ color: "#00D084", fontWeight: 700 }}>{fmt(totalEstimate)}/mês</span>
+              <span style={{ color: "var(--text-faint)" }}> · {fmt(totalEstimate * 12)}/ano</span>
+            </p>
+          </div>
         </div>
         {opportunities.length > 0 && (
           <a href="/api/app/export?type=opportunities" download
@@ -186,7 +192,7 @@ export default function OpportunitiesPage() {
           {/* Quick wins banner */}
           {easyWins.filter(o => !done.has(o.id)).length > 0 && filter === "all" && (
             <div className="flex items-center gap-3 p-4 rounded-xl"
-              style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.2)" }}>
+              style={{ background: "linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(245,158,11,0.04) 100%)", border: "1px solid rgba(245,158,11,0.25)" }}>
               <Zap className="w-4 h-4 shrink-0" style={{ color: "#F59E0B" }} />
               <p className="text-sm flex-1" style={{ color: "var(--text-primary)" }}>
                 <span className="font-bold" style={{ color: "#F59E0B" }}>

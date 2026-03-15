@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { can } from "@/lib/roles"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
+import { logAudit } from "@/lib/audit"
 
 const MAX_ATTEMPTS = 5
 const LOCKOUT_MINUTES = 15
@@ -68,6 +69,7 @@ export async function POST(req: Request) {
           : null,
       },
     })
+    void logAudit({ action: "pin.verify_failure", status: "failure", userId: session.user.id, organizationId, metadata: { attempts: newAttempts, locked: shouldLock } })
     const remaining = MAX_ATTEMPTS - newAttempts
     return NextResponse.json(
       {
@@ -84,6 +86,8 @@ export async function POST(req: Request) {
     where: { id: organizationId },
     data: { financePinAttempts: 0, financePinLockedUntil: null },
   })
+
+  void logAudit({ action: "pin.verify_success", status: "success", userId: session.user.id, organizationId })
 
   return NextResponse.json({ success: true })
 }

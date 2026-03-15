@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server"
+import { randomBytes } from "crypto"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { z } from "zod"
 import { can } from "@/lib/roles"
+import { logAudit } from "@/lib/audit"
 
 const MAX_ORGS = 3
 const COOLDOWN_HOURS = 72
@@ -123,14 +125,12 @@ export async function POST(req: Request) {
     select: { plan: true },
   })
 
-  // Gera slug único com limite de iterações para prevenir DoS
+  // Gera slug único: tenta slug limpo primeiro, se colidir adiciona sufixo aleatório (max 2 queries)
   const baseSlug = (name.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "")) || "empresa"
   let slug = baseSlug
-  for (let i = 1; i <= 100; i++) {
-    const exists = await db.organization.findUnique({ where: { slug } })
-    if (!exists) break
-    slug = `${baseSlug}-${i}`
-    if (i === 100) slug = `${baseSlug}-${Date.now()}`
+  const slugExists = await db.organization.findUnique({ where: { slug } })
+  if (slugExists) {
+    slug = `${baseSlug}-${randomBytes(3).toString("hex")}` // ex: minha-empresa-a3f2c1
   }
 
   const newOrg = await db.organization.create({
@@ -145,6 +145,8 @@ export async function POST(req: Request) {
       },
     },
   })
+
+  void logAudit({ action: "org.created", status: "success", userId, organizationId: newOrg.id, metadata: { name: newOrg.name } })
 
   return NextResponse.json({ success: true, organization: newOrg })
 }

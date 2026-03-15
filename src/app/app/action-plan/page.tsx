@@ -34,7 +34,7 @@ function ActionPlanContent() {
 
   if (loading) {
     return (
-      <div className="px-6 py-8 space-y-4">
+      <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-4">
         <CardSkeleton rows={1} />
         <CardSkeleton rows={5} />
       </div>
@@ -43,7 +43,7 @@ function ActionPlanContent() {
 
   if (!data?.analysis) {
     return (
-      <div className="px-6 py-8">
+      <div className="px-4 sm:px-6 py-6 sm:py-8">
         <h1 className="text-2xl font-black mb-6" style={{ color: "var(--text-primary)" }}>Plano de ação</h1>
         <div className="rounded-2xl p-12 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
@@ -88,15 +88,21 @@ function ActionPlanContent() {
   const easyImmediate = actions.filter(a => a.difficulty === "easy" && a.urgency === "immediate" && (statuses[a.id] ?? "pending") !== "done")
 
   return (
-    <div className="px-6 py-8 space-y-6">
+    <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-6">
 
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Plano de ação</h1>
-        <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
-          {actions.length} ações · potencial de{" "}
-          <span style={{ color: "#00D084", fontWeight: 700 }}>{fmt(totalSavings)}/mês</span>
-        </p>
+      <div className="flex items-start gap-3">
+        <div className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0 mt-0.5"
+          style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.18)" }}>
+          <ClipboardList className="w-5 h-5" style={{ color: "#3B82F6" }} />
+        </div>
+        <div>
+          <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Plano de ação</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
+            {actions.length} ações · potencial de{" "}
+            <span style={{ color: "#00D084", fontWeight: 700 }}>{fmt(totalSavings)}/mês</span>
+          </p>
+        </div>
       </div>
 
       {actions.length === 0 ? (
@@ -245,7 +251,7 @@ function ActionPlanContent() {
                         </p>
                         <p className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>{action.rationale}</p>
                       </div>
-                      <div className="flex gap-6">
+                      <div className="flex flex-col sm:flex-row gap-3 sm:gap-6">
                         <div>
                           <p className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: "var(--text-faint)" }}>Impacto</p>
                           <span className="text-xs px-2 py-0.5 rounded-full font-medium"

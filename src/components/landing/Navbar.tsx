@@ -2,9 +2,47 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { Menu, X, ArrowRight, Zap, Sun, Moon, TrendingUp, BarChart3, DollarSign, HelpCircle, LogIn, ChevronRight } from "lucide-react"
 import { useTheme } from "@/lib/theme"
+
+function LogoBrand({ size = 32 }: { size?: number }) {
+  return (
+    <span style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+      {/* Ícone */}
+      <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-hidden>
+        <rect width="48" height="48" rx="12" fill="#0D0F14" />
+        <rect width="48" height="48" rx="12" fill="none" stroke="#00D084" strokeOpacity="0.22" strokeWidth="1" />
+        <clipPath id="lc">
+          <circle cx="20" cy="21" r="11" />
+        </clipPath>
+        <defs>
+          <linearGradient id="bg" x1="20" y1="32" x2="20" y2="10" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#006640" />
+            <stop offset="100%" stopColor="#00FF99" />
+          </linearGradient>
+        </defs>
+        <circle cx="20" cy="21" r="11" fill="#07090E" />
+        <g clipPath="url(#lc)">
+          <rect x="13" y="22" width="3.5" height="22" rx="1" fill="url(#bg)" opacity="0.40" />
+          <rect x="18.25" y="17" width="3.5" height="27" rx="1" fill="url(#bg)" opacity="0.68" />
+          <rect x="23.5" y="12" width="3.5" height="32" rx="1" fill="url(#bg)" />
+        </g>
+        <circle cx="20" cy="21" r="11" fill="none" stroke="#00D084" strokeWidth="1.8" />
+        <line x1="28.5" y1="29.5" x2="36.5" y2="37.5" stroke="#00D084" strokeWidth="2.4" strokeLinecap="round" />
+      </svg>
+      {/* Wordmark */}
+      <span style={{
+        fontSize: size * 0.52,
+        fontWeight: 700,
+        letterSpacing: "-0.3px",
+        lineHeight: 1,
+        color: "var(--text-primary)",
+      }}>
+        Lucro <span style={{ color: "#00D084" }}>Oculto</span>
+      </span>
+    </span>
+  )
+}
 
 const navLinks = [
   { href: "#how-it-works", label: "Como funciona", desc: "Diagnóstico em 3 etapas simples", icon: TrendingUp, color: "#00D084" },
@@ -19,9 +57,19 @@ export function Navbar() {
   const { theme, toggleTheme } = useTheme()
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
+    let rafId: number | null = null
+    const onScroll = () => {
+      if (rafId !== null) return
+      rafId = requestAnimationFrame(() => {
+        setScrolled(window.scrollY > 20)
+        rafId = null
+      })
+    }
     window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
+    return () => {
+      window.removeEventListener("scroll", onScroll)
+      if (rafId !== null) cancelAnimationFrame(rafId)
+    }
   }, [])
 
   useEffect(() => {
@@ -36,7 +84,7 @@ export function Navbar() {
       {/* ─── Header ─────────────────────────────────────────── */}
       <header
         className="fixed top-0 left-0 right-0 transition-all duration-300"
-        style={{ zIndex: 100000 }}
+        style={{ zIndex: 40 }}
       >
         <div
           className="transition-all duration-300"
@@ -50,7 +98,7 @@ export function Navbar() {
 
               {/* Logo */}
               <Link href="/" onClick={close} className="flex items-center hover:opacity-80 transition-opacity">
-                <Image src={theme === "light" ? "/logo-light.svg" : "/logo.svg"} alt="Lucro Oculto" width={150} height={36} priority />
+                <LogoBrand size={32} />
               </Link>
 
               {/* Desktop nav */}
@@ -125,7 +173,7 @@ export function Navbar() {
           background: "rgba(0,0,0,0.55)",
           backdropFilter: "blur(6px)",
           WebkitBackdropFilter: "blur(6px)",
-          zIndex: 99997,
+          zIndex: 41,
           opacity: mobileOpen ? 1 : 0,
           pointerEvents: mobileOpen ? "auto" : "none",
           transition: "opacity 0.3s ease",
@@ -141,7 +189,7 @@ export function Navbar() {
           right: 0,
           bottom: 0,
           width: "min(340px, 92vw)",
-          zIndex: 99998,
+          zIndex: 42,
           transform: mobileOpen ? "translateX(0)" : "translateX(100%)",
           transition: "transform 0.38s cubic-bezier(0.32,0.72,0,1)",
           background: "var(--bg-page)",
@@ -161,7 +209,7 @@ export function Navbar() {
           }}
         >
           <Link href="/" onClick={close}>
-            <Image src={theme === "light" ? "/logo-light.svg" : "/logo.svg"} alt="Lucro Oculto" width={124} height={30} />
+            <LogoBrand size={28} />
           </Link>
           <button
             onClick={close}

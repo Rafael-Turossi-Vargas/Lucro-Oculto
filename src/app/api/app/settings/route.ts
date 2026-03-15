@@ -3,6 +3,13 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { can } from "@/lib/roles"
+import { z } from "zod"
+
+const updateSchema = z.object({
+  name: z.string().min(2, "Nome muito curto").max(100, "Nome muito longo").optional(),
+  companyName: z.string().min(2, "Nome da empresa muito curto").max(100, "Nome da empresa muito longo").optional(),
+  niche: z.string().max(100, "Nicho muito longo").optional(),
+})
 
 export async function GET() {
   try {
@@ -33,11 +40,12 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Sem permissão para alterar configurações" }, { status: 403 })
     }
 
-    const { name, companyName, niche } = await request.json() as {
-      name?: string
-      companyName?: string
-      niche?: string
+    const body: unknown = await request.json()
+    const parsed = updateSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Dados inválidos" }, { status: 400 })
     }
+    const { name, companyName, niche } = parsed.data
 
     // Apenas proprietário pode alterar dados da empresa
     const isOwner = session.user.role === "owner"

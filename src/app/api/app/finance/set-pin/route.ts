@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { can } from "@/lib/roles"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
+import { logAudit } from "@/lib/audit"
 
 const pinSchema = z.object({
   pin: z
@@ -32,7 +33,7 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "PIN inválido" }, { status: 400 })
     }
 
-    const hash = await bcrypt.hash(parsed.data.pin, 12)
+    const hash = await bcrypt.hash(parsed.data.pin, 14)
 
     await db.organization.update({
       where: { id: session.user.organizationId },
@@ -42,6 +43,8 @@ export async function PUT(req: Request) {
         financePinLockedUntil: null,
       },
     })
+
+    void logAudit({ action: "pin.set", status: "success", userId: session.user.id, organizationId: session.user.organizationId })
 
     return NextResponse.json({ success: true })
   } catch (error) {
@@ -67,6 +70,8 @@ export async function DELETE() {
       where: { id: session.user.organizationId },
       data: { financePinHash: null, financePinAttempts: 0, financePinLockedUntil: null },
     })
+
+    void logAudit({ action: "pin.deleted", status: "success", userId: session.user.id, organizationId: session.user.organizationId })
 
     return NextResponse.json({ success: true })
   } catch (error) {

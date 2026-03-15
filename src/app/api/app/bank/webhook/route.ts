@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server"
+import { z } from "zod"
 import { db } from "@/lib/db"
 import { syncBankTransactions } from "@/lib/bank-sync"
+
+const webhookSchema = z.object({
+  event: z.string().min(1).max(100),
+  itemId: z.string().uuid(),
+})
 
 /**
  * POST /api/app/bank/webhook
@@ -17,12 +23,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 })
   }
 
-  const event = body.event as string
-  const itemId = body.itemId as string | undefined
-
-  if (!itemId) {
+  const parsed = webhookSchema.safeParse(body)
+  if (!parsed.success) {
+    // Responde 200 para evitar retries do Pluggy em payloads inválidos
     return NextResponse.json({ received: true })
   }
+
+  const { event, itemId } = parsed.data
 
   if (event === "item/error") {
     await db.bankConnection

@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { signIn } from "next-auth/react"
 import { Eye, EyeOff, Loader2, AlertCircle, ArrowRight, CheckCircle2, Lock } from "lucide-react"
+import { LoginSplash } from "@/components/auth/LoginSplash"
 
 function LoginForm() {
   const router = useRouter()
@@ -15,6 +16,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [emailNotVerified, setEmailNotVerified] = useState(false)
+  const [showSplash, setShowSplash] = useState(false)
 
   const registered = params.get("registered") === "true"
   const trialParam = params.get("trial")
@@ -39,6 +41,8 @@ function LoginForm() {
       if (result?.error) {
         if (result.error === "EMAIL_NOT_VERIFIED") {
           setEmailNotVerified(true)
+        } else if (result.error === "TOO_MANY_ATTEMPTS") {
+          setError("Muitas tentativas. Aguarde 15 minutos antes de tentar novamente.")
         } else {
           setError("Email ou senha incorretos. Tente novamente.")
         }
@@ -46,8 +50,7 @@ function LoginForm() {
         return
       }
 
-      router.push("/app/dashboard")
-      router.refresh()
+      setShowSplash(true)
     } catch {
       setError("Erro ao fazer login. Tente novamente.")
       setLoading(false)
@@ -55,7 +58,11 @@ function LoginForm() {
   }
 
   return (
-    <div>
+    <>
+      {showSplash && (
+        <LoginSplash onDone={() => { router.push("/app/dashboard"); router.refresh() }} />
+      )}
+    <div style={showSplash ? { visibility: "hidden" } : undefined}>
       {/* Header */}
       <div className="flex items-start gap-4 mb-7">
         {/* Icon badge */}
@@ -244,10 +251,11 @@ function LoginForm() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 transition-opacity hover:opacity-70"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-lg transition-opacity hover:opacity-70 active:opacity-50"
               style={{ color: "var(--text-faint)" }}
+              aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
             >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
           </div>
         </div>
@@ -306,6 +314,7 @@ function LoginForm() {
         </div>
       </Link>
     </div>
+    </>
   )
 }
 

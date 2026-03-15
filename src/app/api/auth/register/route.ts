@@ -6,16 +6,21 @@ import { db } from "@/lib/db"
 
 type TxClient = Parameters<Parameters<typeof db.$transaction>[0]>[0]
 import { sendWelcomeEmail, sendEmailVerificationEmail } from "@/lib/email/templates"
-import { rateLimit } from "@/lib/rate-limit"
-import { stripe } from "@/lib/stripe"
+import { rateLimit, getClientIp } from "@/lib/rate-limit"
+
 
 const schema = z.object({
-  name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
+  name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres").max(100, "Nome muito longo"),
   email: z.string().email("Email inválido"),
-  password: z.string().min(8, "Senha deve ter pelo menos 8 caracteres"),
-  organizationName: z.string().min(2, "Nome da empresa obrigatório"),
+  password: z.string()
+    .min(8, "Senha deve ter pelo menos 8 caracteres")
+    .max(128, "Senha muito longa")
+    .refine(
+      (p) => /[A-Z]/.test(p) || /[0-9]/.test(p) || /[^A-Za-z0-9]/.test(p),
+      "Senha deve conter pelo menos uma letra maiúscula, número ou símbolo"
+    ),
+  organizationName: z.string().min(2, "Nome da empresa obrigatório").max(100, "Nome da empresa muito longo"),
   cnpj: z.string().length(14, "CNPJ inválido").refine((v) => /^\d+$/.test(v), "CNPJ deve conter apenas números"),
-  plan: z.enum(["free", "pro", "premium"]).optional().default("free"),
 })
 
 function slugify(text: string): string {
@@ -65,8 +70,8 @@ async function verifyCnpj(cnpj: string): Promise<boolean> {
 export async function POST(request: NextRequest) {
   try {
     // Rate limit: 5 cadastros por IP por hora
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
-    const rl = rateLimit(`register:${ip}`, 5, 60 * 60 * 1000)
+    const ip = getClientIp(request)
+    const rl = await rateLimit(`register:${ip}`, 5, 60 * 60 * 1000)
     if (!rl.success) {
       return NextResponse.json(
         { error: "Muitas tentativas. Tente novamente mais tarde." },
@@ -84,7 +89,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { name, email, password, organizationName, cnpj, plan } = result.data
+    const { name: rawName, email, password, organizationName: rawOrgName, cnpj } = result.data
+    const name = rawName.trim()
+    const organizationName = rawOrgName.trim()
     const normalizedEmail = email.toLowerCase().trim()
 
     // Verifica CNPJ na Receita Federal via BrasilAPI
@@ -132,11 +139,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const passwordHash = await bcrypt.hash(password, 12)
+    const passwordHash = await bcrypt.hash(password, 13)
     const slug = await generateUniqueSlug(organizationName)
 
     // Contas sempre criadas como free — upgrade via Stripe
-    const { organization } = await db.$transaction(async (tx: TxClient) => {
+    await db.$transaction(async (tx: TxClient) => {
       const user = await tx.user.create({
         data: {
           name,
@@ -195,41 +202,7 @@ export async function POST(request: NextRequest) {
       console.error("Failed to send welcome email:", err)
     )
 
-    // Se escolheu Pro ou Premium: cria sessão Stripe com trial de 7 dias
-    if (plan === "pro" || plan === "premium") {
-      const priceId = plan === "premium"
-        ? process.env.STRIPE_PREMIUM_PRICE_ID
-        : process.env.STRIPE_PRO_PRICE_ID
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? ""
-      const isPlaceholder = !priceId || priceId === "price_placeholder" || priceId === "price_premium_placeholder"
-
-      if (!isPlaceholder && appUrl) {
-        try {
-          const checkoutSession = await stripe.checkout.sessions.create({
-            mode: "subscription",
-            payment_method_types: ["card"],
-            line_items: [{ price: priceId, quantity: 1 }],
-            subscription_data: {
-              trial_period_days: 7,
-              metadata: { organizationId: organization.id, plan },
-            },
-            metadata: { organizationId: organization.id, plan },
-            customer_email: normalizedEmail,
-            success_url: `${appUrl}/login?registered=true&trial=${plan}`,
-            cancel_url: `${appUrl}/register?plan=free`,
-          })
-
-          return NextResponse.json(
-            { message: "Conta criada com sucesso", checkoutUrl: checkoutSession.url, requiresEmailVerification: true },
-            { status: 201 }
-          )
-        } catch (stripeErr) {
-          console.error("Stripe trial checkout error:", stripeErr)
-          // Se Stripe falhar, cria conta free normalmente
-        }
-      }
-    }
-
+    // Contas sempre criadas como free — upgrade via Stripe após login
     return NextResponse.json(
       { message: "Conta criada com sucesso", requiresEmailVerification: true },
       { status: 201 }

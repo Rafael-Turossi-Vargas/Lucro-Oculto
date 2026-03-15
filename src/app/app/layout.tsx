@@ -7,6 +7,7 @@ import { ToastProvider } from "@/components/ui/toast-provider"
 import { TrialBanner } from "@/components/ui/trial-banner"
 import { NpsModal } from "@/components/ui/nps-modal"
 import { Breadcrumb } from "@/components/ui/breadcrumb"
+import { ErrorBoundary } from "@/components/ui/error-boundary"
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions)
@@ -30,7 +31,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <div className="px-6 pt-6">
               <Breadcrumb />
             </div>
-            {children}
+            <ErrorBoundary>{children}</ErrorBoundary>
             <NpsModal />
           </main>
         </div>

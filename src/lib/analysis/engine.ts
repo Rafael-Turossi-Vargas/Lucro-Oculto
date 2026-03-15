@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk"
 import { db } from "@/lib/db"
 import { sendAnalysisReadyEmail } from "@/lib/email/templates"
 import type { RawTransaction } from "@/types/transactions"
+import { normalizeAmount } from "@/lib/parsers/csv"
 import { categorizeTransaction, extractVendor, detectRecurrence } from "./categorizer"
 import { detectSubscriptions } from "./rules/subscriptions"
 import { detectAnomalies } from "./rules/anomalies"
@@ -73,7 +74,12 @@ async function analyzeWithAI(
 ): Promise<AIAnalysisResult> {
   const empty: AIAnalysisResult = { leaks: [], opportunities: [], alerts: [], recommendations: [] }
 
-  if (!process.env.ANTHROPIC_API_KEY || transactions.length === 0) return empty
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.warn("[analyzeWithAI] ANTHROPIC_API_KEY não configurado — análise por IA desativada")
+    return empty
+  }
+
+  if (transactions.length === 0) return empty
 
   try {
     // Sanitize user-supplied text to prevent prompt injection via transaction descriptions
@@ -252,17 +258,27 @@ Responda SOMENTE com JSON válido (sem markdown, sem texto extra):
 }`
 
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-    const response = await client.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 8096,
-      messages: [{ role: "user", content: prompt }],
-    })
+    const response = await client.messages.create(
+      {
+        model: "claude-sonnet-4-6",
+        max_tokens: 8096,
+        messages: [{ role: "user", content: prompt }],
+      },
+      // Timeout de 45s — evita análise pendurada indefinidamente
+      { signal: AbortSignal.timeout(45_000) }
+    )
 
     const raw = response.content.find((b) => b.type === "text")?.text ?? "{}"
     const jsonMatch = raw.match(/\{[\s\S]*\}/)
     if (!jsonMatch) return empty
 
-    const parsed = JSON.parse(jsonMatch[0]) as Partial<AIAnalysisResult>
+    let parsed: Partial<AIAnalysisResult>
+    try {
+      parsed = JSON.parse(jsonMatch[0]) as Partial<AIAnalysisResult>
+    } catch {
+      console.error("AI response JSON parse failed, raw:", raw.slice(0, 200))
+      return empty
+    }
     return {
       leaks: Array.isArray(parsed.leaks) ? parsed.leaks : [],
       opportunities: Array.isArray(parsed.opportunities) ? parsed.opportunities : [],
@@ -286,14 +302,8 @@ async function _runAnalysisPipeline(
       select: { name: true, niche: true },
     })
 
-    const [
-      subscriptions,
-      anomalies,
-      duplicates,
-      concentration,
-      cashflow,
-      aiResult,
-    ] = await Promise.all([
+    // Promise.allSettled — falha em um step não cancela os outros
+    const results = await Promise.allSettled([
       Promise.resolve(detectSubscriptions(enriched)),
       Promise.resolve(detectAnomalies(enriched)),
       Promise.resolve(detectDuplicates(enriched)),
@@ -301,6 +311,18 @@ async function _runAnalysisPipeline(
       Promise.resolve(analyzeCashflow(enriched)),
       analyzeWithAI(enriched, organization?.name ?? "Empresa", organization?.niche ?? null),
     ])
+
+    const empty: AIAnalysisResult = { leaks: [], opportunities: [], alerts: [], recommendations: [] }
+    const subscriptions = results[0].status === "fulfilled" ? results[0].value : detectSubscriptions([])
+    const anomalies     = results[1].status === "fulfilled" ? results[1].value : detectAnomalies([])
+    const duplicates    = results[2].status === "fulfilled" ? results[2].value : detectDuplicates([])
+    const concentration = results[3].status === "fulfilled" ? results[3].value : detectConcentration([])
+    const cashflow      = results[4].status === "fulfilled" ? results[4].value : analyzeCashflow([])
+    const aiResult      = results[5].status === "fulfilled" ? results[5].value : { ...empty, aiUnavailable: true }
+
+    if (results.some(r => r.status === "rejected")) {
+      console.error("Some analysis steps failed:", results.filter(r => r.status === "rejected").map(r => (r as PromiseRejectedResult).reason))
+    }
 
     const scoreResult = calculateScore({
       subscriptions,
@@ -528,7 +550,7 @@ export async function runAnalysis(
     id: `t_${index}`,
     amount:
       typeof transaction.amount === "string"
-        ? Number(String(transaction.amount).replace(",", "."))
+        ? normalizeAmount(transaction.amount)
         : Number(transaction.amount),
     categorySlug: categorizeTransaction(transaction.description),
     vendor: extractVendor(transaction.description),

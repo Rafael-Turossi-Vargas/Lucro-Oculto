@@ -7,6 +7,8 @@ import { ArrowRight, AlertTriangle, Zap, TrendingDown, ShieldCheck, CreditCard, 
 function useCountUp(target: number, duration = 1400, startDelay = 400) {
   const [value, setValue] = useState(0)
   useEffect(() => {
+    const prefersReduced = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (prefersReduced) { setValue(target); return }
     const timeout = setTimeout(() => {
       const steps = Math.ceil(duration / 16)
       const increment = target / steps
@@ -324,7 +326,7 @@ export function Hero() {
 
             {/* Stats */}
             <div
-              className="mt-8 grid grid-cols-3 gap-4 pt-6"
+              className="mt-8 grid grid-cols-3 gap-3 sm:gap-4 pt-6"
               style={{ borderTop: "1px solid var(--border)" }}
             >
               {stats.map((stat, index) => (

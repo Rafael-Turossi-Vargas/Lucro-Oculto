@@ -36,41 +36,107 @@ export function normalizeAmount(value: string): number {
   return hasDebitSuffix ? -Math.abs(result) : result
 }
 
-export function normalizeDate(value: string): Date | null {
+// Excel serial date origin (Jan 1, 1900, adjusted for Excel's leap year bug)
+const EXCEL_EPOCH = new Date(Date.UTC(1899, 11, 30))
+
+export function normalizeDate(value: string | number): Date | null {
+  // Excel serial date (numeric): e.g. 45000 → real date
+  if (typeof value === "number" && value > 0) {
+    const d = new Date(EXCEL_EPOCH.getTime() + value * 86400000)
+    if (!Number.isNaN(d.getTime())) return d
+  }
+
   const raw = String(value ?? "").trim()
   if (!raw) return null
 
-  // ISO / JS auto-parse (handles 2024-03-15, etc.)
-  const isoDate = new Date(raw)
-  if (!Number.isNaN(isoDate.getTime())) return isoDate
+  // Excel serial date as string: "45000" — threshold > 25000 avoids false-positives on year numbers like "2024"
+  const serialNum = Number(raw)
+  if (!Number.isNaN(serialNum) && serialNum > 25000 && serialNum < 100000 && !raw.includes("/") && !raw.includes("-") && !raw.includes(".")) {
+    const d = new Date(EXCEL_EPOCH.getTime() + serialNum * 86400000)
+    if (!Number.isNaN(d.getTime())) return d
+  }
 
-  // DD/MM/YYYY
-  const brSlash = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
+  // Strip trailing time/timezone portion (e.g. "15/01/2024 00:00:00", "2024-03-15T10:30:00Z")
+  // so all subsequent patterns can match date-only strings
+  const dateOnly = raw.replace(/[\sT]\d{1,2}:\d{2}.*$/, "").trim()
+
+  // ISO 8601: 2024-03-15 or 2024-3-5
+  if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(dateOnly)) {
+    const d = new Date(`${dateOnly}T00:00:00`)
+    if (!Number.isNaN(d.getTime())) return d
+  }
+
+  // DD/MM/YYYY or D/M/YYYY (Brazilian)
+  const brSlash = dateOnly.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)
   if (brSlash) {
-    const d = new Date(`${brSlash[3]}-${brSlash[2]}-${brSlash[1]}T00:00:00`)
+    const d = new Date(`${brSlash[3]}-${brSlash[2].padStart(2, "0")}-${brSlash[1].padStart(2, "0")}T00:00:00`)
     if (!Number.isNaN(d.getTime())) return d
   }
 
-  // DD-MM-YYYY
-  const brDash = raw.match(/^(\d{2})-(\d{2})-(\d{4})$/)
+  // DD/MM/YY or D/M/YY (two-digit year — assume 2000s)
+  const brSlashShort = dateOnly.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/)
+  if (brSlashShort) {
+    const year = Number(brSlashShort[3]) < 50 ? `20${brSlashShort[3]}` : `19${brSlashShort[3]}`
+    const d = new Date(`${year}-${brSlashShort[2].padStart(2, "0")}-${brSlashShort[1].padStart(2, "0")}T00:00:00`)
+    if (!Number.isNaN(d.getTime())) return d
+  }
+
+  // DD-MM-YYYY or D-M-YYYY
+  const brDash = dateOnly.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/)
   if (brDash) {
-    const d = new Date(`${brDash[3]}-${brDash[2]}-${brDash[1]}T00:00:00`)
+    const d = new Date(`${brDash[3]}-${brDash[2].padStart(2, "0")}-${brDash[1].padStart(2, "0")}T00:00:00`)
     if (!Number.isNaN(d.getTime())) return d
   }
 
-  // DD.MM.YYYY
-  const brDot = raw.match(/^(\d{2})\.(\d{2})\.(\d{4})$/)
+  // DD.MM.YYYY or D.M.YYYY
+  const brDot = dateOnly.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/)
   if (brDot) {
-    const d = new Date(`${brDot[3]}-${brDot[2]}-${brDot[1]}T00:00:00`)
+    const d = new Date(`${brDot[3]}-${brDot[2].padStart(2, "0")}-${brDot[1].padStart(2, "0")}T00:00:00`)
     if (!Number.isNaN(d.getTime())) return d
   }
 
-  // YYYY/MM/DD
-  const isoSlash = raw.match(/^(\d{4})\/(\d{2})\/(\d{2})$/)
+  // YYYY/MM/DD or YYYY/M/D
+  const isoSlash = dateOnly.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/)
   if (isoSlash) {
-    const d = new Date(`${isoSlash[1]}-${isoSlash[2]}-${isoSlash[3]}T00:00:00`)
+    const d = new Date(`${isoSlash[1]}-${isoSlash[2].padStart(2, "0")}-${isoSlash[3].padStart(2, "0")}T00:00:00`)
     if (!Number.isNaN(d.getTime())) return d
   }
+
+  // Month name: "15 mar 2024", "15 março 2024", "Mar 15, 2024"
+  const MONTH_MAP: Record<string, string> = {
+    jan: "01", fev: "02", mar: "03", abr: "04", mai: "05", jun: "06",
+    jul: "07", ago: "08", set: "09", out: "10", nov: "11", dez: "12",
+    feb: "02", apr: "04", may: "05", aug: "08", sep: "09", oct: "10", dec: "12",
+  }
+  const monthName = dateOnly.match(/^(\d{1,2})\s+([a-záêç]{3,})\.?\s+(\d{4})$/i)
+  if (monthName) {
+    const m = MONTH_MAP[monthName[2].toLowerCase().slice(0, 3)]
+    if (m) {
+      const d = new Date(`${monthName[3]}-${m}-${monthName[1].padStart(2, "0")}T00:00:00`)
+      if (!Number.isNaN(d.getTime())) return d
+    }
+  }
+
+  // "Mar 15, 2024" or "March 15, 2024"
+  const usMonthName = dateOnly.match(/^([a-z]{3,})\s+(\d{1,2}),?\s+(\d{4})$/i)
+  if (usMonthName) {
+    const m = MONTH_MAP[usMonthName[1].toLowerCase().slice(0, 3)]
+    if (m) {
+      const d = new Date(`${usMonthName[3]}-${m}-${usMonthName[2].padStart(2, "0")}T00:00:00`)
+      if (!Number.isNaN(d.getTime())) return d
+    }
+  }
+
+  // DDMMYYYY (without separator, common in some bank exports)
+  const compact = dateOnly.match(/^(\d{2})(\d{2})(\d{4})$/)
+  if (compact) {
+    const d = new Date(`${compact[3]}-${compact[2]}-${compact[1]}T00:00:00`)
+    if (!Number.isNaN(d.getTime())) return d
+  }
+
+  // Last resort: let the JS engine try to parse it (handles many locale-specific formats)
+  const fallback = new Date(raw)
+  if (!Number.isNaN(fallback.getTime())) return fallback
 
   return null
 }
@@ -91,22 +157,40 @@ export function detectColumns(headers: string[]): UploadMapping | null {
   const normalized = headers.map(normalizeHeader)
 
   const DATE_KW = [
-    "data", "date", "lancamento", "pagamento", "vencimento",
+    // PT-BR
+    "data", "lancamento", "pagamento", "vencimento",
     "competencia", "movimento", "emissao", "transacao", "referencia",
     "ocorrencia", "realizacao", "dt",
+    // EN
+    "date", "transaction date", "posting date", "value date", "settlement date",
+    "txn date", "trans date",
   ]
   const DESC_KW = [
-    "descricao", "descr", "description", "historico", "hist",
+    // PT-BR
+    "descricao", "descr", "historico", "hist",
     "memo", "observacao", "complemento", "detalhe", "nome",
     "estabelecimento", "favorecido", "beneficiario", "lojista",
     "informacao", "origem", "destino", "participante",
     "razao social", "empresa", "contraparte", "lancamento",
+    // Nubank / bancos digitais
+    "titulo", "titulo do lancamento", "identificacao", "identificador",
+    "categoria", "subcategoria", "tipo de lancamento",
+    // Outros bancos BR
+    "docto", "documento", "numero do documento", "historico completo",
+    "complemento do lancamento", "informacoes adicionais",
+    // EN
+    "description", "narrative", "details", "merchant", "payee", "reference",
+    "particulars", "transaction description", "trans description",
   ]
   const AMOUNT_KW = [
-    "valor", "amount", "total", "quantia", "montante", "vlr", "preco", "custo",
+    // PT-BR
+    "valor", "quantia", "montante", "vlr", "preco", "custo",
+    // EN
+    "amount", "total", "value", "sum", "net amount", "transaction amount",
   ]
-  const CREDIT_KW = ["credito", "credit", "entrada", "receita", "deposito"]
-  const DEBIT_KW = ["debito", "debit", "saida", "despesa", "saque"]
+  // NOTE: "cr" and "dr" removed intentionally — too short, matches substrings like "descricao" (des-cr-icao)
+  const CREDIT_KW = ["credito", "credit", "entrada", "receita", "deposito", "deposit", "creditos", "entradas"]
+  const DEBIT_KW = ["debito", "debit", "saida", "despesa", "saque", "withdrawal", "debitos", "saidas"]
 
   const findIndex = (keywords: string[], exclude: number[] = []) =>
     normalized.findIndex((h, i) => {
@@ -152,13 +236,15 @@ export function detectColumns(headers: string[]): UploadMapping | null {
   }
 }
 
-// Try to find the real header row by scanning lines for known column keywords
+// Try to find the real header row by scanning up to 100 lines for known column keywords
 function findHeaderRow(lines: string[], delimiter: string): number {
-  for (let i = 0; i < Math.min(lines.length, 20); i++) {
+  for (let i = 0; i < Math.min(lines.length, 100); i++) {
     const cols = lines[i].split(delimiter).map(normalizeHeader)
-    const hasDate = cols.some((c) => ["data", "date", "lancamento", "pagamento", "dt"].some((kw) => c.includes(kw)))
+    const hasDate = cols.some((c) =>
+      ["data", "date", "lancamento", "pagamento", "dt", "transaction date", "posting date"].some((kw) => c.includes(kw))
+    )
     const hasValue = cols.some((c) =>
-      ["valor", "amount", "total", "credito", "debito", "credit", "debit", "vlr", "entrada", "saida"].some((kw) => c.includes(kw))
+      ["valor", "amount", "total", "credito", "debito", "credit", "debit", "vlr", "entrada", "saida", "value", "deposit", "withdrawal"].some((kw) => c.includes(kw))
     )
     if (hasDate && hasValue) return i
   }

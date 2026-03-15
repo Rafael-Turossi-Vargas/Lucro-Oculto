@@ -54,11 +54,12 @@ export function analyzeCashflow(transactions: Array<RawTransaction>): CashflowRe
     cashPressureDays = Math.max(5, Math.round(30 * (1 - coverageRatio) * 10))
   }
 
-  // Score: 100 if expenses < 70% of income, degrade from there
+  // Score: 100 if expenses ≤ 70% of income, linearly degrades to 0 above 100%
+  // coverageRatio = expenses / income: 0.7→100pts, 0.9→20pts, 1.0+→0pts
   let cashflowScore = 100
   if (coverageRatio > 1) cashflowScore = 0
-  else if (coverageRatio > 0.9) cashflowScore = Math.round((1 - coverageRatio) * 100 / 0.1 * 20)
-  else if (coverageRatio > 0.7) cashflowScore = Math.round(50 + (0.9 - coverageRatio) / 0.2 * 50)
+  else if (coverageRatio > 0.9) cashflowScore = Math.round((1 - coverageRatio) / 0.1 * 20)
+  else if (coverageRatio > 0.7) cashflowScore = Math.round(20 + (0.9 - coverageRatio) / 0.2 * 80)
   cashflowScore = Math.max(0, Math.min(100, cashflowScore))
 
   return { averageMonthlyExpenses: avgExpenses, averageMonthlyIncome: avgIncome, projectedBalance, cashPressureDays, monthlyTrend: months, cashflowScore }

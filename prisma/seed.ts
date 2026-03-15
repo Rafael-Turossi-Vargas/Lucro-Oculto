@@ -24,7 +24,13 @@ const db = new PrismaClient({ adapter })
 // ─── Configuração ──────────────────────────────────────────────────────────────
 
 const ADMIN_EMAIL    = process.env.ADMIN_EMAIL    ?? "admin@lucro-oculto.com"
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "Admin@2025!"
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? null
+if (!ADMIN_PASSWORD) {
+  throw new Error(
+    "[seed] ADMIN_PASSWORD não definido. Defina a variável de ambiente antes de executar o seed.\n" +
+    "  Exemplo: ADMIN_PASSWORD='SenhaForte!123' npx prisma db seed"
+  )
+}
 const ADMIN_NAME     = "Admin Sistema"
 const ORG_NAME       = "Lucro Oculto (Demo)"
 const ORG_SLUG       = "lucro-oculto-admin"
@@ -187,7 +193,7 @@ async function main() {
   console.log("🌱 Iniciando seed do banco de dados...\n")
 
   // 1. Criar ou atualizar usuário admin
-  const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 12)
+  const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 13)
 
   const user = await db.user.upsert({
     where: { email: ADMIN_EMAIL },
@@ -389,7 +395,7 @@ async function main() {
   console.log("\n" + "─".repeat(50))
   console.log("🎉 Seed concluído com sucesso!\n")
   console.log("  📧 Email   :", ADMIN_EMAIL)
-  console.log("  🔑 Senha   :", ADMIN_PASSWORD)
+  console.log("  🔑 Senha   : [definida via ADMIN_PASSWORD env var]")
   console.log("  🏷️  Plano   : admin (sem limites)")
   console.log("  🏢 Org     :", ORG_NAME)
   console.log("\n  ⚠️  Troque a senha em produção via Settings > Segurança")

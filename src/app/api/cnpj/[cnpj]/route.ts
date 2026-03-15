@@ -21,7 +21,7 @@ export async function GET(
   }
 
   // Rate limit: 20 lookups per user per hour
-  const rl = rateLimit(`cnpj:${session.user.id}`, 20, 60 * 60 * 1000)
+  const rl = await rateLimit(`cnpj:${session.user.id}`, 20, 60 * 60 * 1000)
   if (!rl.success) {
     return NextResponse.json({ error: "Muitas consultas. Tente novamente mais tarde." }, { status: 429 })
   }

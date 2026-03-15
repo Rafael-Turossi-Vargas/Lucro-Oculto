@@ -1,207 +1,289 @@
 import Link from "next/link"
-import Image from "next/image"
-import { ArrowLeft, TrendingDown, ShieldCheck, Zap, BarChart3, Star } from "lucide-react"
+import { ArrowLeft, TrendingDown, Zap, Star } from "lucide-react"
 import { ThemeLogo } from "@/components/ui/theme-logo"
 
-const features = [
-  { icon: TrendingDown, label: "Detecção de vazamentos financeiros em tempo real" },
-  { icon: BarChart3, label: "Score de eficiência com plano de ação priorizado" },
-  { icon: Zap, label: "Diagnóstico completo em menos de 60 segundos" },
-  { icon: ShieldCheck, label: "Dados criptografados — nunca compartilhados" },
+const leaks = [
+  { label: "Assinaturas duplicadas", amount: "R$890" },
+  { label: "Custo de marketing +43%", amount: "R$1.240" },
+  { label: "Software sem uso detectado", amount: "R$670" },
 ]
 
 const stats = [
-  { value: "R$ 2,8M+", label: "Desperdício encontrado" },
+  { value: "R$2,8M+", label: "Desperdício encontrado" },
   { value: "1.240+", label: "Empresas analisadas" },
-  { value: "34pts", label: "Melhora no score" },
+  { value: "+34pts", label: "Melhora no score" },
 ]
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex" style={{ background: "var(--bg-page)" }}>
 
-      {/* ─── LEFT PANEL ─── */}
+      {/* ─── LEFT PANEL ─────────────────────────────────────────── */}
       <div
         className="hidden lg:flex lg:w-[52%] flex-col relative overflow-hidden"
-        style={{ background: "#070910" }}
+        style={{
+          background: "var(--bg-subtle)",
+          borderRight: "1px solid var(--border)",
+        }}
       >
-        {/* Grid overlay */}
+        {/* Green radial bloom — top left */}
         <div
-          className="absolute inset-0 pointer-events-none"
+          className="absolute top-0 left-0 pointer-events-none"
           style={{
-            backgroundImage:
-              "linear-gradient(rgba(42,45,58,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(42,45,58,0.35) 1px, transparent 1px)",
-            backgroundSize: "52px 52px",
+            width: "520px",
+            height: "420px",
+            background: "radial-gradient(ellipse at 15% 0%, rgba(0,208,132,0.13) 0%, transparent 60%)",
           }}
         />
-        {/* Top glow */}
-        <div
-          className="absolute top-0 left-0 right-0 pointer-events-none"
-          style={{
-            height: "500px",
-            background: "radial-gradient(ellipse at 30% 0%, rgba(0,208,132,0.12) 0%, transparent 65%)",
-          }}
-        />
-        {/* Bottom glow */}
+        {/* Bottom-right accent */}
         <div
           className="absolute bottom-0 right-0 pointer-events-none"
           style={{
-            width: "400px",
-            height: "400px",
-            background: "radial-gradient(ellipse at 100% 100%, rgba(59,130,246,0.07) 0%, transparent 65%)",
+            width: "320px",
+            height: "320px",
+            background: "radial-gradient(ellipse at 100% 100%, rgba(0,208,132,0.07) 0%, transparent 70%)",
           }}
         />
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col h-full p-10">
+        <div className="relative z-10 flex flex-col h-full px-10 py-10">
+
           {/* Logo */}
-          <Link href="/" className="inline-flex hover:opacity-80 transition-opacity">
-            <Image src="/logo.svg" alt="Lucro Oculto" width={152} height={38} priority />
+          <Link href="/" className="inline-flex hover:opacity-75 transition-opacity w-fit">
+            <ThemeLogo width={140} height={35} priority />
           </Link>
 
           {/* Main content */}
-          <div className="flex-1 flex flex-col justify-center py-10">
-            {/* Badge */}
-            <div
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 w-fit"
-              style={{ background: "rgba(0,208,132,0.08)", border: "1px solid rgba(0,208,132,0.2)" }}
-            >
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#00D084", boxShadow: "0 0 6px #00D084" }} />
-              <span className="text-xs font-semibold" style={{ color: "#00D084" }}>
-                Diagnóstico financeiro inteligente para PMEs
-              </span>
-            </div>
+          <div className="flex-1 flex flex-col justify-center gap-8 py-8">
 
-            <h2
-              className="text-4xl font-extrabold leading-tight mb-4"
-              style={{ color: "var(--text-primary)", letterSpacing: "-0.03em" }}
+            {/* Eyebrow badge */}
+            <div
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full w-fit"
+              style={{
+                background: "rgba(0,208,132,0.1)",
+                border: "1px solid rgba(0,208,132,0.25)",
+              }}
             >
-              Pare de perder{" "}
               <span
-                style={{
-                  background: "linear-gradient(90deg, #00D084 0%, #3FFFB0 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                dinheiro invisível.
+                className="w-1.5 h-1.5 rounded-full animate-pulse shrink-0"
+                style={{ background: "#00D084", boxShadow: "0 0 6px #00D084" }}
+              />
+              <span className="text-xs font-semibold" style={{ color: "#00D084" }}>
+                Inteligência financeira para PMEs
               </span>
-            </h2>
-            <p className="text-base mb-8 leading-relaxed" style={{ color: "var(--text-muted)", maxWidth: "400px" }}>
-              Suba seu extrato e descubra exatamente onde sua empresa está sangrando — em menos de 1 minuto.
-            </p>
-
-            {/* Stats strip */}
-            <div
-              className="grid grid-cols-3 gap-3 mb-8 p-4 rounded-2xl"
-              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-            >
-              {stats.map((s) => (
-                <div key={s.label} className="text-center">
-                  <p className="text-xl font-bold font-mono" style={{ color: "var(--text-primary)" }}>{s.value}</p>
-                  <p className="text-[11px] mt-0.5" style={{ color: "var(--text-faint)" }}>{s.label}</p>
-                </div>
-              ))}
             </div>
 
-            {/* Features list */}
-            <div className="space-y-3">
-              {features.map(({ icon: Icon, label }) => (
-                <div key={label} className="flex items-center gap-3">
-                  <div
-                    className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ background: "rgba(0,208,132,0.08)", border: "1px solid rgba(0,208,132,0.15)" }}
-                  >
-                    <Icon className="w-3.5 h-3.5" style={{ color: "#00D084" }} />
+            {/* Headline */}
+            <div>
+              <h2
+                className="text-[2.15rem] font-extrabold leading-tight mb-3"
+                style={{ color: "var(--text-primary)", letterSpacing: "-0.03em" }}
+              >
+                Descubra onde seu{" "}
+                <span
+                  style={{
+                    background: "linear-gradient(90deg, #00D084 0%, #3FFFB0 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >
+                  dinheiro
+                </span>{" "}
+                está sumindo.
+              </h2>
+              <p className="text-[15px] leading-relaxed" style={{ color: "var(--text-muted)", maxWidth: "380px" }}>
+                Suba o extrato bancário e receba um diagnóstico financeiro completo em menos de 60 segundos.
+              </p>
+            </div>
+
+            {/* ── Dashboard preview card ──────────────────────────── */}
+            <div
+              className="rounded-2xl overflow-hidden"
+              style={{
+                background: "var(--bg-card)",
+                border: "1px solid var(--border)",
+                boxShadow: "0 4px 32px rgba(0,0,0,0.08)",
+              }}
+            >
+              {/* Card header */}
+              <div
+                className="flex items-center justify-between px-4 py-3 border-b"
+                style={{ borderColor: "var(--border)" }}
+              >
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>
+                    Análise Financeira
+                  </p>
+                  <p className="text-[13px] font-bold" style={{ color: "var(--text-primary)" }}>
+                    Relatório · Fev–Mar 2025
+                  </p>
+                </div>
+                <span
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold"
+                  style={{ background: "rgba(0,208,132,0.1)", color: "#00D084", border: "1px solid rgba(0,208,132,0.2)" }}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#00D084" }} />
+                  Concluído
+                </span>
+              </div>
+
+              {/* Score row */}
+              <div className="px-4 py-3 border-b" style={{ borderColor: "var(--border)" }}>
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <p className="text-[11px] font-medium" style={{ color: "var(--text-faint)" }}>Score de Eficiência</p>
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-3xl font-black leading-none" style={{ color: "#00D084" }}>87</p>
+                      <p className="text-[11px] font-semibold" style={{ color: "var(--text-faint)" }}>/100</p>
+                    </div>
                   </div>
-                  <span className="text-sm" style={{ color: "var(--text-muted)" }}>{label}</span>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ background: "rgba(0,208,132,0.08)", border: "1px solid rgba(0,208,132,0.15)" }}>
+                    <TrendingDown className="w-3 h-3 rotate-180" style={{ color: "#00D084" }} />
+                    <span className="text-[11px] font-bold" style={{ color: "#00D084" }}>+12pts</span>
+                  </div>
+                </div>
+                {/* Progress bar */}
+                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--border)" }}>
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: "87%",
+                      background: "linear-gradient(90deg, #00A86B, #00FF99)",
+                      boxShadow: "0 0 8px rgba(0,208,132,0.5)",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Metric cards */}
+              <div className="grid grid-cols-2 gap-2 p-3 border-b" style={{ borderColor: "var(--border)" }}>
+                <div
+                  className="rounded-xl p-3"
+                  style={{ background: "rgba(255,77,79,0.06)", border: "1px solid rgba(255,77,79,0.15)" }}
+                >
+                  <p className="text-[10px] font-medium mb-1" style={{ color: "var(--text-faint)" }}>Vazamentos detectados</p>
+                  <p className="text-xl font-black leading-none" style={{ color: "#FF4D4F" }}>R$2,8K</p>
+                  <p className="text-[10px] mt-0.5 font-medium" style={{ color: "#FF4D4F" }}>3 fontes ativas</p>
+                </div>
+                <div
+                  className="rounded-xl p-3"
+                  style={{ background: "rgba(0,208,132,0.06)", border: "1px solid rgba(0,208,132,0.15)" }}
+                >
+                  <p className="text-[10px] font-medium mb-1" style={{ color: "var(--text-faint)" }}>Economia potencial</p>
+                  <p className="text-xl font-black leading-none" style={{ color: "#00D084" }}>R$2,8K</p>
+                  <p className="text-[10px] mt-0.5 font-medium" style={{ color: "#00D084" }}>por mês</p>
+                </div>
+              </div>
+
+              {/* Leak items */}
+              <div className="px-4 py-2">
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: "var(--text-faint)" }}>
+                  Principais problemas
+                </p>
+                {leaks.map((leak, i) => (
+                  <div
+                    key={leak.label}
+                    className="flex items-center justify-between py-1.5"
+                    style={{ borderTop: i > 0 ? `1px solid var(--border)` : undefined }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#FF4D4F" }} />
+                      <span className="text-[12px]" style={{ color: "var(--text-muted)" }}>{leak.label}</span>
+                    </div>
+                    <span className="text-[12px] font-bold" style={{ color: "#FF4D4F" }}>
+                      −{leak.amount}/mês
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Stats pills ─────────────────────────────────────── */}
+            <div className="flex items-center gap-3 flex-wrap">
+              {stats.map((s) => (
+                <div
+                  key={s.label}
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl"
+                  style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+                >
+                  <Zap className="w-3.5 h-3.5 shrink-0" style={{ color: "#F59E0B" }} />
+                  <span className="text-sm font-black" style={{ color: "var(--text-primary)" }}>{s.value}</span>
+                  <span className="text-[11px]" style={{ color: "var(--text-faint)" }}>{s.label}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Testimonial */}
+          {/* ── Testimonial ─────────────────────────────────────────── */}
           <div
-            className="rounded-2xl p-4"
-            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
+            className="rounded-2xl p-4 flex items-start gap-3"
+            style={{
+              background: "var(--bg-card)",
+              border: "1px solid var(--border)",
+            }}
           >
-            <div className="flex gap-0.5 mb-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="w-3.5 h-3.5 fill-current" style={{ color: "#F59E0B" }} />
-              ))}
+            <div
+              className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5"
+              style={{ background: "linear-gradient(135deg, #00D084 0%, #00B872 100%)", color: "#0A0C14" }}
+            >
+              MR
             </div>
-            <p className="text-sm leading-relaxed mb-3" style={{ color: "var(--text-muted)" }}>
-              &ldquo;Em 3 minutos o sistema encontrou R$&nbsp;2.800/mês em assinaturas que eu nem sabia que existiam. Valeu o investimento na primeira semana.&rdquo;
-            </p>
-            <div className="flex items-center gap-2.5">
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-                style={{ background: "linear-gradient(135deg, #00D084 0%, #00B872 100%)", color: "#0A0C14" }}
-              >
-                MR
+            <div className="flex-1 min-w-0">
+              <div className="flex gap-0.5 mb-1.5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="w-3 h-3 fill-current" style={{ color: "#F59E0B" }} />
+                ))}
               </div>
+              <p className="text-[13px] leading-relaxed mb-2" style={{ color: "var(--text-muted)" }}>
+                &ldquo;Em 3 minutos encontrou R$&nbsp;2.800/mês em assinaturas que eu nem sabia que existiam. Valeu na primeira semana.&rdquo;
+              </p>
               <div>
                 <p className="text-xs font-semibold" style={{ color: "var(--text-primary)" }}>Marcos Ribeiro</p>
                 <p className="text-[11px]" style={{ color: "var(--text-faint)" }}>Sócio — Agência Digital, SP</p>
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
-      {/* ─── VERTICAL SEPARATOR ─── */}
-      <div
-        className="hidden lg:block w-px shrink-0 relative"
-        style={{ background: "linear-gradient(180deg, transparent 0%, var(--border) 20%, rgba(0,208,132,0.3) 50%, var(--border) 80%, transparent 100%)" }}
-      />
-
-      {/* ─── RIGHT PANEL ─── */}
+      {/* ─── RIGHT PANEL ────────────────────────────────────────── */}
       <div
         className="flex-1 flex flex-col relative overflow-hidden"
         style={{ background: "var(--bg-page)" }}
       >
-        {/* Background grid (subtle, different density) */}
+        {/* Subtle grid */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             backgroundImage:
               "linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)",
-            backgroundSize: "36px 36px",
-            opacity: 0.4,
+            backgroundSize: "40px 40px",
+            opacity: 0.35,
           }}
         />
 
-        {/* Center glow behind the form */}
+        {/* Center green bloom behind the form */}
         <div
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
           style={{ paddingTop: "60px" }}
         >
           <div
             style={{
-              width: "480px",
-              height: "480px",
+              width: "500px",
+              height: "500px",
               background: "radial-gradient(ellipse at 50% 50%, rgba(0,208,132,0.07) 0%, transparent 65%)",
-              filter: "blur(20px)",
+              filter: "blur(24px)",
             }}
           />
         </div>
 
-        {/* Top-right accent glow */}
-        <div
-          className="absolute top-0 right-0 pointer-events-none"
-          style={{
-            width: "250px",
-            height: "250px",
-            background: "radial-gradient(ellipse at 100% 0%, rgba(59,130,246,0.06) 0%, transparent 70%)",
-          }}
-        />
-
-        {/* Back link */}
-        <div className="relative z-10 flex items-center justify-between p-5 pb-0">
+        {/* Top nav */}
+        <div className="relative z-10 flex items-center justify-between px-6 py-5">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-80"
+            className="inline-flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-70"
             style={{ color: "var(--text-faint)" }}
           >
             <ArrowLeft className="w-4 h-4" />
@@ -213,7 +295,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full"
             style={{
               background: "rgba(0,208,132,0.06)",
-              border: "1px solid rgba(0,208,132,0.15)",
+              border: "1px solid rgba(0,208,132,0.18)",
             }}
           >
             <span
@@ -227,43 +309,42 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
 
         {/* Form area */}
-        <div className="relative z-10 flex-1 flex items-center justify-center px-6 py-10">
+        <div className="relative z-10 flex-1 flex items-center justify-center px-6 py-8">
           <div className="w-full max-w-[420px]">
 
             {/* Mobile logo */}
             <div className="lg:hidden flex justify-center mb-8">
               <Link href="/" className="inline-flex hover:opacity-80 transition-opacity">
-                <ThemeLogo width={152} height={38} priority />
+                <ThemeLogo width={140} height={35} priority />
               </Link>
             </div>
 
-            {/* Glass card wrapper */}
+            {/* Glass card */}
             <div
               className="relative rounded-2xl p-8"
               style={{
                 background: "var(--bg-card)",
                 border: "1px solid var(--border)",
-                boxShadow: "var(--shadow-card-lg)",
-                backdropFilter: "blur(12px)",
+                boxShadow: "0 8px 48px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.06) inset",
               }}
             >
-              {/* Top gradient line (spotlight) */}
+              {/* Top spotlight line */}
               <div
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px rounded-full"
-                style={{ background: "linear-gradient(90deg, transparent, rgba(0,208,132,0.5), transparent)" }}
+                style={{ background: "linear-gradient(90deg, transparent, rgba(0,208,132,0.45), transparent)" }}
               />
 
               {children}
 
-              {/* Bottom gradient line */}
+              {/* Bottom line */}
               <div
                 className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-px"
-                style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent)" }}
+                style={{ background: "linear-gradient(90deg, transparent, rgba(0,208,132,0.12), transparent)" }}
               />
             </div>
 
-            {/* Below-card trust note */}
-            <p className="text-center mt-4 text-xs" style={{ color: "var(--text-faint)" }}>
+            {/* Trust note */}
+            <p className="text-center mt-4 text-[11px]" style={{ color: "var(--text-faint)" }}>
               Dados protegidos por criptografia AES-256 · Conformidade LGPD
             </p>
           </div>

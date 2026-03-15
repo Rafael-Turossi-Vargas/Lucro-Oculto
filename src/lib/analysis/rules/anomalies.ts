@@ -52,7 +52,20 @@ export function detectAnomalies(transactions: Array<RawTransaction>): AnomaliesR
     const avgFirst = firstAmounts.reduce((a, b) => a + b, 0) / firstAmounts.length
     const avgSecond = secondAmounts.reduce((a, b) => a + b, 0) / secondAmounts.length
 
-    if (avgFirst === 0) continue
+    if (avgFirst === 0) {
+      // New category with no history — flag as severe if meaningful amount
+      if (avgSecond >= 50) {
+        anomalies.push({
+          category: cat,
+          growthPercent: 100,
+          severity: "severe",
+          avgFirst: 0,
+          avgSecond,
+          extraMonthly: avgSecond,
+        })
+      }
+      continue
+    }
     const growth = (avgSecond - avgFirst) / avgFirst
 
     if (growth >= 0.5) {

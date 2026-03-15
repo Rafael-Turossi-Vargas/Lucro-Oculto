@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs"
 
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { logAudit } from "@/lib/audit"
 
 type PlanDistributionItem = {
   plan: string
@@ -20,7 +21,7 @@ export async function GET() {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    if (session.user.role !== "admin" && session.user.role !== "owner") {
+    if (session.user.role !== "admin") {
       return NextResponse.json({ error: "Acesso negado" }, { status: 403 })
     }
 
@@ -115,6 +116,8 @@ export async function DELETE(request: NextRequest) {
     await db.organization.delete({
       where: { id: session.user.organizationId },
     })
+
+    void logAudit({ action: "account.deleted", status: "success", userId: session.user.id, organizationId: session.user.organizationId })
 
     return NextResponse.json({ ok: true })
   } catch (error) {

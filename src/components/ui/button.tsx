@@ -13,7 +13,7 @@ const buttonVariants = cva(
     "transition-all duration-150 ease-in-out",
     "cursor-pointer select-none",
     "disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0F1117]",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-page)]",
     "active:scale-[0.97]",
   ],
   {

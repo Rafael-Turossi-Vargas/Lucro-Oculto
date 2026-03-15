@@ -46,6 +46,15 @@ export async function POST(req: NextRequest) {
     }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? ""
+    const ALLOWED_ORIGINS = [
+      "https://lucrooculto.com.br",
+      "https://www.lucrooculto.com.br",
+      ...(process.env.NODE_ENV !== "production" ? ["http://localhost:3000"] : []),
+    ]
+    if (!ALLOWED_ORIGINS.some((o) => appUrl.startsWith(o))) {
+      console.error("[stripe/checkout] NEXT_PUBLIC_APP_URL fora da allowlist:", appUrl)
+      return NextResponse.json({ error: "Configuração inválida" }, { status: 500 })
+    }
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "subscription",

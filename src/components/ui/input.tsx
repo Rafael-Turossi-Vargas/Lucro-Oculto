@@ -36,7 +36,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <span
             className={cn(
               "absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center",
-              "text-[#8B8FA8] pointer-events-none h-4 w-4",
+              "text-[var(--text-muted)] pointer-events-none h-4 w-4",
               disabled && "opacity-50"
             )}
             aria-hidden="true"
@@ -53,17 +53,17 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           className={cn(
             // Base
             "flex h-9 w-full rounded-lg",
-            "bg-[#212435] text-[#F4F4F5]",
-            "border border-[#2A2D3A]",
+            "bg-[var(--bg-subtle)] text-[var(--text-primary)]",
+            "border border-[var(--border)]",
             "text-sm leading-none",
             "px-3 py-2",
-            "placeholder:text-[#4B4F6A]",
+            "placeholder:text-[var(--text-faint)]",
             // Transitions
             "transition-all duration-150 ease-in-out",
             // Hover
-            "hover:border-[#3D4158]",
+            "hover:border-[var(--border-hover,var(--border))]",
             // Focus
-            "focus:outline-none focus:ring-2 focus:ring-[#00D084] focus:ring-offset-1 focus:ring-offset-[#0F1117]",
+            "focus:outline-none focus:ring-2 focus:ring-[#00D084] focus:ring-offset-1 focus:ring-offset-[var(--bg-page)]",
             "focus:border-[#00D084]",
             // Error state
             error && [
@@ -72,7 +72,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               "focus:border-[#FF4D4F]",
             ],
             // Disabled
-            "disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-[#1A1D27]",
+            "disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-[var(--bg-card)]",
             // Icon padding adjustments
             leftIcon && "pl-9",
             rightIcon && "pr-9",
@@ -86,7 +86,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <span
             className={cn(
               "absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center",
-              "text-[#8B8FA8] h-4 w-4",
+              "text-[var(--text-muted)] h-4 w-4",
               disabled && "opacity-50"
             )}
             aria-hidden="true"
@@ -122,15 +122,15 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         ref={ref}
         className={cn(
           "flex min-h-[80px] w-full rounded-lg",
-          "bg-[#212435] text-[#F4F4F5]",
-          "border border-[#2A2D3A]",
+          "bg-[var(--bg-subtle)] text-[var(--text-primary)]",
+          "border border-[var(--border)]",
           "text-sm leading-relaxed",
           "px-3 py-2",
-          "placeholder:text-[#4B4F6A]",
+          "placeholder:text-[var(--text-faint)]",
           "resize-y",
           "transition-all duration-150 ease-in-out",
-          "hover:border-[#3D4158]",
-          "focus:outline-none focus:ring-2 focus:ring-[#00D084] focus:ring-offset-1 focus:ring-offset-[#0F1117]",
+          "hover:border-[var(--border-hover,var(--border))]",
+          "focus:outline-none focus:ring-2 focus:ring-[#00D084] focus:ring-offset-1 focus:ring-offset-[var(--bg-page)]",
           "focus:border-[#00D084]",
           error && "border-[#FF4D4F] focus:ring-[#FF4D4F] focus:border-[#FF4D4F]",
           "disabled:opacity-50 disabled:cursor-not-allowed disabled:resize-none",

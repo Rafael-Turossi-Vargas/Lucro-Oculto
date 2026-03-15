@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { rateLimit } from "@/lib/rate-limit"
+import { rateLimit, getClientIp } from "@/lib/rate-limit"
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? ""
 
 export async function GET(request: NextRequest) {
   // Rate limit: 10 attempts per IP per hour to prevent token enumeration
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
-  const rl = rateLimit(`verify-email:${ip}`, 10, 60 * 60 * 1000)
+  const ip = getClientIp(request)
+  const rl = await rateLimit(`verify-email:${ip}`, 10, 60 * 60 * 1000)
   if (!rl.success) {
     return NextResponse.redirect(`${APP_URL}/login?error=too_many_attempts`)
   }

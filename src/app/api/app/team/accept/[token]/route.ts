@@ -3,9 +3,10 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { sendInviteSetupEmail } from "@/lib/email/templates"
-import { rateLimit } from "@/lib/rate-limit"
+import { rateLimit, getClientIp } from "@/lib/rate-limit"
 import bcrypt from "bcryptjs"
 import crypto from "crypto"
+import { logAudit } from "@/lib/audit"
 
 // POST /api/app/team/accept/[token] — Accept invite (no auth required)
 export async function POST(
@@ -70,6 +71,8 @@ export async function POST(
       invite.invitedByName ?? "Seu gestor"
     ).catch((err) => console.error("[invite:setup-email]", err))
 
+    void logAudit({ action: "team.invite_accepted", status: "success", userId: user.id, organizationId: invite.organizationId, metadata: { isNewUser: true } })
+
     return NextResponse.json({ success: true, isNewUser: true, email })
   }
 
@@ -100,6 +103,8 @@ export async function POST(
     await db.invite.update({ where: { id: invite.id }, data: { acceptedAt: new Date() } })
   }
 
+  void logAudit({ action: "team.invite_accepted", status: "success", userId: existingUser.id, organizationId: invite.organizationId, metadata: { isNewUser: false } })
+
   return NextResponse.json({ success: true, isNewUser: false, email })
 }
 
@@ -108,9 +113,9 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
-  // Rate limit: 20 lookups per IP per hour
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
-  const rl = rateLimit(`invite-lookup:${ip}`, 20, 60 * 60 * 1000)
+  // Rate limit: 5 lookups per IP per hour (reduzido para dificultar enumeração)
+  const ip = getClientIp(req)
+  const rl = await rateLimit(`invite-lookup:${ip}`, 5, 60 * 60 * 1000)
   if (!rl.success) {
     return NextResponse.json({ error: "Muitas tentativas. Tente novamente mais tarde." }, { status: 429 })
   }

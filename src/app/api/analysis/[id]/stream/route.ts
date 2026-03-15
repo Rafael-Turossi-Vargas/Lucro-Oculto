@@ -16,7 +16,7 @@ export async function GET(
   }
 
   // Rate limit: 30 SSE connections per organization per hour
-  const rl = rateLimit(`stream:${session.user.organizationId}`, 30, 60 * 60 * 1000)
+  const rl = await rateLimit(`stream:${session.user.organizationId}`, 30, 60 * 60 * 1000)
   if (!rl.success) {
     return new Response("Too Many Requests", { status: 429 })
   }
@@ -39,7 +39,7 @@ export async function GET(
 
       send({ type: "connected" })
 
-      for (let i = 0; i < 300; i++) { // 300 × 2s = 10 min max
+      for (let i = 0; i < 600; i++) { // 600 × 1s = 10 min max
         if (closed) break
 
         const analysis = await db.analysis.findUnique({
@@ -75,7 +75,7 @@ export async function GET(
 
         if (analysis.status === "done" || analysis.status === "error") break
 
-        await new Promise((r) => setTimeout(r, 2000))
+        await new Promise((r) => setTimeout(r, 1000))
       }
 
       try {

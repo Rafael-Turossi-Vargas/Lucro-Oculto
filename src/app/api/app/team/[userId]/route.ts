@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { can, getInvitableRoles } from "@/lib/roles"
 import { z } from "zod"
+import { logAudit } from "@/lib/audit"
 
 // DELETE /api/app/team/[userId] — Remove a member
 export async function DELETE(
@@ -42,6 +43,8 @@ export async function DELETE(
     where: { id: userId, preferredOrganizationId: organizationId },
     data: { preferredOrganizationId: null },
   })
+
+  void logAudit({ action: "team.member_removed", status: "success", userId: requesterId, organizationId, metadata: { targetUserId: userId } })
 
   return NextResponse.json({ success: true })
 }
@@ -93,6 +96,8 @@ export async function PATCH(
     where: { id: membership.id },
     data: { role: newRole },
   })
+
+  void logAudit({ action: "team.role_changed", status: "success", userId: requesterId, organizationId, metadata: { targetUserId: userId, from: membership.role, to: newRole } })
 
   return NextResponse.json({ success: true })
 }

@@ -143,6 +143,7 @@ function DeleteConfirmModal({
             onChange={e => setConfirm(e.target.value)}
             placeholder="EXCLUIR"
             disabled={isActive}
+            autoFocus={!isActive}
             className="w-full bg-[var(--bg-page)] border border-[var(--border)] rounded-lg px-4 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[#FF4D4F] transition-colors disabled:opacity-50"
           />
         </div>
@@ -338,14 +339,20 @@ function CompaniesContent() {
   const canCreate = can(role, "companies:manage") && !atLimit && !cooldownActive
 
   return (
-    <div className="px-6 py-8 space-y-8">
+    <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-8">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Empresas</h1>
-          <p className="text-[var(--text-muted)] mt-1">
-            {ownedActive.length}/{maxOrgs} empresas cadastradas · Plano Premium
-          </p>
+        <div className="flex items-start gap-3">
+          <div className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0 mt-0.5"
+            style={{ background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.18)" }}>
+            <Building2 className="w-5 h-5" style={{ color: "#A855F7" }} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Empresas</h1>
+            <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
+              {ownedActive.length}/{maxOrgs} empresas cadastradas · Plano Premium
+            </p>
+          </div>
         </div>
         {canCreate && (
           <button
@@ -363,81 +370,84 @@ function CompaniesContent() {
         <CooldownBanner cooldownUntil={data.cooldownUntil} cooldownHours={data.cooldownHours} />
       )}
 
-      {/* Companies List */}
-      <div className="space-y-3">
-        {data?.memberships.map(m => {
-          const org = m.organization
-          const isCurrent = org.id === data.currentOrgId
-          const isOwner = m.role === "owner"
-          const canDelete = isOwner && ownedActive.length > 1
-          const isSwitching = switching === org.id
-
-          return (
-            <div key={m.id}
-              className={`bg-[var(--bg-card)] border rounded-2xl p-5 transition-all ${
-                isCurrent
-                  ? "border-[#A855F7]/40 shadow-[0_0_0_1px_rgba(168,85,247,0.12)]"
-                  : "border-[var(--border)]"
-              }`}
-            >
-              <div className="flex items-start gap-4">
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
-                  isCurrent ? "bg-[#A855F7]/15 border border-[#A855F7]/30" : "bg-[var(--bg-subtle)] border border-[var(--border)]"
-                }`}>
-                  <Building2 className={`w-5 h-5 ${isCurrent ? "text-[#A855F7]" : "text-[var(--text-faint)]"}`} />
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-base font-semibold text-[var(--text-primary)]">{org.name}</h3>
-                    <PlanBadge plan={org.plan} />
-                    {isCurrent && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-[#A855F7]/15 text-[#A855F7] border border-[#A855F7]/25 font-semibold flex items-center gap-1">
-                        <Check className="w-3 h-3" /> Ativa
-                      </span>
+      {/* Companies List — agrupadas por ativa / outras */}
+      {[
+        { label: "Empresa ativa", items: data?.memberships.filter(m => m.organization.id === data?.currentOrgId) ?? [] },
+        { label: "Outras empresas", items: data?.memberships.filter(m => m.organization.id !== data?.currentOrgId) ?? [] },
+      ].filter(g => g.items.length > 0).map(group => (
+        <div key={group.label} className="space-y-3">
+          <p className="text-[10px] font-bold uppercase tracking-widest px-1" style={{ color: "var(--text-faint)" }}>
+            {group.label}
+          </p>
+          {group.items.map(m => {
+            const org = m.organization
+            const isCurrent = org.id === data?.currentOrgId
+            const isOwner = m.role === "owner"
+            const canDelete = isOwner && ownedActive.length > 1
+            const isSwitching = switching === org.id
+            return (
+              <div key={m.id}
+                className={`bg-[var(--bg-card)] border rounded-2xl p-5 transition-all ${
+                  isCurrent
+                    ? "border-[#A855F7]/40 shadow-[0_0_0_1px_rgba(168,85,247,0.12)]"
+                    : "border-[var(--border)]"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
+                    isCurrent ? "bg-[#A855F7]/15 border border-[#A855F7]/30" : "bg-[var(--bg-subtle)] border border-[var(--border)]"
+                  }`}>
+                    <Building2 className={`w-5 h-5 ${isCurrent ? "text-[#A855F7]" : "text-[var(--text-faint)]"}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-base font-semibold text-[var(--text-primary)]">{org.name}</h3>
+                      <PlanBadge plan={org.plan} />
+                      {isCurrent && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-[#A855F7]/15 text-[#A855F7] border border-[#A855F7]/25 font-semibold flex items-center gap-1">
+                          <Check className="w-3 h-3" /> Ativa
+                        </span>
+                      )}
+                    </div>
+                    {org.cnpj && <p className="text-xs text-[var(--text-muted)] mt-0.5">CNPJ: {org.cnpj}</p>}
+                    {org.niche && <p className="text-xs text-[var(--text-faint)] mt-0.5">{org.niche}</p>}
+                    <p className="text-[10px] text-[var(--text-faint)] mt-1">
+                      Criada em {new Date(org.createdAt).toLocaleDateString("pt-BR")}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {!isCurrent && (
+                      <button
+                        onClick={() => handleSwitch(org.id)}
+                        disabled={!!switching}
+                        className="flex items-center gap-1.5 text-sm font-medium text-[#A855F7] border border-[#A855F7]/30 px-3 py-1.5 rounded-lg hover:bg-[#A855F7]/08 disabled:opacity-50 transition-colors"
+                      >
+                        {isSwitching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                        {isSwitching ? "Trocando..." : "Ativar"}
+                      </button>
+                    )}
+                    {canDelete && (
+                      <button
+                        onClick={() => { setDeleteError(""); setDeleteTarget(org) }}
+                        title="Excluir empresa"
+                        className="p-2 rounded-lg text-[var(--text-faint)] hover:text-[#FF4D4F] hover:bg-[#FF4D4F]/10 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     )}
                   </div>
-                  {org.cnpj && <p className="text-xs text-[var(--text-muted)] mt-0.5">CNPJ: {org.cnpj}</p>}
-                  {org.niche && <p className="text-xs text-[var(--text-faint)] mt-0.5">{org.niche}</p>}
-                  <p className="text-[10px] text-[var(--text-faint)] mt-1">
-                    Criada em {new Date(org.createdAt).toLocaleDateString("pt-BR")}
-                  </p>
                 </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  {!isCurrent && (
-                    <button
-                      onClick={() => handleSwitch(org.id)}
-                      disabled={!!switching}
-                      className="flex items-center gap-1.5 text-sm font-medium text-[#A855F7] border border-[#A855F7]/30 px-3 py-1.5 rounded-lg hover:bg-[#A855F7]/08 disabled:opacity-50 transition-colors"
-                    >
-                      {isSwitching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
-                      {isSwitching ? "Trocando..." : "Ativar"}
-                    </button>
-                  )}
-                  {canDelete && (
-                    <button
-                      onClick={() => { setDeleteError(""); setDeleteTarget(org) }}
-                      title="Excluir empresa"
-                      className="p-2 rounded-lg text-[var(--text-faint)] hover:text-[#FF4D4F] hover:bg-[#FF4D4F]/10 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
+                {isOwner && atLimit && !cooldownActive && (
+                  <div className="mt-3 flex items-center gap-2 text-xs text-[#F59E0B]/80 border-t border-[var(--border)] pt-3">
+                    <Clock className="w-3.5 h-3.5 shrink-0 text-[#F59E0B]" />
+                    Excluir uma empresa agora gerará cooldown de {data?.cooldownHours}h para criar outra.
+                  </div>
+                )}
               </div>
-
-              {/* Alerta de cooldown futuro ao excluir no limite */}
-              {isOwner && atLimit && !cooldownActive && (
-                <div className="mt-3 flex items-center gap-2 text-xs text-[#F59E0B]/80 border-t border-[var(--border)] pt-3">
-                  <Clock className="w-3.5 h-3.5 shrink-0 text-[#F59E0B]" />
-                  Excluir uma empresa agora gerará cooldown de {data?.cooldownHours}h para criar outra.
-                </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
+            )
+          })}
+        </div>
+      ))}
 
       {/* Limite atingido */}
       {atLimit && !cooldownActive && (

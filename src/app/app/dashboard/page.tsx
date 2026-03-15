@@ -178,31 +178,62 @@ export default function DashboardPage() {
   const canUpload = can(session?.user?.role ?? "", "upload:create")
 
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | null = null
+    const CACHE_KEY = "dash_v3"
+    const CACHE_TTL = 30_000  // 30s — mesma janela do Cache-Control da API
 
-    const fetchDashboard = () =>
-      fetch("/api/app/dashboard").then(r => r.json()).then((d: DashData) => {
-        setData(d)
-        setLoading(false)
-        // Auto-poll every 4s while analysis is pending/running
-        if (d.pending && !interval) {
-          interval = setInterval(() => {
-            fetch("/api/app/dashboard").then(r => r.json()).then((updated: DashData) => {
-              setData(updated)
-              if (!updated.pending && interval) {
-                clearInterval(interval)
-                interval = null
-              }
-            }).catch(() => null)
-          }, 4000)
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
+    // Polling: fast while analysis is pending, slows down after
+    let pollCount = 0
+    const FAST_INTERVAL = 1_500   // 1.5s — right after upload redirect
+    const SLOW_INTERVAL = 5_000   // 5s — when pending but user is just waiting
+    const MAX_INTERVAL  = 30_000  // 30s — cap
+
+    // ── 1. Mostra dados do cache imediatamente (sem skeleton) ──────────────
+    // Skip cache if it was just invalidated by upload (key will be absent)
+    try {
+      const raw = sessionStorage.getItem(CACHE_KEY)
+      if (raw) {
+        const { ts, cached } = JSON.parse(raw) as { ts: number; cached: DashData }
+        if (Date.now() - ts < CACHE_TTL) {
+          setData(cached)
+          setLoading(false)
+          // Se tinha análise pendente, ainda precisa re-checar
+          if (!cached.pending) return () => {}
         }
-      }).catch(() => {
-        setData({ analysis: null, scoreHistory: [], analysesCount: 0, pending: null })
-        setLoading(false)
-      })
+      }
+    } catch { /* sessionStorage pode estar indisponível (modo privado restrito) */ }
 
-    fetchDashboard()
-    return () => { if (interval) clearInterval(interval) }
+    // ── 2. Busca dados frescos em background ───────────────────────────────
+    const fetchAndSchedule = () => {
+      fetch("/api/app/dashboard")
+        .then(r => r.json())
+        .then((d: DashData) => {
+          setData(d)
+          setLoading(false)
+          try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), cached: d }))
+            // Invalida cache do sidebar para ele refletir dados atualizados
+            sessionStorage.removeItem("sidebar_dash_v1")
+          } catch { /* ignora */ }
+
+          if (d.pending) {
+            // Fast polling at first (fresh from upload redirect), then slow down
+            pollCount++
+            const delay = pollCount <= 5
+              ? FAST_INTERVAL
+              : Math.min(SLOW_INTERVAL * Math.pow(1.5, pollCount - 5), MAX_INTERVAL)
+            timeoutId = setTimeout(fetchAndSchedule, delay)
+          }
+        })
+        .catch(() => {
+          // Mantém dados existentes se já tiver; só seta null se não tiver nada
+          setData(prev => prev ?? { analysis: null, scoreHistory: [], analysesCount: 0, pending: null })
+          setLoading(false)
+        })
+    }
+
+    fetchAndSchedule()
+    return () => { if (timeoutId) clearTimeout(timeoutId) }
   }, [])
 
   if (loading) return <DashboardSkeleton />
@@ -230,6 +261,16 @@ export default function DashboardPage() {
   const expSparkline = monthlyTrend.map(m => m.expenses)
   const incSparkline = monthlyTrend.map(m => m.income)
   const netSparkline = monthlyTrend.map(m => m.income - m.expenses)
+
+  // ── MoM: comparativo mês atual vs mês anterior ───────────────────────────
+  const lastMonth = monthlyTrend[monthlyTrend.length - 1]
+  const prevMonth = monthlyTrend[monthlyTrend.length - 2]
+  const momExpDelta = lastMonth && prevMonth && prevMonth.expenses > 0
+    ? ((lastMonth.expenses - prevMonth.expenses) / prevMonth.expenses) * 100
+    : null
+  const momIncDelta = lastMonth && prevMonth && prevMonth.income > 0
+    ? ((lastMonth.income - prevMonth.income) / prevMonth.income) * 100
+    : null
 
   // ── Item 12: Contextual subtitle ─────────────────────────────────────────
   const periodLabel = a.periodStart ? `${fmtDate(a.periodStart)} — ${fmtDate(a.periodEnd)}` : "Última análise"
@@ -262,13 +303,17 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Item 2: KPIs com sparklines ───────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Total de Despesas", value: n(a.totalExpenses), color: "#FF4D4F", icon: TrendingDown, spark: expSparkline },
-          { label: "Receita Total", value: n(a.totalIncome), color: "#00D084", icon: TrendingUp, spark: incSparkline },
-          { label: "Resultado Líquido", value: n(a.netResult), color: n(a.netResult) >= 0 ? "#00D084" : "#FF4D4F", icon: TrendingUp, spark: netSparkline },
-          { label: "Economia Potencial", value: null, color: "#F59E0B", icon: Lightbulb, spark: [] as number[] },
-        ].map(({ label, value, color, icon: Icon, spark }) => (
+          { label: "Total de Despesas", value: n(a.totalExpenses), color: "#FF4D4F", icon: TrendingDown, spark: expSparkline, mom: momExpDelta, momInvert: true },
+          { label: "Receita Total", value: n(a.totalIncome), color: "#00D084", icon: TrendingUp, spark: incSparkline, mom: momIncDelta, momInvert: false },
+          { label: "Resultado Líquido", value: n(a.netResult), color: n(a.netResult) >= 0 ? "#00D084" : "#FF4D4F", icon: TrendingUp, spark: netSparkline, mom: null, momInvert: false },
+          { label: "Economia Potencial", value: null, color: "#F59E0B", icon: Lightbulb, spark: [] as number[], mom: null, momInvert: false },
+        ].map(({ label, value, color, icon: Icon, spark, mom, momInvert }) => {
+          // MoM: para despesas, aumento é ruim (momInvert); para receita, aumento é bom
+          const momGood = mom !== null ? (momInvert ? mom < 0 : mom > 0) : false
+          const momColor = mom !== null ? (momGood ? "#00D084" : "#FF4D4F") : ""
+          return (
           <div key={label} className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-1.5">
@@ -284,9 +329,14 @@ export default function DashboardPage() {
             <p className="text-xl font-black truncate mb-1" style={{ color }}>
               {value !== null ? fmt(value) : `${fmt(n(a.savingsMin))}–${fmt(n(a.savingsMax))}/mês`}
             </p>
+            {mom !== null && (
+              <p className="text-[10px] font-semibold mb-1" style={{ color: momColor }}>
+                {mom > 0 ? "▲" : "▼"} {Math.abs(mom).toFixed(1)}% vs mês anterior
+              </p>
+            )}
             {spark.length >= 2 && <Sparkline values={spark} color={color} />}
           </div>
-        ))}
+        )})}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

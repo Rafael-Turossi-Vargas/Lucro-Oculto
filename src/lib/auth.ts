@@ -2,6 +2,23 @@ import type { AuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { db } from "./db"
+import { rateLimit } from "./rate-limit"
+import { logAudit } from "./audit"
+
+// Valida NEXTAUTH_SECRET em produção para evitar uso de segredos fracos
+if (process.env.NODE_ENV === "production") {
+  const secret = process.env.NEXTAUTH_SECRET ?? ""
+  const FORBIDDEN = [
+    "dev-secret",
+    "change-in-production",
+    "dev-secret-change-in-production-32chars", // valor padrão exato do .env de desenvolvimento
+    "secret",
+    "changeme",
+  ]
+  if (secret.length < 32 || FORBIDDEN.some((f) => secret.toLowerCase().includes(f))) {
+    throw new Error("[auth] NEXTAUTH_SECRET inválido para produção. Gere um com: openssl rand -base64 32")
+  }
+}
 
 export const authOptions: AuthOptions = {
   session: { strategy: "jwt" },
@@ -17,10 +34,19 @@ export const authOptions: AuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
 
+        const emailKey = credentials.email.toLowerCase().trim()
+
+        // Rate limit: 5 tentativas por email a cada 15 minutos (brute force protection)
+        const rl = await rateLimit(`login:${emailKey}`, 5, 15 * 60 * 1000)
+        if (!rl.success) {
+          void logAudit({ action: "login.blocked", status: "failure", metadata: { email: emailKey } })
+          throw new Error("TOO_MANY_ATTEMPTS")
+        }
+
         let user
         try {
           user = await db.user.findUnique({
-            where: { email: credentials.email.toLowerCase().trim() },
+            where: { email: emailKey },
             select: {
               id: true,
               email: true,
@@ -34,18 +60,28 @@ export const authOptions: AuthOptions = {
           return null
         }
 
-        console.log("[auth] user found:", !!user, "has hash:", !!user?.passwordHash)
+        if (process.env.NODE_ENV === "development") {
+          console.log("[auth] user found:", !!user, "has hash:", !!user?.passwordHash)
+        }
 
-        if (!user || !user.passwordHash) return null
+        if (!user || !user.passwordHash) {
+          void logAudit({ action: "login.failure", status: "failure", metadata: { email: emailKey, reason: "user_not_found" } })
+          return null
+        }
 
         const isValid = await bcrypt.compare(
           credentials.password,
           user.passwordHash
         )
 
-        console.log("[auth] password valid:", isValid, "emailVerified:", !!user.emailVerified)
+        if (process.env.NODE_ENV === "development") {
+          console.log("[auth] password valid:", isValid, "emailVerified:", !!user.emailVerified)
+        }
 
-        if (!isValid) return null
+        if (!isValid) {
+          void logAudit({ action: "login.failure", status: "failure", userId: user.id, metadata: { reason: "wrong_password" } })
+          return null
+        }
 
         // Bloqueia login se email ainda não foi verificado.
         // Usuários antigos (sem token pendente) são liberados automaticamente.
@@ -54,9 +90,12 @@ export const authOptions: AuthOptions = {
             where: { identifier: user.email },
           })
           if (pendingToken) {
+            void logAudit({ action: "login.blocked", status: "failure", userId: user.id, metadata: { reason: "email_not_verified" } })
             throw new Error("EMAIL_NOT_VERIFIED")
           }
         }
+
+        void logAudit({ action: "login.success", status: "success", userId: user.id })
 
         return {
           id: user.id,
@@ -142,10 +181,10 @@ export const authOptions: AuthOptions = {
           token.onboardingCompleted = onboarding?.completed ?? false
         }
 
-        // Re-busca role a cada 1 minuto para refletir mudanças de cargo imediatamente
+        // Re-busca role a cada 5 minutos — reduz carga no DB sem sacrificar responsividade
         const lastRoleRefresh = token.roleRefreshedAt as number | undefined
-        const oneMin = 60 * 1000
-        if (!lastRoleRefresh || Date.now() - lastRoleRefresh > oneMin) {
+        const fiveMin = 5 * 60 * 1000
+        if (!lastRoleRefresh || Date.now() - lastRoleRefresh > fiveMin) {
           const membership = await db.membership.findUnique({
             where: {
               userId_organizationId: {
@@ -163,7 +202,6 @@ export const authOptions: AuthOptions = {
 
         // Re-busca plano do banco a cada 5 minutos para refletir upgrades via Stripe
         const lastRefresh = token.planRefreshedAt as number | undefined
-        const fiveMin = 5 * 60 * 1000
         if (!lastRefresh || Date.now() - lastRefresh > fiveMin) {
           const org = await db.organization.findUnique({
             where: { id: token.organizationId as string },

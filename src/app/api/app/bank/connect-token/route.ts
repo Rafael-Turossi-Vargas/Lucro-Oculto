@@ -2,11 +2,12 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { createConnectToken } from "@/lib/pluggy"
-import { rateLimit } from "@/lib/rate-limit"
+import { rateLimit, getClientIp } from "@/lib/rate-limit"
 
 export async function POST(req: Request) {
-  const ip = req.headers.get("x-forwarded-for") ?? "unknown"
-  if (!rateLimit(`bank-connect:${ip}`, 20, 3600)) {
+  const ip = getClientIp(req)
+  const rl = await rateLimit(`bank-connect:${ip}`, 10, 60 * 60 * 1000)
+  if (!rl.success) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 })
   }
 

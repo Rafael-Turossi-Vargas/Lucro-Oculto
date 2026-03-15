@@ -12,44 +12,50 @@ export async function GET() {
 
     const orgId = session.user.organizationId
 
-    // Busca última análise completa
-    const analysis = await db.analysis.findFirst({
-      where: { organizationId: orgId, status: "done" },
-      orderBy: { completedAt: "desc" },
-      include: {
-        insights: { orderBy: { amount: "desc" } },
-        alerts: { where: { isDismissed: false }, orderBy: { createdAt: "desc" } },
-        recommendations: { orderBy: { priority: "asc" } },
-        scoreSnapshots: { orderBy: { createdAt: "desc" }, take: 1 },
-        upload: { select: { fileName: true, rowsCount: true, periodStart: true, periodEnd: true } },
-      },
-    })
+    // Todas as 4 queries em paralelo — tempo total = max(queries) em vez de soma
+    const [analysis, scoreHistory, analysesCount, pending] = await Promise.all([
+      // Última análise completa com relações
+      db.analysis.findFirst({
+        where: { organizationId: orgId, status: "done" },
+        orderBy: { completedAt: "desc" },
+        include: {
+          insights:        { orderBy: { amount: "desc" } },
+          alerts:          { where: { isDismissed: false }, orderBy: { createdAt: "desc" } },
+          recommendations: { orderBy: { priority: "asc" } },
+          scoreSnapshots:  { orderBy: { createdAt: "desc" }, take: 1 },
+          upload:          { select: { fileName: true, rowsCount: true, periodStart: true, periodEnd: true } },
+        },
+      }),
 
-    // Score histórico (últimas 6 análises)
-    const scoreHistory = await db.scoreSnapshot.findMany({
-      where: { organizationId: orgId },
-      orderBy: { createdAt: "asc" },
-      take: 6,
-      select: { score: true, createdAt: true, analysisId: true },
-    })
+      // Score histórico (últimas 6 análises)
+      db.scoreSnapshot.findMany({
+        where: { organizationId: orgId },
+        orderBy: { createdAt: "asc" },
+        take: 6,
+        select: { score: true, createdAt: true, analysisId: true },
+      }),
 
-    // Contagem total de análises
-    const analysesCount = await db.analysis.count({
-      where: { organizationId: orgId, status: "done" },
-    })
+      // Total de análises concluídas
+      db.analysis.count({
+        where: { organizationId: orgId, status: "done" },
+      }),
 
-    // Análise em processamento?
-    const pending = await db.analysis.findFirst({
-      where: { organizationId: orgId, status: { in: ["pending", "running"] } },
-      select: { id: true, status: true, createdAt: true },
-    })
+      // Análise em processamento
+      db.analysis.findFirst({
+        where: { organizationId: orgId, status: { in: ["pending", "running"] } },
+        select: { id: true, status: true, createdAt: true },
+      }),
+    ])
 
-    return NextResponse.json({
-      analysis,
-      scoreHistory,
-      analysesCount,
-      pending,
-    })
+    return NextResponse.json(
+      { analysis, scoreHistory, analysesCount, pending },
+      {
+        headers: {
+          // Cache privado: browser reutiliza por 30s, aceita stale por até 60s enquanto revalida
+          "Cache-Control": "private, max-age=30, stale-while-revalidate=60",
+        },
+      }
+    )
   } catch (error) {
     console.error("Dashboard API error:", error)
     return NextResponse.json({ error: "Erro interno" }, { status: 500 })

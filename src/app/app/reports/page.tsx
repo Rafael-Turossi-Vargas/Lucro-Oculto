@@ -87,11 +87,17 @@ export default function ReportsPage() {
     <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-6">
 
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Relatórios</h1>
-        <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
-          Exporte um resumo completo da análise financeira
-        </p>
+      <div className="flex items-start gap-3">
+        <div className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0 mt-0.5"
+          style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.18)" }}>
+          <FileText className="w-5 h-5" style={{ color: "#3B82F6" }} />
+        </div>
+        <div>
+          <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Relatórios</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
+            Exporte um resumo completo da análise financeira
+          </p>
+        </div>
       </div>
 
       {/* Generate card */}

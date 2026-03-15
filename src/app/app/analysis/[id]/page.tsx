@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   ArrowLeft, TrendingDown, Lightbulb, Bell, ClipboardList,
-  FileText, CheckCircle, Loader2, X, HelpCircle, Printer,
+  FileText, CheckCircle, Loader2, X, HelpCircle, Printer, Download,
 } from "lucide-react"
 import { CardSkeleton } from "@/components/ui/skeletons"
 import { PageTransition } from "@/components/ui/page-transition"
@@ -145,6 +145,31 @@ export default function AnalysisPage() {
     }
   }
 
+  function exportCsv() {
+    if (!analysis) return
+    const rows: string[][] = [
+      ["Tipo", "Título", "Descrição", "Impacto", "Valor (R$)", "Urgência"],
+    ]
+    for (const i of analysis.insights ?? []) {
+      rows.push([
+        i.type === "leak" ? "Vazamento" : "Oportunidade",
+        i.title,
+        i.description.replace(/"/g, '""'),
+        i.impact,
+        String(n(i.amount)),
+        i.urgency ?? "",
+      ])
+    }
+    const csv = rows.map(r => r.map(c => `"${c}"`).join(",")).join("\n")
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `analise-lucro-oculto-${analysis.id.slice(0, 8)}.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
   // ── Item 14: Print mode ──────────────────────────────────────────────────
   function handlePrint() {
     window.print()
@@ -235,7 +260,18 @@ export default function AnalysisPage() {
         </div>
 
         {/* Header */}
-        <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+        <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          <div className="flex items-center gap-2 px-6 py-3" style={{ background: "var(--bg-subtle)", borderBottom: "1px solid var(--border)" }}>
+            <FileText className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--text-faint)" }} />
+            <p className="text-xs font-medium truncate" style={{ color: "var(--text-muted)" }}>
+              {a.upload?.fileName ?? "Análise"}
+            </p>
+            <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full font-semibold"
+              style={{ background: "rgba(0,208,132,0.1)", color: "#00D084" }}>
+              Concluída
+            </span>
+          </div>
+          <div className="p-6">
           <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
             {/* ── Item 9: Score ring with ? button ─────────────────────── */}
             <div className="flex flex-row sm:flex-col items-center gap-4 sm:gap-2 shrink-0">
@@ -269,12 +305,21 @@ export default function AnalysisPage() {
                 ))}
               </div>
             </div>
-            <button onClick={exportPdf} disabled={exporting} data-no-print
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold self-start disabled:opacity-60"
-              style={{ background: "var(--bg-subtle)", color: "var(--text-muted)", border: "1px solid var(--border)" }}>
-              {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-              {exporting ? "Gerando..." : "Exportar PDF"}
-            </button>
+            <div className="flex items-center gap-2 self-start" data-no-print>
+              <button onClick={exportPdf} disabled={exporting}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-60"
+                style={{ background: "var(--bg-subtle)", color: "var(--text-muted)", border: "1px solid var(--border)" }}>
+                {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                {exporting ? "Gerando..." : "PDF"}
+              </button>
+              <button onClick={exportCsv}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
+                style={{ background: "var(--bg-subtle)", color: "var(--text-muted)", border: "1px solid var(--border)" }}>
+                <Download className="w-4 h-4" />
+                CSV
+              </button>
+            </div>
+          </div>
           </div>
         </div>
 

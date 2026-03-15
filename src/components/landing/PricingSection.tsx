@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { Check, Zap, Star, Building2, TrendingUp, ArrowRight } from "lucide-react"
 
@@ -74,7 +75,21 @@ const plans = [
 ]
 
 export function PricingSection() {
-  const [annual, setAnnual] = useState(false)
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
+  const [annual, setAnnual] = useState(() => searchParams.get("billing") === "annual")
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (annual) {
+      params.set("billing", "annual")
+    } else {
+      params.delete("billing")
+    }
+    const query = params.toString()
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false })
+  }, [annual]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <section
@@ -179,16 +194,24 @@ export function PricingSection() {
                 onClick={() => setAnnual(true)}
               >
                 Anual
-                <span
-                  className="text-[10px] px-1.5 py-0.5 rounded-full font-bold"
-                  style={{
-                    background: "rgba(0,208,132,0.15)",
-                    color: "#00D084",
-                    border: "1px solid rgba(0,208,132,0.25)",
-                  }}
-                >
-                  -17%
-                </span>
+                {(() => {
+                  const maxPct = Math.max(...plans.filter(p => p.price.monthly > 0).map(p => {
+                    const saving = p.price.monthly * 12 - p.price.annual
+                    return Math.round((saving / (p.price.monthly * 12)) * 100)
+                  }))
+                  return (
+                    <span
+                      className="text-[10px] px-1.5 py-0.5 rounded-full font-bold"
+                      style={{
+                        background: "rgba(0,208,132,0.15)",
+                        color: "#00D084",
+                        border: "1px solid rgba(0,208,132,0.25)",
+                      }}
+                    >
+                      -{maxPct}%
+                    </span>
+                  )
+                })()}
               </button>
             </div>
           </div>
@@ -293,7 +316,7 @@ export function PricingSection() {
                   <div className="space-y-1.5 flex-1">
                     {plan.features.map((feat, j) => (
                       <div key={j} className="flex items-center gap-2">
-                        <Check className="w-3 h-3 shrink-0" style={{ color: "#00D084" }} />
+                        <Check className="w-4 h-4 shrink-0" style={{ color: "#00D084" }} />
                         <span className="text-xs" style={{ color: "var(--text-muted)" }}>{feat}</span>
                       </div>
                     ))}
@@ -377,7 +400,7 @@ export function PricingSection() {
                 <div className="space-y-1.5 flex-1">
                   {plan.features.map((feat, j) => (
                     <div key={j} className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 shrink-0" style={{ color: plan.color }} />
+                      <Check className="w-4 h-4 shrink-0" style={{ color: plan.color }} />
                       <span className="text-xs" style={{ color: "var(--text-muted)" }}>{feat}</span>
                     </div>
                   ))}

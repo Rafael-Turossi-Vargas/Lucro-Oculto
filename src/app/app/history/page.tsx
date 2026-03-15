@@ -90,13 +90,19 @@ export default function HistoryPage() {
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Histórico de análises</h1>
-          <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
-            {analyses.length > 0
-              ? `${analyses.length} análise${analyses.length > 1 ? "s" : ""} realizadas`
-              : "Nenhuma análise ainda"}
-          </p>
+        <div className="flex items-start gap-3">
+          <div className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0 mt-0.5"
+            style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.18)" }}>
+            <BarChart3 className="w-5 h-5" style={{ color: "#F59E0B" }} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Histórico de análises</h1>
+            <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
+              {analyses.length > 0
+                ? `${analyses.length} análise${analyses.length > 1 ? "s" : ""} realizadas`
+                : "Nenhuma análise ainda"}
+            </p>
+          </div>
         </div>
         {canUpload && (
           <Link href="/app/upload"

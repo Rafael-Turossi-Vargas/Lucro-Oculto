@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next"
 import { Inter, JetBrains_Mono } from "next/font/google"
+import { headers } from "next/headers"
 import "./globals.css"
 import { CookieConsent } from "@/components/ui/cookie-consent"
 import { ThemeProvider } from "@/lib/theme"
@@ -109,11 +110,13 @@ export const viewport: Viewport = {
 }
 
 /* ─── Root Layout ────────────────────────────────────────────────────────────── */
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const nonce = (await headers()).get("x-nonce") ?? ""
+
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
@@ -123,12 +126,8 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-        <script dangerouslySetInnerHTML={{ __html: `
-  try {
-    var t = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', t);
-  } catch(e) {}
-` }} />
+        {/* Security: conteúdo 100% estático — nonce garante CSP sem 'unsafe-inline'. */}
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}` }} />
       </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
-import { TrendingDown, Upload, Download, ArrowRight, AlertCircle } from "lucide-react"
+import { TrendingDown, Upload, Download, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react"
 import { useAnalysisData } from "@/hooks/useAnalysisData"
 import { CardSkeleton } from "@/components/ui/skeletons"
 import { can } from "@/lib/roles"
@@ -30,6 +30,12 @@ export default function LeaksPage() {
   const canUpload = can(session?.user?.role ?? "", "upload:create")
   const [filter, setFilter] = useState<Impact | "all">("all")
   const [sortBy, setSortBy] = useState<"amount" | "impact">("amount")
+  const [exportToast, setExportToast] = useState(false)
+
+  const handleExport = () => {
+    setExportToast(true)
+    setTimeout(() => setExportToast(false), 3000)
+  }
 
   if (loading) {
     return (
@@ -97,17 +103,23 @@ export default function LeaksPage() {
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Vazamentos detectados</h1>
-          <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
-            {leaks.length} vazamentos · impacto total de{" "}
-            <span style={{ color: "#FF4D4F", fontWeight: 700 }}>{fmt(totalImpact)}/mês</span>
-            <span style={{ color: "var(--text-faint)" }}> · {fmt(totalImpact * 12)}/ano</span>
-          </p>
+        <div className="flex items-start gap-3">
+          <div className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0 mt-0.5"
+            style={{ background: "rgba(255,77,79,0.08)", border: "1px solid rgba(255,77,79,0.18)" }}>
+            <TrendingDown className="w-5 h-5" style={{ color: "#FF4D4F" }} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>Vazamentos detectados</h1>
+            <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
+              {leaks.length} vazamentos · impacto total de{" "}
+              <span style={{ color: "#FF4D4F", fontWeight: 700 }}>{fmt(totalImpact)}/mês</span>
+              <span style={{ color: "var(--text-faint)" }}> · {fmt(totalImpact * 12)}/ano</span>
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {leaks.length > 0 && (
-            <a href="/api/app/export?type=leaks" download
+            <a href="/api/app/export?type=leaks" download onClick={handleExport}
               className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium"
               style={{ background: "var(--bg-subtle)", color: "var(--text-muted)", border: "1px solid var(--border)" }}>
               <Download className="w-4 h-4" /> Exportar CSV
@@ -125,7 +137,7 @@ export default function LeaksPage() {
       ) : (
         <>
           {/* Summary cards with progress bar */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {(["high", "medium", "low"] as Impact[]).map((impact) => {
               const count = leaks.filter((l) => l.impact === impact).length
               const total = leaks.filter((l) => l.impact === impact).reduce((s, l) => s + l.amount, 0)
@@ -274,6 +286,14 @@ export default function LeaksPage() {
             </Link>
           </div>
         </>
+      )}
+      {/* Toast de export */}
+      {exportToast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl"
+          style={{ background: "var(--bg-card)", border: "1px solid rgba(0,208,132,0.3)" }}>
+          <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: "#00D084" }} />
+          <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>CSV exportado com sucesso!</span>
+        </div>
       )}
     </div>
   )

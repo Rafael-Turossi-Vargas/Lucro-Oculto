@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useRef } from "react"
 
 type UploadStatus =
   | "idle"
@@ -42,8 +42,25 @@ export function useUpload(): UseUploadReturn {
   const [result, setResult] = useState<UploadResult | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  // Refs para cleanup correto — evita leaks de EventSource e timers
+  const esRef = useRef<EventSource | null>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const cleanupSSE = useCallback(() => {
+    if (esRef.current) {
+      esRef.current.close()
+      esRef.current = null
+    }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
+    }
+  }, [])
+
   const validateFile = (selectedFile: File): string | null => {
-    const extension = `.${selectedFile.name.split(".").pop()?.toLowerCase()}`
+    // Extensão case-insensitive (.CSV, .Csv etc)
+    const extension = `.${selectedFile.name.split(".").pop()?.toLowerCase() ?? ""}`
     if (!ALLOWED_EXTENSIONS.includes(extension)) {
       return "Formato inválido. Use arquivos .csv, .xlsx ou .xls"
     }
@@ -67,15 +84,23 @@ export function useUpload(): UseUploadReturn {
   }, [])
 
   const removeFile = useCallback(() => {
+    cleanupSSE()
     setFile(null)
     setStatus("idle")
     setError(null)
     setResult(null)
     setProgress(0)
-  }, [])
+  }, [cleanupSSE])
 
   const upload = useCallback(async () => {
     if (!file) return
+
+    // Cancela SSE e timers anteriores
+    cleanupSSE()
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
 
     setStatus("uploading")
     setProgress(0)
@@ -84,13 +109,15 @@ export function useUpload(): UseUploadReturn {
     const formData = new FormData()
     formData.append("file", file)
 
-    const progressInterval = setInterval(() => {
+    // Progress simulado — teto de 85% para não enganar o usuário
+    intervalRef.current = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 85) {
-          clearInterval(progressInterval)
+          clearInterval(intervalRef.current!)
+          intervalRef.current = null
           return 85
         }
-        return prev + Math.random() * 15
+        return Math.min(prev + Math.random() * 12, 85)
       })
     }, 200)
 
@@ -100,95 +127,117 @@ export function useUpload(): UseUploadReturn {
         body: formData,
       })
 
-      clearInterval(progressInterval)
-      setProgress(100)
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
 
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}))
+        let errMsg = "Erro ao processar o arquivo"
+        try {
+          const errData = await response.json() as { error?: string }
+          errMsg = errData.error ?? errMsg
+        } catch { /* ignora */ }
+
         if (response.status === 429) {
           setStatus("plan_limit")
           setProgress(0)
           return
         }
-        throw new Error((data as { error?: string }).error ?? "Erro ao processar o arquivo")
+        throw new Error(errMsg)
       }
 
       const data: UploadResult = await response.json()
       setStatus("processing")
       setResult(data)
+      setProgress(90) // avança para 90% aguardando conclusão via SSE
 
-      // SSE — substitui polling de setInterval
+      // SSE para acompanhar progresso da análise no backend
       const es = new EventSource(`/api/analysis/${data.analysisId}/stream`)
+      esRef.current = es
 
-      // Timeout de segurança: 2 minutos
-      const timeout = setTimeout(() => {
-        es.close()
+      // Timeout de segurança: 3 minutos
+      timeoutRef.current = setTimeout(() => {
+        cleanupSSE()
         setStatus("done")
-      }, 120_000)
+        setProgress(100)
+      }, 180_000)
 
       es.onmessage = (event) => {
+        // JSON.parse sempre em try-catch — SSE pode enviar frames malformados
+        let msg: {
+          type: string
+          status?: string
+          score?: number
+          savingsMin?: string | number | null
+          savingsMax?: string | number | null
+          message?: string
+          topLeaks?: { title: string; amount: string | null }[]
+        }
         try {
-          const msg = JSON.parse(event.data as string) as {
-            type: string
-            status?: string
-            score?: number
-            savingsMin?: string | number | null
-            savingsMax?: string | number | null
-            message?: string
-            topLeaks?: { title: string; amount: string | null }[]
-          }
+          msg = JSON.parse(event.data as string) as typeof msg
+        } catch {
+          return // ignora frame malformado
+        }
 
-          if (msg.type === "status") {
-            if (msg.status === "done") {
-              clearTimeout(timeout)
-              es.close()
-              setResult({
-                ...data,
-                score: msg.score,
-                savingsMin: msg.savingsMin !== null && msg.savingsMin !== undefined ? Number(msg.savingsMin) : undefined,
-                savingsMax: msg.savingsMax !== null && msg.savingsMax !== undefined ? Number(msg.savingsMax) : undefined,
-                topLeaks: msg.topLeaks as { title: string; amount: string | null }[] | undefined,
-              })
-              setStatus("done")
-            } else if (msg.status === "error") {
-              clearTimeout(timeout)
-              es.close()
-              setError("Erro ao analisar os dados. Verifique o formato do arquivo.")
-              setStatus("error")
-            }
-          }
-
-          if (msg.type === "error") {
-            clearTimeout(timeout)
-            es.close()
-            setError(msg.message ?? "Erro na análise")
+        if (msg.type === "status") {
+          if (msg.status === "done") {
+            cleanupSSE()
+            setResult({
+              ...data,
+              score: msg.score,
+              savingsMin: msg.savingsMin != null ? Number(msg.savingsMin) : undefined,
+              savingsMax: msg.savingsMax != null ? Number(msg.savingsMax) : undefined,
+              topLeaks: msg.topLeaks,
+            })
+            setProgress(100)
+            setStatus("done")
+          } else if (msg.status === "error") {
+            cleanupSSE()
+            setError("Erro ao analisar os dados. Verifique o formato do arquivo.")
+            setProgress(0)
             setStatus("error")
           }
-        } catch {
-          // ignora parse error
+        }
+
+        if (msg.type === "error") {
+          cleanupSSE()
+          setError(msg.message ?? "Erro na análise")
+          setProgress(0)
+          setStatus("error")
         }
       }
 
       es.onerror = () => {
-        // SSE desconectou — não é erro fatal, análise continua no backend
-        // O timeout de 2 min vai resolver se necessário
+        // SSE desconectou — fecha para não vazar listener
         es.close()
+        if (esRef.current === es) esRef.current = null
+        // Timeout de segurança completa o fluxo se necessário
       }
     } catch (err) {
-      clearInterval(progressInterval)
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+      cleanupSSE()
       setError(err instanceof Error ? err.message : "Erro inesperado")
       setStatus("error")
       setProgress(0)
     }
-  }, [file])
+  }, [file, cleanupSSE])
 
   const reset = useCallback(() => {
+    cleanupSSE()
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
     setStatus("idle")
     setProgress(0)
     setFile(null)
     setResult(null)
     setError(null)
-  }, [])
+  }, [cleanupSSE])
 
   return { status, progress, file, result, error, selectFile, removeFile, upload, reset }
 }

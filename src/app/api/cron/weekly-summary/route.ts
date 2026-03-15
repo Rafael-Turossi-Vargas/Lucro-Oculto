@@ -1,10 +1,23 @@
 import { NextResponse } from "next/server"
+import { timingSafeEqual } from "crypto"
 import { db as prisma } from "@/lib/db"
 import { sendWeeklySummaryEmail } from "@/lib/email/templates"
 
+function safeCompare(a: string, b: string): boolean {
+  try {
+    const aBuf = Buffer.from(a)
+    const bBuf = Buffer.from(b)
+    if (aBuf.length !== bBuf.length) return false
+    return timingSafeEqual(aBuf, bBuf)
+  } catch {
+    return false
+  }
+}
+
 export async function GET(req: Request) {
-  const authHeader = req.headers.get("authorization")
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const authHeader = req.headers.get("authorization") ?? ""
+  const expected = `Bearer ${process.env.CRON_SECRET ?? ""}`
+  if (!safeCompare(authHeader, expected)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 

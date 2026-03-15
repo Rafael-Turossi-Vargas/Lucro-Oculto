@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { logAudit } from "@/lib/audit"
 
 // Cooldown em horas aplicado quando o usuário exclui estando no limite máximo de empresas
 const COOLDOWN_HOURS = 72
@@ -91,6 +92,8 @@ export async function DELETE(
     // Cancela convites pendentes da org excluída
     await tx.invite.deleteMany({ where: { organizationId: orgId } })
   })
+
+  void logAudit({ action: "org.deleted", status: "success", userId, organizationId: orgId, metadata: { name: org.name } })
 
   return NextResponse.json({
     success: true,

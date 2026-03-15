@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import bcrypt from "bcryptjs"
 import { can } from "@/lib/roles"
+import { logAudit } from "@/lib/audit"
 
 export async function PUT(request: NextRequest) {
   try {
@@ -43,8 +44,10 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Senha atual incorreta" }, { status: 400 })
     }
 
-    const hash = await bcrypt.hash(newPassword, 12)
+    const hash = await bcrypt.hash(newPassword, 13)
     await db.user.update({ where: { id: session.user.id }, data: { passwordHash: hash } })
+
+    void logAudit({ action: "password.changed", status: "success", userId: session.user.id, organizationId: session.user.organizationId })
 
     return NextResponse.json({ ok: true })
   } catch {

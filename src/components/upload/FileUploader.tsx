@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useRef } from "react"
+import { useCallback, useRef, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Upload, FileText, X, CheckCircle, Loader2, AlertCircle, ArrowRight, Crown, Lock } from "lucide-react"
@@ -16,6 +16,20 @@ export function FileUploader() {
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
   const { status, progress, file, result, error, selectFile, removeFile, upload, reset } = useUpload()
+
+  // Auto-redirect to dashboard as soon as analysis is done
+  useEffect(() => {
+    if (status !== "done" || !result) return
+    // Invalidate dashboard cache so the redirect shows fresh data immediately
+    try {
+      sessionStorage.removeItem("dash_v3")
+      sessionStorage.removeItem("sidebar_dash_v1")
+    } catch { /* ignore */ }
+    const timer = setTimeout(() => {
+      router.push("/app/dashboard")
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [status, result, router])
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -114,7 +128,7 @@ export function FileUploader() {
               style={{ background: "rgba(255,77,79,0.06)", color: "#FF4D4F", textTransform: "uppercase", letterSpacing: "0.8px" }}>
               Principais problemas encontrados
             </p>
-            {result.topLeaks.map((leak, i) => (
+            {result.topLeaks.slice(0, 3).map((leak, i) => (
               <div key={i} className="flex items-center justify-between px-3 py-2.5"
                 style={{ borderTop: i > 0 ? "1px solid rgba(255,77,79,0.1)" : undefined }}>
                 <p className="text-xs font-medium truncate flex-1 mr-3" style={{ color: "var(--text-primary)" }}>{leak.title}</p>
@@ -125,6 +139,13 @@ export function FileUploader() {
                 )}
               </div>
             ))}
+            {result.topLeaks.length > 3 && (
+              <div className="px-3 py-2" style={{ borderTop: "1px solid rgba(255,77,79,0.1)" }}>
+                <Link href="/app/leaks" className="text-xs font-medium" style={{ color: "#FF4D4F" }}>
+                  Ver todos os {result.topLeaks.length} vazamentos →
+                </Link>
+              </div>
+            )}
           </div>
         )}
 
@@ -159,7 +180,7 @@ export function FileUploader() {
           className="rounded-2xl p-10 text-center transition-all duration-150"
           style={{
             background: "var(--bg-card)",
-            border: file ? "1px solid #00D084" : "2px dashed var(--border)",
+            border: file ? "2px solid #00D084" : "2px dashed var(--border)",
             cursor: file ? "default" : "pointer",
           }}
         >
