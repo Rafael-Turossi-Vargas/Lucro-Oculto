@@ -89,11 +89,9 @@ export const metadata: Metadata = {
     site: "@lucrooculto",
   },
   icons: {
-    icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "any" },
-    ],
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
   },
   category: "finance",
 }

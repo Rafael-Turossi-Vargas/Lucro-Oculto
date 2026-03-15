@@ -86,13 +86,16 @@ export const authOptions: AuthOptions = {
         // Bloqueia login se email ainda não foi verificado.
         // Usuários antigos (sem token pendente) são liberados automaticamente.
         if (!user.emailVerified) {
+          // Only block if there's a still-valid (non-expired) token
           const pendingToken = await db.verificationToken.findFirst({
-            where: { identifier: user.email },
+            where: { identifier: user.email, expires: { gt: new Date() } },
           })
           if (pendingToken) {
             void logAudit({ action: "login.blocked", status: "failure", userId: user.id, metadata: { reason: "email_not_verified" } })
             throw new Error("EMAIL_NOT_VERIFIED")
           }
+          // Token expired or doesn't exist — mark as verified automatically
+          await db.user.update({ where: { id: user.id }, data: { emailVerified: new Date() } })
         }
 
         void logAudit({ action: "login.success", status: "success", userId: user.id })
