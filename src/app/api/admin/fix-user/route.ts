@@ -55,7 +55,8 @@ export async function POST(request: NextRequest) {
       tokensDeleted: deletedTokens.count,
     })
   } catch (error) {
-    console.error("fix-user error:", error)
-    return NextResponse.json({ error: "Internal error" }, { status: 500 })
+    const msg = error instanceof Error ? error.message : String(error)
+    console.error("fix-user error:", msg)
+    return NextResponse.json({ error: "Internal error", detail: msg }, { status: 500 })
   }
 }
